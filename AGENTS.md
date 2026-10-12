@@ -41,14 +41,22 @@ vanity-address/          (workspace root)
 
 | Package | Version | Published |
 | ------- | ------- | --------- |
-| vanity-core | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
-| vanity-address (CLI) | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
-| vanity-app (desktop) | **0.6.4** | ⏳ local — GitHub Release after tag |
-| vanity-wasm / npm SDK | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
-| Web app (`landing/generate/`) | — | Netlify deploys from `main` |
+| vanity-core | **0.6.4** | ✅ crates.io |
+| vanity-address (CLI) | **0.6.4** | ✅ crates.io + Homebrew tap |
+| vanity-app (desktop) | **0.6.4** | ✅ GitHub Release |
+| vanity-wasm / npm SDK | **0.6.4** | ✅ npm |
+| Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.netlify.app/generate/ (manual deploy, see below) |
 
-**Git tags on GitHub:** `v0.3.0` … `v0.6.3` · **v0.6.4 pending**  
-**GitHub Release:** tag + assets after cut
+**Git tags on GitHub:** `v0.3.0` … `v0.6.4`  
+**GitHub Release:** [v0.6.4](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.4) (12 assets)
+
+**Website deploy (Netlify, manual — site is not linked to GitHub):**
+
+```bash
+cd landing && npx netlify-cli deploy --prod --dir . --site f7c28e27-1645-4114-ae6e-3c07e5ee50d8
+```
+
+`landing/.netlify/` is local CLI state and is gitignored.
 
 **crates.io publish order (critical):**
 
@@ -64,11 +72,12 @@ cargo publish -p vanity-address
 
 | Channel | Status | User command |
 | ------- | ------ | ------------ |
-| **GitHub Releases** | ⏳ v0.6.0 pending | Download `.dmg`, `.exe`, CLI archives |
-| **crates.io** | ⏳ v0.6.0 pending | `cargo install vanity-address` |
-| **Homebrew tap** | ⏳ formula bump after tag | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
+| **GitHub Releases** | ✅ v0.6.4 | Download `.dmg`, `.exe`, CLI archives |
+| **crates.io** | ✅ v0.6.4 | `cargo install vanity-address` |
+| **Homebrew tap** | ✅ v0.6.4 | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | **Homebrew local** | ✅ Works | `brew install --build-from-source ./Formula/vanity-address.rb` |
-| **npm** | ⏳ v0.6.0 pending | `npx vanity-address` / `npm i vanity-address` |
+| **npm** | ✅ v0.6.4 | `npx vanity-address` / `npm i vanity-address` |
+| **Web app** | ✅ Live | https://vanity-address.netlify.app/generate/ |
 | **Winget / Scoop / AUR** | ❌ Not yet | Future optional channels |
 
 ### Homebrew user install (Homebrew 6+)
@@ -178,6 +187,7 @@ Solana SDK compile is heavy (3–8 min first time). Documented in `docs/INSTALL.
 - **Tap trust (Homebrew 6+):** users must `brew trust yudizaxay/tap` (or `--formula …`) before install
 - **Other untrusted taps:** if user’s Mac has untrusted taps (e.g. `mongodb/brew`), any `brew install` may fail until those taps are trusted/untapped — not a vanity-address bug. Docs: [docs/HOMEBREW.md](docs/HOMEBREW.md)
 - **Push tap via SSH** if HTTPS 403 (org/auth mismatch)
+- **"No available formula with the name vanity-address"**: plain `brew install` only searches homebrew-core. The user has not added the tap on that Mac — run `brew tap yudizaxay/tap && brew trust yudizaxay/tap` first (or `brew install yudizaxay/tap/vanity-address`)
 
 ### Dependabot
 
@@ -232,13 +242,24 @@ make homebrew-formula VER=X.Y.Z
 
 ## Pending / optional next steps
 
-- [ ] Tag `v0.6.4` + publish crates / GitHub Release / Homebrew / npm (web app, WASM key re-check, deps) — versions already bumped in tree
+- [ ] Optional: link the Netlify site to GitHub so `main` auto-deploys (today: manual `netlify-cli deploy`)
+- [ ] Optional: ICP explorer link on the web result (needs a verified principal URL)
 - [ ] Winget / Scoop manifests (Windows package managers)
 - [ ] Code signing for macOS Gatekeeper / Windows SmartScreen (unsigned warnings documented)
 - [ ] Submit to homebrew-core when notability criteria met
 - [ ] Growth: social posts / README badges polish
 - [ ] Phase 2 (0.7): full CREATE2/CREATE contract vanity + Solana mint vanity
 - [ ] Phase 3 (0.8): OpenCL GPU grind (Solana + EVM first)
+
+### Recently completed (2026-10-12)
+
+- [x] Full **0.6.4** release: tag, GitHub Release (12 assets), crates.io, Homebrew tap, npm
+- [x] Web generator redesign: address plate around the split-flap board, inverted tiles per theme, chain-coloured searching animation (mono beam for black-and-white logos), hero logo with hexagon rings, coin logos, mobile + result fixes
+- [x] Offline installable PWA (`manifest.webmanifest`, `sw.js`, `app-icons/`)
+- [x] GitHub Sponsors: card + footer button on home, plain link on `/generate/`
+- [x] Result page "Check on" block-explorer links with local logos (`generate/explorers/`); none for Hedera / ICP
+- [x] Light theme is the default on `/generate/`; dark only when chosen
+- [x] Home demo uses `face` instead of `beef`
 
 ### Recently completed (2026-09-21)
 
@@ -294,7 +315,7 @@ make homebrew-formula VER=X.Y.Z
 | `npm/vanity-address/src/driver.js` | SDK core: generateAddress/es, estimate, validate, listChains |
 | `npm/vanity-address/src/pool.js` | Node `worker_threads` pool (multi-core grind) |
 | `npm/vanity-address/src/grind-worker.js` | Per-worker WASM grind loop |
-| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml`. Installable PWA: `manifest.webmanifest` + `sw.js` (network-first, offline fallback; add new static files to `PRECACHE` and bump `CACHE` when that list changes) |
+| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml`. Installable PWA: `manifest.webmanifest` + `sw.js` (network-first, offline fallback; add new static files to `PRECACHE` and bump `CACHE` when that list changes). Display-only chain data (ticker, colours, search words, `EXPLORERS`) lives in `chain-meta.js`; images must be local files because of `img-src 'self'`. Theme defaults to light (`theme.js`) |
 | `docs/HOMEBREW.md` | User + maintainer Homebrew guide |
 | `docs/NPM.md` | User + maintainer npm guide |
 | `.github/workflows/release.yml` | Release binaries on tag |
@@ -316,4 +337,4 @@ make homebrew-formula VER=X.Y.Z
 
 ---
 
-*Last updated: 2026-10-12 — v0.6.4 in tree (web app at `/generate/`, WASM key re-check, Tauri 2.12 deps); publish pending.*
+*Last updated: 2026-10-12 — v0.6.4 released everywhere; web generator redesign, offline PWA, sponsors and explorer links live on Netlify.*

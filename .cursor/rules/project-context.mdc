@@ -10,7 +10,8 @@ alwaysApply: true
 ## Quick facts
 
 - Rust workspace: `vanity-core` (engine) + `vanity-address` (CLI) + `vanity-wasm` + `vanity-app` (Tauri desktop)
-- **v0.6.4** in tree (web app at `/generate/`, WASM key re-check, deps); 0.6.3 is live; chain logic only in `vanity-core`
+- **v0.6.4** live everywhere (GitHub Release, crates.io, Homebrew, npm); chain logic only in `vanity-core`
+- Web generator `landing/generate/` deploys manually: `cd landing && npx netlify-cli deploy --prod --dir . --site f7c28e27-1645-4114-ae6e-3c07e5ee50d8`
 - Publish order: `vanity-core` then `vanity-address` (no `#` on same shell line)
 - npm: `prepare-npm.sh` + `build-wasm.sh` then `publish-npm.sh`
 - Windows CLI: `terminal.rs` Press-only keys; `menu.rs` crossterm clear
