@@ -293,6 +293,7 @@ make homebrew-formula VER=X.Y.Z
 | `npm/vanity-address/src/driver.js` | SDK core: generateAddress/es, estimate, validate, listChains |
 | `npm/vanity-address/src/pool.js` | Node `worker_threads` pool (multi-core grind) |
 | `npm/vanity-address/src/grind-worker.js` | Per-worker WASM grind loop |
+| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml` |
 | `docs/HOMEBREW.md` | User + maintainer Homebrew guide |
 | `docs/NPM.md` | User + maintainer npm guide |
 | `.github/workflows/release.yml` | Release binaries on tag |
@@ -310,6 +311,7 @@ make homebrew-formula VER=X.Y.Z
 6. **Read** `RELEASING.md` before version bumps or publishes
 7. **After Homebrew formula changes** — sync tap with `./scripts/sync-homebrew-tap.sh --push`
 8. **After npm package changes** — `./scripts/prepare-npm.sh` then `./scripts/publish-npm.sh` (do not commit binaries)
+9. **After `vanity-core` / `vanity-wasm` changes** — `./scripts/build-web.sh` and commit `landing/generate/wasm/` so the web generator matches
 
 ---
 

@@ -1,7 +1,7 @@
 use serde::Serialize;
 use vanity_core::{
-    build_pattern_list, default_keys_per_sec, expected_attempts_any, grind_estimate, Chain,
-    ChainGrinder, PatternRisk, MENU_CHAINS,
+    build_pattern_list, default_keys_per_sec, expected_attempts_any, grind_estimate, pattern_guide,
+    Chain, ChainGrinder, PatternRisk, MENU_CHAINS,
 };
 use wasm_bindgen::prelude::*;
 
@@ -42,6 +42,8 @@ struct EstimateOut {
     risk: String,
     pattern_chars: usize,
     keys_per_sec: f64,
+    guide_verdict: String,
+    guide_rule: String,
 }
 
 #[derive(Serialize)]
@@ -121,6 +123,12 @@ pub fn grind_chunk(
         let (address, attempt) = chain.grind_attempt();
         if patterns.iter().any(|p| chain.matches(&address, p)) {
             let kp = chain.finalize(attempt);
+            if kp.address != address || !patterns.iter().any(|p| chain.matches(&kp.address, p)) {
+                return Err(js_err(
+                    "INTERNAL",
+                    "derived address did not match the search result; key discarded",
+                ));
+            }
             let out = ChunkOut {
                 found: true,
                 attempts: i + 1,
@@ -167,6 +175,26 @@ pub fn list_chains() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&list).map_err(|e| js_err("INTERNAL", &e.to_string()))
 }
 
+#[derive(Serialize)]
+struct ChainDetailOut {
+    name: String,
+    hint: String,
+    sample: String,
+}
+
+/// Display name, pattern hint, and one random address (its key is discarded).
+#[wasm_bindgen]
+pub fn chain_details(chain_id: &str) -> Result<JsValue, JsValue> {
+    let chain = Chain::from_id(chain_id).map_err(|e| js_err("INVALID_CHAIN", &e))?;
+    let (sample, _discarded) = chain.grind_attempt();
+    let out = ChainDetailOut {
+        name: chain.display_name().to_string(),
+        hint: chain.pattern_hint().to_string(),
+        sample,
+    };
+    serde_wasm_bindgen::to_value(&out).map_err(|e| js_err("INTERNAL", &e.to_string()))
+}
+
 #[wasm_bindgen]
 pub fn estimate_difficulty(
     chain_id: &str,
@@ -186,6 +214,7 @@ pub fn estimate_difficulty(
         default_keys_per_sec(chain.id())
     };
     let est = grind_estimate(attempts, kps, &patterns[0]);
+    let (verdict, rule) = pattern_guide(&est, chain.chars_per_position(ignore_case));
     let out = EstimateOut {
         attempts: est.attempts,
         attempts_label: est.attempts_label,
@@ -196,6 +225,8 @@ pub fn estimate_difficulty(
         risk: est.risk.as_str().to_string(),
         pattern_chars: est.pattern_chars,
         keys_per_sec: kps,
+        guide_verdict: verdict.to_string(),
+        guide_rule: rule,
     };
     serde_wasm_bindgen::to_value(&out).map_err(|e| js_err("INTERNAL", &e.to_string()))
 }
@@ -266,7 +297,18 @@ pub fn validate_pattern(
 
 #[cfg(test)]
 mod tests {
-    use vanity_core::{Chain, ChainGrinder};
+    use vanity_core::{Chain, ChainGrinder, MENU_CHAINS};
+
+    #[test]
+    fn finalize_reproduces_the_ground_address_on_every_chain() {
+        for (id, _) in MENU_CHAINS {
+            let chain = Chain::from_id(id).expect("menu chain");
+            for _ in 0..3 {
+                let (address, attempt) = chain.grind_attempt();
+                assert_eq!(chain.finalize(attempt).address, address, "chain {id}");
+            }
+        }
+    }
 
     #[test]
     fn evm_grind_attempt_matches_own_pattern() {

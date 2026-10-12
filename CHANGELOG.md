@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- **Web generator** at `/generate/` on the landing site — pick a chain, type a word, generate, save; runs the same Rust engine as WASM on all CPU cores in the browser. Keys never leave the tab and are never stored: no cookies, no third-party requests, strict CSP, safety notice before first use (remembered on the device, reopen via "Safety"), keys blurred until shown, dark and light themes
+- `scripts/build-web.sh` builds the browser engine into `landing/generate/wasm/`
+
 ## [0.6.3] - 2026-10-08
 
 ### Changed

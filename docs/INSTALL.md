@@ -6,12 +6,15 @@ Full platform-by-platform instructions for **vanity-address** CLI and the **Vani
 
 No Rust or Node.js required for pre-built downloads — pick your file, extract, and run.
 
+**Don't want to install anything?** Use the **[web app](https://vanity-address.netlify.app/generate/)** — same engine, runs in your browser tab, no cookies, keys never leave the page. Use the CLI or desktop app for contract / token-mint modes, `--count`, or fully offline use.
+
 ---
 
 ## Which file do I need?
 
 | I want… | My computer | File to download |
 | ------- | ----------- | ---------------- |
+| **Web app** (no install) | Any modern browser | Nothing — open [vanity-address.netlify.app/generate](https://vanity-address.netlify.app/generate/) |
 | **Desktop app** (easiest — window UI) | Mac M1 / M2 / M3 / M4 | `VanityAddress-*-Mac-AppleSilicon-Desktop.dmg` |
 | **Desktop app** (easiest — window UI) | Windows 10 / 11 | `VanityAddress-*-Windows-Desktop.exe` |
 | **Terminal app** | Mac M1 / M2 / M3 / M4 | `VanityAddress-*-Mac-AppleSilicon-CLI.tar.gz` |

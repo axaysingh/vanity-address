@@ -9,6 +9,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Homebrew's rust has no wasm32 target; prefer the rustup toolchain when installed.
+if [[ -x "$HOME/.cargo/bin/rustup" ]]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+if command -v brew >/dev/null && [[ -d "$(brew --prefix llvm 2>/dev/null)" ]]; then
+  LLVM="$(brew --prefix llvm)"
+  export CC_wasm32_unknown_unknown="${CC_wasm32_unknown_unknown:-$LLVM/bin/clang}"
+  export AR_wasm32_unknown_unknown="${AR_wasm32_unknown_unknown:-$LLVM/bin/llvm-ar}"
+fi
+if command -v rustup >/dev/null && ! rustup target list --installed | grep -q wasm32-unknown-unknown; then
+  rustup target add wasm32-unknown-unknown
+fi
+
 OUT_DIR="npm/vanity-address/wasm"
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
