@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<title>Generate a vanity address in your browser | vanity-address</title>
+<meta name="description" content="Create a crypto wallet address with your own word, right in your browser. Keys are made on your device and never sent anywhere." />
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
+<script src="theme.js"></script>
+<link rel="stylesheet" href="app.css" />
+<script type="module" src="app.js"></script>
+</head>
+<body>
+
+<header class="bar">
+  <a class="brand" href="../">
+    <img src="../assets/logo.svg" alt="" width="41" height="42" />
+    <span>vanity-address</span>
+  </a>
+  <div class="bar-right">
+    <span class="net" id="net" role="status" aria-live="polite">
+      <span class="net-dot" aria-hidden="true"></span>
+      <span id="netText">Checking connection</span>
+    </span>
+    <a class="bar-link" href="../">Home</a>
+    <button class="bar-link link-btn" type="button" id="safetyLink">Safety</button>
+    <button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch to light theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="shell" id="shell" inert>
+  <ol class="rail" id="rail" aria-label="Progress">
+    <li class="rail-step" data-step="1"><span class="hex" aria-hidden="true">1</span><span class="rail-label">Chain</span></li>
+    <li class="rail-step" data-step="2"><span class="hex" aria-hidden="true">2</span><span class="rail-label">Pattern</span></li>
+    <li class="rail-step" data-step="3"><span class="hex" aria-hidden="true">3</span><span class="rail-label">Generate</span></li>
+    <li class="rail-step" data-step="4"><span class="hex" aria-hidden="true">4</span><span class="rail-label">Save</span></li>
+  </ol>
+
+  <p class="loading" id="loading">Loading the generator…</p>
+
+  <!-- Step 1 -->
+  <section class="panel" id="step1" hidden aria-labelledby="s1title">
+    <h1 id="s1title">Pick a blockchain</h1>
+    <p class="lede">Your address will be valid on this network.</p>
+    <label class="search">
+      <span class="sr-only">Search chains</span>
+      <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="chainSearch" type="search" placeholder="Search by name or ticker — SOL, ETH, Base…" autocomplete="off" spellcheck="false" />
+      <kbd class="search-key" aria-hidden="true">/</kbd>
+    </label>
+    <div class="chains" id="chainList" aria-label="Blockchains"></div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="panel" id="step2" hidden aria-labelledby="s2title">
+    <h1 id="s2title">Choose your word</h1>
+    <p class="lede">Addresses on <strong id="s2chain"></strong> look like this:</p>
+    <p class="sample mono" id="sample"></p>
+    <p class="hint" id="hint"></p>
+
+    <div class="fields">
+      <label class="field">
+        <span>Starts with</span>
+        <input id="prefix" class="mono" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" />
+      </label>
+      <label class="field">
+        <span>Ends with</span>
+        <input id="suffix" class="mono" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" />
+      </label>
+      <label class="field">
+        <span>Contains</span>
+        <input id="contains" class="mono" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" />
+      </label>
+    </div>
+    <label class="check">
+      <input id="exact" type="checkbox" />
+      <span>Match upper and lower case exactly <em>(slower)</em></span>
+    </label>
+    <p class="tip">Use <code>*</code> for any character and commas for options, e.g. <code>cafe,beef</code>.</p>
+
+    <div class="estimate" id="estimate" aria-live="polite" hidden>
+      <div class="estimate-time" id="estTime"></div>
+      <div class="estimate-meta" id="estMeta"></div>
+      <div class="estimate-rule" id="estRule"></div>
+    </div>
+    <p class="error" id="patternError" role="alert" hidden></p>
+
+    <div class="actions">
+      <button class="btn ghost" type="button" data-back="1">Back</button>
+      <button class="btn primary" type="button" id="toGenerate" disabled>Start generating</button>
+    </div>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="panel" id="step3" hidden aria-labelledby="s3title">
+    <h1 id="s3title">Generating</h1>
+    <p class="lede" id="s3target"></p>
+    <p class="reel mono" id="reel" aria-hidden="true"></p>
+    <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
+    <dl class="stats">
+      <div><dt>Tried</dt><dd id="statTried">0</dd></div>
+      <div><dt>Speed</dt><dd id="statSpeed">—</dd></div>
+      <div><dt>Average wait</dt><dd id="statAvg">—</dd></div>
+    </dl>
+    <p class="note" id="s3note">Each try is a fresh coin flip, so a match can come early or late. Keep this tab open.</p>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="stop">Stop</button>
+    </div>
+  </section>
+
+  <!-- Step 4 -->
+  <section class="panel" id="step4" hidden aria-labelledby="s4title">
+    <h1 id="s4title">Your address is ready</h1>
+    <p class="address mono" id="address"></p>
+    <p class="found-meta" id="foundMeta"></p>
+
+    <div class="warn-box">
+      <strong>Save the private key now.</strong>
+      It exists only in this tab. Close the tab and it is gone — we never had a copy.
+    </div>
+
+    <div class="secrets" id="secrets"></div>
+
+    <div class="actions wrap">
+      <button class="btn primary" type="button" id="download">Download as text file</button>
+      <button class="btn ghost" type="button" id="again">Make another</button>
+      <button class="btn danger" type="button" id="wipe">Erase from screen</button>
+    </div>
+    <p class="note">Before sending funds, import the key into your wallet and check it shows this exact address.</p>
+  </section>
+</main>
+
+<dialog class="consent" id="consent" aria-labelledby="consentTitle">
+  <form method="dialog" id="consentForm">
+    <img class="consent-logo" src="../assets/logo.svg" alt="" width="64" height="64" />
+    <h2 id="consentTitle">Before you generate</h2>
+    <p class="consent-lede">This page makes real wallet keys. Here is how it keeps them safe.</p>
+
+    <label class="pledge">
+      <input type="checkbox" required />
+      <span><strong>Made on your device.</strong> Keys are created by code running in this tab. Nothing is uploaded, ever.</span>
+    </label>
+    <label class="pledge">
+      <input type="checkbox" required />
+      <span><strong>Keys are never stored.</strong> No cookies, no analytics, no saved keys or addresses — closing the tab erases them. This device only remembers your theme and that you've read this.</span>
+    </label>
+    <label class="pledge">
+      <input type="checkbox" required />
+      <span><strong>You keep the key.</strong> We can't recover it for you. Save it somewhere safe before leaving.</span>
+    </label>
+
+    <p class="consent-tip">For extra safety, turn off Wi-Fi once this page has loaded — the generator keeps working offline.</p>
+
+    <div class="consent-actions">
+      <a class="btn ghost" href="../">Not now</a>
+      <button class="btn primary" type="submit" id="consentOk" disabled>I understand, continue</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="consent confirm" id="confirmErase" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+  <form method="dialog">
+    <span class="confirm-icon" aria-hidden="true">!</span>
+    <h2 id="confirmTitle">Erase this key?</h2>
+    <p class="consent-lede" id="confirmText">You haven't saved it yet. Once erased, it's gone for good — we never had a copy.</p>
+    <div class="consent-actions">
+      <button class="btn ghost" type="submit" value="keep" autofocus>Keep it</button>
+      <button class="btn danger" type="submit" value="erase">Erase anyway</button>
+    </div>
+  </form>
+</dialog>
+
+</body>
+</html>

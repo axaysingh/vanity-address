@@ -5,7 +5,7 @@
 #   ./scripts/publish-npm.sh            # dry-run first? use --dry-run
 #   ./scripts/publish-npm.sh --dry-run
 #
-# Requires: npm login (or NPM_TOKEN), binaries prepared via prepare-npm.sh
+# Requires: binaries prepared via prepare-npm.sh. Runs `npm login` if needed.
 
 set -euo pipefail
 
@@ -66,6 +66,24 @@ check_host_binary_version() {
   fi
 }
 check_host_binary_version
+
+# An expired token makes `npm publish` fail with a misleading 404.
+ensure_npm_login() {
+  if npm whoami >/dev/null 2>&1; then
+    echo "npm user: $(npm whoami)"
+    return
+  fi
+  echo "Not logged in to npm (or token expired) — running npm login"
+  npm login
+  if ! npm whoami >/dev/null 2>&1; then
+    echo "npm login failed — cannot publish" >&2
+    exit 1
+  fi
+  echo "npm user: $(npm whoami)"
+}
+if [[ -z "${DRY}" ]]; then
+  ensure_npm_login
+fi
 
 for dir in "${PLATFORMS[@]}"; do
   echo "==> Publishing ${dir}"

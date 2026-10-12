@@ -10,6 +10,8 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **Privacy-first:** keys are generated on your device only. No accounts. No telemetry. Audit the source before you trust any vanity tool.
 
+**No install?** [Generate in your browser →](https://vanity-address.netlify.app/generate/) — same engine, runs entirely in the tab.
+
 <br />
 
 [![CI](https://img.shields.io/github/actions/workflow/status/yudizaxay/vanity-address/ci.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/yudizaxay/vanity-address/actions/workflows/ci.yml)
@@ -26,6 +28,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 [Features](#-features) ·
 [Demo](#-demo) ·
+[Web App](#-web-app) ·
 [Install](#-install) ·
 [Usage](#-usage) ·
 [Architecture](#-architecture) ·
@@ -55,9 +58,9 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 | Owner-only key files (`0600`) |  ✅   |    ✅    |
 | 100% offline / local        |   ✅   |    ✅    |
 
-**31 chains** + **contract & token-mint modes** · **CLI + desktop + npm SDK** · **MIT licensed** · **privacy-first** (keys never leave your machine)
+**31 chains** + **contract & token-mint modes** · **CLI + desktop + web app + npm SDK** · **MIT licensed** · **privacy-first** (keys never leave your machine)
 
-> **New in 0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.4:** a [web app](https://vanity-address.netlify.app/generate/) — generate in your browser with the same Rust engine, nothing to install, keys never leave the tab. **0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 
@@ -77,12 +80,35 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 ---
 
+## 🌐 Web App
+
+**[vanity-address.netlify.app/generate](https://vanity-address.netlify.app/generate/)** — nothing to install. Works in recent Chrome, Firefox, Safari, and Edge.
+
+```text
+Pick a chain → type your word → generate → save
+```
+
+| | Web app |
+| - | - |
+| All 31 chains, prefix / suffix / contains, `*` wildcards, comma OR | ✅ |
+| Same Rust engine (WebAssembly) on all your CPU cores | ✅ |
+| Difficulty estimate measured on your device | ✅ |
+| Keys blurred until shown · copy · download as text | ✅ |
+| Cookies, analytics, or third-party requests | ❌ none |
+| Works offline once loaded (turn off Wi-Fi if you like) | ✅ |
+| Contract / token-mint modes, `--count`, `verify` | Use the CLI |
+
+Keys exist only in the open tab and are never stored or sent anywhere. The device remembers just two things in `localStorage`: your theme and that you've read the safety notice. The page ships a strict Content-Security-Policy that blocks any outside connection. For large balances, prefer the offline CLI or desktop app.
+
+---
+
 ## 📦 Install
 
 **[Download from GitHub Releases](https://github.com/yudizaxay/vanity-address/releases/latest)** — no Rust or Node.js required.
 
 | I want… | My computer | File |
 | ------- | ----------- | ---- |
+| **No install** | Any modern browser | [Web app](https://vanity-address.netlify.app/generate/) |
 | **Desktop app** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-Desktop.dmg` |
 | **Desktop app** | Windows 10/11 | `VanityAddress-*-Windows-Desktop.exe` |
 | **CLI** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-CLI.tar.gz` |
@@ -93,9 +119,9 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 **Quick start (Linux):**
 
 ```bash
-# Replace 0.6.3 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
-curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.3/VanityAddress-0.6.3-Linux-CLI.tar.gz
-tar xzf VanityAddress-0.6.3-Linux-CLI.tar.gz
+# Replace 0.6.4 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
+curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.4/VanityAddress-0.6.4-Linux-CLI.tar.gz
+tar xzf VanityAddress-0.6.4-Linux-CLI.tar.gz
 ./vanity-address
 ```
 
@@ -211,7 +237,7 @@ Also: `generateAddresses`, `validatePattern`, `listChains`, `timeoutMs`, rich `o
 └─────────────────────────────────────────────┘
 ```
 
-New chain = one file + trait implementation in `vanity-core/src/chains/`. CLI and desktop UI are thin frontends over the same engine — no duplicated chain logic.
+New chain = one file + trait implementation in `vanity-core/src/chains/`. CLI and desktop UI are thin frontends over the same engine — no duplicated chain logic. The web app and npm SDK run the same engine compiled to WebAssembly (`vanity-wasm/`).
 
 ---
 
@@ -244,6 +270,7 @@ Home → Chain → Pattern → Summary → Grind → Result
 > | ------------ | ------------------------------------------------------- |
 > | Local only   | Keys are generated on **your machine**                  |
 > | No network   | This tool **never connects to the internet**            |
+> | Web app      | Loads once, then generates in the tab — no cookies, no uploads, strict CSP |
 > | Never share  | **Do not** share private keys with anyone               |
 > | Verify first | Always double-check the address before sending funds    |
 > | Saved keys   | `--save` files are owner-only (`0600`) on macOS/Linux; secrets are wiped from memory after use |

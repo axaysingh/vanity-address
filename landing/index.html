@@ -585,6 +585,7 @@
       <span>vanity-address</span>
     </a>
     <nav class="nav-links" id="navLinks">
+      <a href="generate/">Web app</a>
       <a href="#download">Download</a>
       <a href="#how">How it works</a>
       <a href="#demo">Demo</a>
@@ -613,7 +614,8 @@
         <pre class="hero-ascii" id="heroAscii"></pre>
       </div>
       <div class="hero-ctas">
-        <a class="btn btn-primary" href="#install">Get started</a>
+        <a class="btn btn-primary" href="generate/">Generate in your browser</a>
+        <a class="btn btn-ghost" href="#install">Install the app</a>
         <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">npx vanity-address</a>
       </div>
     </div>
@@ -690,7 +692,7 @@
     <div class="wrap">
       <p class="section-kicker">pick up a build</p>
       <h2 class="section-title">Get vanity-address</h2>
-      <span class="version-tag" id="latestVersionTag">v0.6.0</span>
+      <span class="version-tag" id="latestVersionTag">v0.6.4</span>
       <p class="section-desc">No Rust or Node required for pre-built downloads — grab your platform ticket.</p>
 
       <div class="platform-row">
@@ -813,9 +815,10 @@
   <section class="final">
     <div class="wrap">
       <h2 class="section-title">Grind your first address in 30 seconds.</h2>
-      <p class="section-desc">No accounts. No servers. Just <code class="inline">npx vanity-address</code>.</p>
+      <p class="section-desc">No accounts. No servers. Right here in your browser, or with <code class="inline">npx vanity-address</code>.</p>
       <div class="hero-ctas">
-        <a class="btn btn-primary" href="#install">Get started</a>
+        <a class="btn btn-primary" href="generate/">Generate in your browser</a>
+        <a class="btn btn-ghost" href="#install">Install the app</a>
         <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
           Star on GitHub
@@ -1158,11 +1161,11 @@
       setHref("dlLinuxPrimary", find(/Linux-CLI\.tar\.gz$/i));
       var tag = document.getElementById("latestVersionTag");
       if (tag) {
-        // Prefer live GitHub tag when >= 0.6.0; otherwise keep v0.6.0 (pending publish)
+        // Prefer live GitHub tag when >= 0.6.4; otherwise keep v0.6.4 (pending publish)
         var name = data.tag_name || "";
         var parts = name.replace(/^v/i, "").split(".").map(function (n) { return parseInt(n, 10) || 0; });
-        var isNewEnough = parts[0] > 0 || (parts[0] === 0 && parts[1] >= 6);
-        tag.textContent = isNewEnough ? name : "v0.6.0";
+        var isNewEnough = parts[0] > 0 || (parts[0] === 0 && (parts[1] > 6 || (parts[1] === 6 && parts[2] >= 4)));
+        tag.textContent = isNewEnough ? name : "v0.6.4";
       }
     })
     .catch(function () {});

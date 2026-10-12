@@ -13,6 +13,8 @@
 
 **100% offline · keys never leave your machine · no telemetry · open source**
 
+No terminal handy? [Try it in your browser](https://vanity-address.netlify.app/generate/) — same engine, nothing to install.
+
 </div>
 
 ---
