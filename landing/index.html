@@ -457,6 +457,27 @@
   .final .section-title { margin-left: auto; margin-right: auto; }
   .final .section-desc { margin-left: auto; margin-right: auto; }
   .final .hero-ctas { justify-content: center; }
+  .sponsor {
+    margin: 56px auto 0; max-width: 640px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .sponsor-kicker { color: var(--ink-soft); font-weight: 700; }
+  /* GitHub's card follows the visitor's OS theme, so the padding matches its background */
+  .sponsor-frame {
+    width: 100%; max-width: 624px; padding: 12px; overflow: hidden;
+    background: #fff; border: 2px solid var(--ink); border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  @media (prefers-color-scheme: dark) {
+    .sponsor-frame { background: #0d1117; }
+  }
+  .sponsor-card { display: block; width: 100%; height: 130px; border: 0; }
+  @media (max-width: 640px) {
+    .sponsor { margin-top: 40px; }
+    .sponsor-card { height: 236px; }
+  }
+  .sponsor-btn { display: block; border: 0; border-radius: 6px; }
+  .fright { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 
   footer.site-footer {
     border-top: 1px solid var(--ink);
@@ -680,7 +701,7 @@
       <div class="demo-shell">
         <div class="demo-bar">
           <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-          <span class="tlabel">vanity-address --chain evm --prefix dead --suffix beef</span>
+          <span class="tlabel">vanity-address --chain evm --prefix dead --suffix face</span>
         </div>
         <div class="demo-body" id="demoBody"></div>
       </div>
@@ -824,6 +845,12 @@
           Star on GitHub
         </a>
       </div>
+      <div class="sponsor">
+        <p class="sponsor-kicker">Free and open source. If it saved you time, you can back it on GitHub.</p>
+        <div class="sponsor-frame">
+          <iframe class="sponsor-card" src="https://github.com/sponsors/yudizaxay/card" title="Sponsor yudizaxay" height="225" width="600" loading="lazy"></iframe>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -837,7 +864,10 @@
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md" target="_blank" rel="noopener">Security policy</a>
       <a href="https://www.npmjs.com/package/vanity-address" target="_blank" rel="noopener">npm</a>
     </div>
-    <div class="fcopy">MIT © <a href="https://github.com/yudizaxay" target="_blank" rel="noopener">yudizaxay</a> — keys stay on your machine.</div>
+    <div class="fright">
+      <iframe class="sponsor-btn" src="https://github.com/sponsors/yudizaxay/button" title="Sponsor yudizaxay" height="32" width="114" loading="lazy"></iframe>
+      <div class="fcopy">MIT © <a href="https://github.com/yudizaxay" target="_blank" rel="noopener">yudizaxay</a> — keys stay on your machine.</div>
+    </div>
   </div>
 </footer>
 
@@ -1186,16 +1216,16 @@
   /* typed demo */
   var body = document.getElementById("demoBody");
   var lines = [
-    { t: "$ vanity-address --chain evm --prefix dead --suffix beef", cls: "dim" },
+    { t: "$ vanity-address --chain evm --prefix dead --suffix face", cls: "dim" },
     { t: "", cls: "" },
     { t: "  Chain     EVM", cls: "" },
-    { t: "  Target    starting with 'dead', ending with 'beef'", cls: "" },
+    { t: "  Target    starting with 'dead', ending with 'face'", cls: "" },
     { t: "  Estimate  ~few minutes on a laptop", cls: "dim" },
     { t: "", cls: "" },
     { t: "  grinding…  1.2M keys/s", cls: "" },
     { t: "", cls: "" },
     { t: "  ✓ Match", cls: "ok" },
-    { t: "  Address   0xdead…beef", cls: "hi" },
+    { t: "  Address   0xdead…face", cls: "hi" },
     { t: "  Keys stay on this machine.", cls: "dim" }
   ];
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

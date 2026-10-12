@@ -294,7 +294,7 @@ make homebrew-formula VER=X.Y.Z
 | `npm/vanity-address/src/driver.js` | SDK core: generateAddress/es, estimate, validate, listChains |
 | `npm/vanity-address/src/pool.js` | Node `worker_threads` pool (multi-core grind) |
 | `npm/vanity-address/src/grind-worker.js` | Per-worker WASM grind loop |
-| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml` |
+| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml`. Installable PWA: `manifest.webmanifest` + `sw.js` (network-first, offline fallback; add new static files to `PRECACHE` and bump `CACHE` when that list changes) |
 | `docs/HOMEBREW.md` | User + maintainer Homebrew guide |
 | `docs/NPM.md` | User + maintainer npm guide |
 | `.github/workflows/release.yml` | Release binaries on tag |

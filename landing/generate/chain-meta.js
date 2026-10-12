@@ -1,18 +1,12 @@
 // Display-only details for the chain picker. Chain ids and names still come from the engine.
 
+// Shown first in the picker; everything else follows alphabetically.
 export const POPULAR = ["sol", "evm", "btc", "ton", "trx", "sui"];
+export const DEFAULT_CHAIN = "sol";
 
-export const GROUPS = [
-  { title: "Bitcoin family", ids: ["btc", "btc-segwit", "btc-taproot", "ltc", "doge", "dash"] },
-  { title: "EVM and Move", ids: ["evm", "aptos", "sui"] },
-  { title: "Cosmos", ids: ["cosmos", "tia", "inj", "sei", "dydx", "osmo"] },
-  { title: "Polkadot", ids: ["dot", "ksm"] },
-];
-export const OTHER_TITLE = "More networks";
-
-// ticker, brand colour, and extra words people search for
+// ticker, brand colour (color2 for two-tone logos, mono for black-and-white logos), and extra words people search for
 export const META = {
-  algo: { ticker: "ALGO", color: "#9aa3ad", words: "algorand" },
+  algo: { ticker: "ALGO", color: "#9aa3ad", mono: true, words: "algorand" },
   aptos: { ticker: "APT", color: "#3dd6c6", words: "aptos move" },
   btc: { ticker: "BTC", color: "#f7931a", words: "bitcoin legacy p2pkh 1" },
   "btc-segwit": { ticker: "BTC", color: "#f7931a", words: "bitcoin segwit bc1q native" },
@@ -30,20 +24,20 @@ export const META = {
       "ethereum metamask base arbitrum optimism polygon bnb bsc avalanche hyperliquid sonic robinhood linea scroll zksync blast monad berachain",
   },
   fil: { ticker: "FIL", color: "#1a9bff", words: "filecoin" },
-  hedera: { ticker: "HBAR", color: "#9a8cff", words: "hedera hashgraph" },
-  inj: { ticker: "INJ", color: "#1d8cff", words: "injective" },
-  icp: { ticker: "ICP", color: "#29abe2", words: "internet computer dfinity principal" },
+  hedera: { ticker: "HBAR", color: "#9a8cff", mono: true, words: "hedera hashgraph" },
+  inj: { ticker: "INJ", color: "#5141ff", color2: "#1d8cff", words: "injective" },
+  icp: { ticker: "ICP", color: "#ed1e79", color2: "#29abe2", words: "internet computer dfinity principal" },
   kaspa: { ticker: "KAS", color: "#49eacb", words: "kaspa" },
-  ksm: { ticker: "KSM", color: "#e8026d", words: "kusama" },
-  ltc: { ticker: "LTC", color: "#6f8fc7", words: "litecoin" },
+  ksm: { ticker: "KSM", color: "#e8026d", mono: true, words: "kusama" },
+  ltc: { ticker: "LTC", color: "#6f8fc7", mono: true, words: "litecoin" },
   erd: { ticker: "EGLD", color: "#23f7dd", words: "multiversx elrond" },
   near: { ticker: "NEAR", color: "#00c08b", words: "near protocol" },
-  osmo: { ticker: "OSMO", color: "#a24bd8", words: "osmosis" },
-  dot: { ticker: "DOT", color: "#e6007a", words: "polkadot" },
-  xrp: { ticker: "XRP", color: "#a3b1c2", words: "ripple xrpl" },
+  osmo: { ticker: "OSMO", color: "#a24bd8", color2: "#e2047a", words: "osmosis" },
+  dot: { ticker: "DOT", color: "#e6007a", mono: true, words: "polkadot" },
+  xrp: { ticker: "XRP", color: "#a3b1c2", mono: true, words: "ripple xrpl" },
   sei: { ticker: "SEI", color: "#c8433c", words: "sei" },
-  sol: { ticker: "SOL", color: "#a066ff", words: "solana phantom solflare backpack" },
-  xlm: { ticker: "XLM", color: "#b3b0ff", words: "stellar lumens" },
+  sol: { ticker: "SOL", color: "#a066ff", color2: "#14f195", words: "solana phantom solflare backpack" },
+  xlm: { ticker: "XLM", color: "#b3b0ff", mono: true, words: "stellar lumens" },
   sui: { ticker: "SUI", color: "#4da2ff", words: "sui move" },
   xtz: { ticker: "XTZ", color: "#2c7df7", words: "tezos" },
   ton: { ticker: "TON", color: "#0098ea", words: "toncoin telegram tonkeeper" },

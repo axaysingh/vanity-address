@@ -161,7 +161,7 @@ Wizard flow: **chain → match kind → pattern → estimate → confirm → gri
 
 ```bash
 vanity-address --chain sol --suffix axay
-vanity-address --chain evm --prefix dead --suffix beef -q
+vanity-address --chain evm --prefix dead --suffix face -q
 vanity-address --chain sol --contains pump --count 3
 vanity-address --chain sol --suffix moon,pump,dao
 vanity-address --chain btc-segwit --suffix cafe

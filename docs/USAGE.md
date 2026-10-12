@@ -32,7 +32,7 @@ The wizard walks you through: **chain → match kind → pattern → estimate �
 
 ```bash
 vanity-address --chain sol --suffix axay
-vanity-address --chain evm --prefix dead --suffix beef -q
+vanity-address --chain evm --prefix dead --suffix face -q
 vanity-address --chain sol --contains pump
 vanity-address --chain sol --suffix moon,pump,dao --count 3
 vanity-address --chain btc-segwit --suffix cafe
@@ -113,16 +113,16 @@ Local multi-chain vanity address generator
 ### EVM (Ethereum)
 
 ```bash
-vanity-address --chain evm --suffix beef
+vanity-address --chain evm --suffix face
 vanity-address --chain evm --prefix dead
-vanity-address --chain evm --prefix dead --suffix beef
+vanity-address --chain evm --prefix dead --suffix face
 ```
 
 ```bash
-$ vanity-address --chain evm --prefix dead --suffix beef
+$ vanity-address --chain evm --prefix dead --suffix face
 
   Chain     EVM (Ethereum)
-  Target    starting with '0xdead' and ending with 'beef'
+  Target    starting with '0xdead' and ending with 'face'
   Expected  ~1.1T attempts (average)
   ...
 ```
@@ -173,27 +173,27 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 
 ## CLI reference
 
-| Flag                 | Description                                        | Default |
-| -------------------- | -------------------------------------------------- | ------- |
-| `--chain <ID>`       | Blockchain, alias (`base`, `hyperliquid`, …) or deploy mode (`evm-contract`, `sol-mint`) | `sol`   |
-| `--prefix <PATTERN>` | Address must start with pattern (`*` OK)           | —       |
-| `--suffix <PATTERN>` | Address must end with pattern (`*` OK; comma = OR) | —       |
-| `--contains <PAT>`   | Substring anywhere (`*` wildcards OK)              | —       |
-| `--count <N>`        | Find N matches                                     | `1`     |
-| `--exact`            | Exact casing (base58 chains)                       | off     |
-| `--create2`          | EVM CREATE2 salt grind (needs deployer + hash)     | off     |
-| `--deployer <HEX>`   | CREATE2 deployer (20 bytes)                        | —       |
-| `--init-code-hash`   | CREATE2 init code hash (32 bytes)                  | —       |
-| `--save`             | Append match (incl. private keys) to file; `0600` on macOS/Linux | off     |
-| `--output <PATH>`    | Custom save file (with `--save` or interactive)    | `vanity-results.txt` |
-| `--no-benchmark`     | Skip 2s speed calibration warm-up                  | off     |
-| `--force`            | Allow impractical patterns in CLI mode             | off     |
-| `--json`             | Machine-readable JSON on stdout (direct mode)      | off     |
-| `-q, --quiet`        | Minimal plain-text output (script-friendly)        | off     |
-| `--threads <N>`      | Override worker threads                            | auto    |
-| `verify`             | Subcommand: check key derives address              | —       |
-| `-h, --help`         | Show help                                          | —       |
-| `-V, --version`      | Show version                                       | —       |
+| Flag                 | Description                                                                              | Default              |
+| -------------------- | ---------------------------------------------------------------------------------------- | -------------------- |
+| `--chain <ID>`       | Blockchain, alias (`base`, `hyperliquid`, …) or deploy mode (`evm-contract`, `sol-mint`) | `sol`                |
+| `--prefix <PATTERN>` | Address must start with pattern (`*` OK)                                                 | —                    |
+| `--suffix <PATTERN>` | Address must end with pattern (`*` OK; comma = OR)                                       | —                    |
+| `--contains <PAT>`   | Substring anywhere (`*` wildcards OK)                                                    | —                    |
+| `--count <N>`        | Find N matches                                                                           | `1`                  |
+| `--exact`            | Exact casing (base58 chains)                                                             | off                  |
+| `--create2`          | EVM CREATE2 salt grind (needs deployer + hash)                                           | off                  |
+| `--deployer <HEX>`   | CREATE2 deployer (20 bytes)                                                              | —                    |
+| `--init-code-hash`   | CREATE2 init code hash (32 bytes)                                                        | —                    |
+| `--save`             | Append match (incl. private keys) to file; `0600` on macOS/Linux                         | off                  |
+| `--output <PATH>`    | Custom save file (with `--save` or interactive)                                          | `vanity-results.txt` |
+| `--no-benchmark`     | Skip 2s speed calibration warm-up                                                        | off                  |
+| `--force`            | Allow impractical patterns in CLI mode                                                   | off                  |
+| `--json`             | Machine-readable JSON on stdout (direct mode)                                            | off                  |
+| `-q, --quiet`        | Minimal plain-text output (script-friendly)                                              | off                  |
+| `--threads <N>`      | Override worker threads                                                                  | auto                 |
+| `verify`             | Subcommand: check key derives address                                                    | —                    |
+| `-h, --help`         | Show help                                                                                | —                    |
+| `-V, --version`      | Show version                                                                             | —                    |
 
 ### Pattern rules
 
@@ -206,21 +206,23 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 - **Fixed address starts are added for you** and don't count toward difficulty — type only your part (`--chain doge --prefix Moon` → `DMoon…`)
 - **Impossible prefixes are rejected up front** with the characters that can appear there. Some chains only allow a few characters right after the fixed start:
 
-| Chain | Every address starts | Next character |
-| ----- | -------------------- | -------------- |
-| Kaspa | `kaspa:q` | `p` `q` `r` `z` |
-| Cardano | `addr1v` | `8` `9` `x` `y` |
-| TON | `UQ` | `A`–`D` |
-| Stellar | `G` | `A`–`D` |
-| Dogecoin | `D` | `5`–`9`, `A`–`U` |
-| Litecoin | `L` | `K`–`Z`, `a`–`i` |
-| Dash | `X` | `a`–`z` |
-| Tron | `T` | `9`, `A`–`Z` |
-| Tezos | `tz1` | `K`–`Z`, `a`–`i` |
-| Kusama | — | `C` `D` `E` `F` `G` `H` `J` |
+| Chain    | Every address starts | Next character              |
+| -------- | -------------------- | --------------------------- |
+| Kaspa    | `kaspa:q`            | `p` `q` `r` `z`             |
+| Cardano  | `addr1v`             | `8` `9` `x` `y`             |
+| TON      | `UQ`                 | `A`–`D`                     |
+| Stellar  | `G`                  | `A`–`D`                     |
+| Dogecoin | `D`                  | `5`–`9`, `A`–`U`            |
+| Litecoin | `L`                  | `K`–`Z`, `a`–`i`            |
+| Dash     | `X`                  | `a`–`z`                     |
+| Tron     | `T`                  | `9`, `A`–`Z`                |
+| Tezos    | `tz1`                | `K`–`Z`, `a`–`i`            |
+| Kusama   | —                    | `C` `D` `E` `F` `G` `H` `J` |
 
 Bitcoin (`1`), Ripple (`r`), Polkadot (`1`) and Solana allow almost any next character, but some are much rarer than others — the estimate accounts for that.
+
 - **Hex chains** (EVM + aliases, Aptos, Sui, NEAR, Hedera pubkey, CREATE2): `0-9`, `a-f`; optional `0x`
+
 ---
 
 ## Performance

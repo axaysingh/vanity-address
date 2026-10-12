@@ -1,17 +1,19 @@
 import init, { list_chains, chain_details, validate_pattern, estimate_difficulty } from "./wasm/vanity_wasm.js";
-import { POPULAR, GROUPS, OTHER_TITLE, META, splitLabel } from "./chain-meta.js";
+import { POPULAR, DEFAULT_CHAIN, META, splitLabel } from "./chain-meta.js";
 
 // No cookies, no network beyond this page's own files. localStorage holds only the theme and the
-// notice version below — never keys or addresses.
+// notice version below, and sw.js caches only static files — never keys or addresses.
 
 const $ = (id) => document.getElementById(id);
 const BENCH_MS = 1000;
-const REEL_MS = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 900 : 90;
+const WARMUP_MS = 400;
+const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const REEL_MS = REDUCED_MOTION ? 900 : 110;
 
 const state = {
   module: null,
   chains: [],
-  chain: null, // { id, name, hint, sample }
+  chain: null, // { id, name, hint, sample, fixed: bool[] }
   speeds: new Map(), // chain id + case mode -> measured keys/sec, this tab only
   estimate: null,
   pool: null,
@@ -19,6 +21,7 @@ const state = {
   startedAt: 0,
   result: null,
   saved: false,
+  locked: [], // board positions held by the user's word
 };
 
 /* ---------------- connection status ---------------- */
@@ -28,15 +31,22 @@ function renderNet() {
   $("net").classList.toggle("offline", offline);
   $("net").classList.toggle("online", !offline);
   $("netText").textContent = offline ? "Offline — nothing can leave" : "Online — works offline too";
+  $("net").title = $("netText").textContent;
 }
 window.addEventListener("online", renderNet);
 window.addEventListener("offline", renderNet);
 renderNet();
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {
+    // Offline support is a bonus; the page works the same without it.
+  });
+}
+
 /* ---------------- local preferences ---------------- */
 
 // Bump when the notice text changes so everyone sees the new version once.
-const CONSENT_VERSION = "1";
+const CONSENT_VERSION = "2";
 
 function readPref(key) {
   try {
@@ -98,7 +108,7 @@ $("consentForm").addEventListener("submit", (e) => {
   writePref("vanity.consent", CONSENT_VERSION);
   consent.close();
   $("shell").inert = false;
-  focusStep();
+  focusMode();
 });
 
 $("safetyLink").addEventListener("click", () => {
@@ -114,36 +124,35 @@ if (accepted()) {
   consent.showModal();
 }
 
-/* ---------------- steps ---------------- */
+/* ---------------- modes: setup → running → done ---------------- */
 
-let step = 1;
+let mode = "setup";
 
-function go(n) {
-  step = n;
-  for (let i = 1; i <= 4; i++) $(`step${i}`).hidden = i !== n;
-  document.querySelectorAll(".rail-step").forEach((li) => {
-    const s = Number(li.dataset.step);
-    li.classList.toggle("current", s === n);
-    li.classList.toggle("done", s < n);
-    if (s === n) li.setAttribute("aria-current", "step");
-    else li.removeAttribute("aria-current");
-  });
-  focusStep();
+function setMode(next) {
+  mode = next;
+  $("shell").dataset.mode = next;
+  $("setupPanel").hidden = next !== "setup";
+  $("runPanel").hidden = next !== "running";
+  $("donePanel").hidden = next !== "done";
+  const editable = next === "setup";
+  if (!editable) closePosMenu(false);
+  for (const id of ["chainChip", "position", "word"]) $(id).disabled = !editable;
+  if (boardTiles.length) fitBoard(boardTiles.length);
+  updatePlate();
+  focusMode();
 }
 
-function focusStep() {
+function focusMode() {
   if (consent.open) return;
-  const h = $(`step${step}`).querySelector("h1");
-  h.tabIndex = -1;
-  h.focus({ preventScroll: true });
-  window.scrollTo({ top: 0 });
+  const target = { setup: "word", running: "stop", done: "download" }[mode];
+  $(target)?.focus({ preventScroll: true });
 }
 
-document.querySelectorAll("[data-back]").forEach((b) =>
-  b.addEventListener("click", () => go(Number(b.dataset.back))),
-);
+function announce(text) {
+  $("announce").textContent = text;
+}
 
-/* ---------------- step 1: chain ---------------- */
+/* ---------------- helpers ---------------- */
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -152,148 +161,376 @@ function el(tag, className, text) {
   return node;
 }
 
-function badge(id) {
-  const b = el("span", "badge", META[id]?.ticker || id.slice(0, 4).toUpperCase());
-  b.setAttribute("aria-hidden", "true");
-  return b;
+function tickerOf(id) {
+  return META[id]?.ticker || id.slice(0, 4).toUpperCase();
 }
 
-function chainButton(c, variant) {
+function logo(id, size) {
+  const img = el("img", "logo");
+  img.src = `icons/${tickerOf(id).toLowerCase()}.png`;
+  img.alt = "";
+  img.width = img.height = size;
+  img.decoding = "async";
+  return img;
+}
+
+/* ---------------- chain picker ---------------- */
+
+const sheet = $("chainSheet");
+
+function orderedChains() {
+  const byId = new Map(state.chains.map((c) => [c.id, c]));
+  const top = POPULAR.map((id) => byId.get(id)).filter(Boolean);
+  const rest = state.chains
+    .filter((c) => !POPULAR.includes(c.id))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return [...top, ...rest];
+}
+
+// Lower is better; null means no match. Exact ticker beats name, name beats nicknames ("base" → EVM, not "base32").
+function matchScore(c, q) {
+  const meta = META[c.id];
+  const title = splitLabel(c.name).title.toLowerCase();
+  const ticker = (meta?.ticker || "").toLowerCase();
+  const words = (meta?.words || "").split(/\s+/);
+  const hay = `${c.name} ${c.id} ${ticker} ${meta?.words || ""}`.toLowerCase();
+  if (!q.split(/\s+/).every((w) => hay.includes(w))) return null;
+  if (q === c.id || q === ticker) return 0;
+  if (title.startsWith(q)) return 1;
+  if (words.includes(q)) return 2;
+  if (words.some((w) => w.startsWith(q))) return 3;
+  return 4;
+}
+
+function chainTile(c) {
   const { title, detail } = splitLabel(c.name);
-  const btn = el("button", variant);
+  const btn = el("button", "chain-tile");
   btn.type = "button";
   btn.dataset.id = c.id;
-  btn.style.setProperty("--c", META[c.id]?.color || "#8a8a99");
-  if (state.chain?.id === c.id) btn.classList.add("selected");
+  if (state.chain?.id === c.id) {
+    btn.classList.add("selected");
+    btn.setAttribute("aria-current", "true");
+  }
   btn.setAttribute("aria-label", `${title}${detail ? `, ${detail}` : ""}`);
-  const text = el("span", "chain-text");
-  text.append(el("span", "chain-title", title));
-  if (detail) text.append(el("span", "chain-detail", detail));
-  btn.append(badge(c.id), text);
-  if (variant === "chain-row") btn.append(el("span", "chain-id", c.id));
-  btn.addEventListener("click", () => pickChain(c.id));
+  const img = logo(c.id, 28);
+  img.addEventListener("error", () => img.replaceWith(el("span", "logo-text", tickerOf(c.id))), { once: true });
+  const text = el("span", "tile-text");
+  text.append(el("span", "tile-title", title));
+  if (detail) text.append(el("span", "tile-detail", detail));
+  btn.append(img, text);
+  btn.addEventListener("click", () => {
+    sheet.close();
+    pickChain(c.id);
+  });
   return btn;
 }
 
-function matches(c, q) {
-  const meta = META[c.id];
-  const hay = `${c.name} ${c.id} ${meta?.ticker || ""} ${meta?.words || ""}`.toLowerCase();
-  return q.split(/\s+/).every((w) => hay.includes(w));
-}
-
-function section(title, count) {
-  const head = el("div", "group-head");
-  head.append(el("h2", "group-title", title));
-  if (count !== undefined) head.append(el("span", "group-count", String(count)));
-  return head;
-}
-
 function renderChains(filter = "") {
-  const list = $("chainList");
-  list.replaceChildren();
+  const grid = $("chainGrid");
   const q = filter.trim().toLowerCase();
-  const byId = new Map(state.chains.map((c) => [c.id, c]));
-
-  if (q) {
-    const hits = state.chains.filter((c) => matches(c, q));
-    if (!hits.length) {
-      list.append(el("p", "empty", `No chain matches “${filter.trim()}”. Try a name or ticker, like SOL or ETH.`));
-      return;
-    }
-    list.append(section(hits.length === 1 ? "1 match" : `${hits.length} matches`));
-    const rows = el("div", "rows");
-    hits.forEach((c) => rows.append(chainButton(c, "chain-row")));
-    list.append(rows);
+  const all = orderedChains();
+  const list = q
+    ? all
+        .map((c, i) => ({ c, i, s: matchScore(c, q) }))
+        .filter((x) => x.s !== null)
+        .sort((a, b) => a.s - b.s || a.i - b.i)
+        .map((x) => x.c)
+    : all;
+  grid.replaceChildren();
+  if (!list.length) {
+    grid.append(el("p", "empty", `No chain matches “${filter.trim()}”. Try a name or ticker, like SOL or ETH.`));
     return;
   }
-
-  list.append(section("Popular"));
-  const tiles = el("div", "tiles");
-  POPULAR.map((id) => byId.get(id))
-    .filter(Boolean)
-    .forEach((c) => tiles.append(chainButton(c, "chain-tile")));
-  list.append(tiles);
-
-  const grouped = new Set(GROUPS.flatMap((g) => g.ids));
-  const groups = [
-    ...GROUPS.map((g) => ({ title: g.title, items: g.ids.map((id) => byId.get(id)).filter(Boolean) })),
-    { title: OTHER_TITLE, items: state.chains.filter((c) => !grouped.has(c.id)) },
-  ];
-  list.append(section("All chains", state.chains.length));
-  for (const g of groups) {
-    if (!g.items.length) continue;
-    const block = el("div", "group");
-    block.append(el("h3", "family", g.title));
-    const rows = el("div", "rows");
-    g.items.forEach((c) => rows.append(chainButton(c, "chain-row")));
-    block.append(rows);
-    list.append(block);
-  }
+  list.forEach((c) => grid.append(chainTile(c)));
 }
 
+function openSheet() {
+  if (mode !== "setup") return;
+  $("chainSearch").value = "";
+  renderChains();
+  sheet.showModal();
+  if (window.matchMedia("(pointer: fine)").matches) $("chainSearch").focus();
+  else sheet.querySelector(".chain-tile.selected")?.focus();
+}
+
+$("chainChip").addEventListener("click", openSheet);
 $("chainSearch").addEventListener("input", (e) => renderChains(e.target.value));
 $("chainSearch").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") $("chainList").querySelector("button[data-id]")?.click();
-  if (e.key === "Escape" && e.target.value) {
-    e.target.value = "";
-    renderChains();
+  if (e.key === "Enter") {
+    e.preventDefault();
+    $("chainGrid").querySelector("button[data-id]")?.click();
   }
 });
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "/" || step !== 1 || consent.open) return;
-  if (document.activeElement?.matches("input, textarea")) return;
-  e.preventDefault();
-  $("chainSearch").focus();
+sheet.addEventListener("click", (e) => {
+  if (e.target === sheet) sheet.close();
 });
+sheet.addEventListener("close", () => {
+  if (mode === "setup") $("word").focus({ preventScroll: true });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "/" || mode !== "setup" || consent.open || sheet.open) return;
+  // "/" never appears in an address, so it can open the picker even from the word field.
+  const active = document.activeElement;
+  if (active?.matches("input, textarea, select") && active.id !== "word") return;
+  e.preventDefault();
+  openSheet();
+});
+
+// Positions that look the same in several fresh addresses are fixed by the format (0x, bc1q, dashes…).
+function fixedPositions(samples) {
+  const first = samples[0];
+  const sameLength = samples.every((s) => s.length === first.length);
+  return [...first].map((ch, i) => (sameLength || i < 4 ? samples.every((s) => s[i] === ch) : false));
+}
 
 function pickChain(id) {
   const d = chain_details(id);
-  state.chain = { id, name: d.name, hint: d.hint, sample: d.sample };
-  $("s2chain").textContent = d.name;
-  $("sample").textContent = d.sample;
-  $("hint").textContent = d.hint;
-  for (const f of ["prefix", "suffix", "contains"]) $(f).value = "";
-  $("exact").checked = false;
+  const samples = [d.sample, ...[1, 2, 3].map(() => chain_details(id).sample)];
+  state.chain = { id, name: d.name, hint: d.hint, sample: d.sample, fixed: fixedPositions(samples) };
+  const { title } = splitLabel(d.name);
+  $("chainName").textContent = title;
+  $("chainLogo").src = `icons/${tickerOf(id).toLowerCase()}.png`;
+  const { color, color2, mono } = META[id] ?? {};
+  const [a, b] = mono
+    ? ["var(--mono-a)", "var(--mono-b)"]
+    : [color || "var(--violet)", color2 || (color ? `color-mix(in srgb, ${color} 50%, white)` : "var(--cyan)")];
+  $("shell").style.setProperty("--chain-a", a);
+  $("shell").style.setProperty("--chain-b", b);
+  $("chainChip").setAttribute("aria-label", `Blockchain: ${d.name}. Change`);
   // Case only matters where addresses mix upper and lower case (base58, TON).
-  $("exact").closest(".check").hidden = !(/[A-Z]/.test(d.sample) && /[a-z]/.test(leadless(d.sample)));
+  const free = [...d.sample].filter((_, i) => !state.chain.fixed[i]).join("");
+  $("exactWrap").hidden = !(/[A-Z]/.test(free) && /[a-z]/.test(free));
+  if ($("exactWrap").hidden) $("exact").checked = false;
   state.estimate = null;
-  renderEstimate(null);
-  renderChains($("chainSearch").value);
-  go(2);
+  renderPreview();
+  checkPattern();
 }
 
-/* ---------------- step 2: pattern ---------------- */
+/* ---------------- the board ---------------- */
+
+const board = $("board");
+let boardTiles = [];
+let boardCols = 1;
+
+const WAVE_STEP = 2;
+const WAVE_TAIL = 6;
+let reelHead = 0;
+
+// The rim beam crosses the plate once per tile-wave pass.
+function syncSweep() {
+  const sweepMs = ((boardCols + WAVE_TAIL) / WAVE_STEP) * REEL_MS;
+  $("plate").style.setProperty("--sweep", `${Math.round(sweepMs)}ms`);
+}
+
+function leadLength() {
+  const f = state.chain.fixed;
+  let n = 0;
+  while (n < f.length && f[n]) n++;
+  return n;
+}
 
 function readPattern() {
+  const word = $("word").value.trim();
+  const at = position;
   return {
     chain: state.chain.id,
-    prefix: $("prefix").value.trim(),
-    suffix: $("suffix").value.trim(),
-    contains: $("contains").value.trim(),
+    prefix: at === "prefix" ? word : "",
+    suffix: at === "suffix" ? word : "",
+    contains: at === "contains" ? word : "",
     ignoreCase: !$("exact").checked,
   };
 }
+
+// Where the typed word would sit in a sample address — an illustration, not a promise.
+function previewLayout() {
+  const sample = state.chain.sample;
+  const chars = [...sample];
+  const locked = new Array(chars.length).fill(false);
+  const word = $("word").value.trim().split(",")[0];
+  if (!word) return { chars, locked };
+  const lead = leadLength();
+  const leadText = sample.slice(0, lead);
+  const at = position;
+  let start;
+  if (at === "prefix") {
+    start = lead && word.toLowerCase().startsWith(leadText.toLowerCase()) ? 0 : lead;
+  } else if (at === "suffix") {
+    start = chars.length - word.length;
+  } else {
+    start = Math.max(lead, Math.floor((chars.length - word.length) / 2));
+  }
+  start = Math.max(0, Math.min(start, chars.length - word.length));
+  [...word].forEach((ch, i) => {
+    const idx = start + i;
+    if (idx < 0 || idx >= chars.length) return;
+    chars[idx] = ch === "*" ? "?" : ch;
+    locked[idx] = true;
+  });
+  return { chars, locked };
+}
+
+function fitBoard(count) {
+  const avail = $("composer").clientWidth || $("shell").clientWidth;
+  const narrow = avail < 600;
+  const inset = narrow ? 22 : 30; // .plate horizontal padding + border
+  const width = Math.min(1000, avail) - inset;
+  const gap = 2;
+  const wantTile = narrow ? (mode === "done" ? 16 : 21) : 20;
+  const maxTile = narrow ? 26 : 28;
+  let cols = count;
+  for (let rows = 1; rows <= 8; rows++) {
+    cols = Math.ceil(count / rows);
+    if ((width - gap * (cols - 1)) / cols >= wantTile) break;
+  }
+  const tile = Math.min(maxTile, Math.floor((width - gap * (cols - 1)) / cols));
+  boardCols = cols;
+  syncSweep();
+  board.style.setProperty("--cols", String(cols));
+  board.style.setProperty("--tile", `${tile}px`);
+  board.style.setProperty("--gap", `${gap}px`);
+}
+
+function buildBoard(count) {
+  if (boardTiles.length !== count) {
+    board.replaceChildren();
+    boardTiles = Array.from({ length: count }, () => {
+      const t = el("span", "tile");
+      board.append(t);
+      return t;
+    });
+  }
+  fitBoard(count);
+  updatePlate();
+}
+
+function updatePlate() {
+  if (!state.chain) return;
+  const label = {
+    setup: `Example ${state.chain.name} address`,
+    running: `Searching ${state.chain.name} addresses…`,
+    done: `Your ${state.chain.name} address`,
+  }[mode];
+  $("plateLabel").textContent = label;
+  $("plateCount").textContent = `${boardTiles.length} characters`;
+}
+
+function paintTiles(chars, locked, fixed) {
+  buildBoard(chars.length);
+  chars.forEach((ch, i) => {
+    const t = boardTiles[i];
+    if (t.textContent !== ch) {
+      t.textContent = ch;
+      if (!REDUCED_MOTION && mode !== "done") flip(t);
+    }
+    t.classList.toggle("lock", Boolean(locked[i]));
+    t.classList.toggle("fixed", Boolean(fixed?.[i]) && !locked[i]);
+  });
+}
+
+function flip(t) {
+  t.classList.toggle("flap-b", t.classList.contains("flap-a"));
+  t.classList.toggle("flap-a", !t.classList.contains("flap-b"));
+}
+
+function renderPreview() {
+  const { chars, locked } = previewLayout();
+  state.locked = locked;
+  paintTiles(chars, locked, state.chain.fixed);
+  board.setAttribute("aria-label", `Example ${state.chain.name} address: ${chars.join("")}`);
+  $("word").size = Math.max(4, $("word").value.length + 1);
+}
+
+new ResizeObserver(() => {
+  if (boardTiles.length) fitBoard(boardTiles.length);
+}).observe($("composer"));
+
+/* ---------------- pattern + estimate ---------------- */
 
 const speedKey = (p) => `${p.chain}:${p.ignoreCase}`;
 
 let checkTimer = 0;
 let benchToken = 0;
-for (const f of ["prefix", "suffix", "contains", "exact"]) {
-  $(f).addEventListener("input", () => {
-    clearTimeout(checkTimer);
-    checkTimer = setTimeout(checkPattern, 220);
-  });
+
+function scheduleCheck() {
+  clearTimeout(checkTimer);
+  checkTimer = setTimeout(checkPattern, 220);
 }
-["prefix", "suffix", "contains"].forEach((f) =>
-  $(f).addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    clearTimeout(checkTimer);
-    checkPattern();
-    if (!$("toGenerate").disabled) $("toGenerate").click();
+
+$("word").addEventListener("input", () => {
+  renderPreview();
+  scheduleCheck();
+});
+/* ---------------- position menu: starts / ends / contains ---------------- */
+
+let position = "prefix";
+const posButton = $("position");
+const posMenu = $("positionMenu");
+const posItems = [...posMenu.querySelectorAll(".menu-item")];
+
+function setPosition(value) {
+  position = value;
+  const item = posItems.find((i) => i.dataset.value === value);
+  $("positionLabel").textContent = item.textContent;
+  posItems.forEach((i) => i.setAttribute("aria-selected", String(i === item)));
+  renderPreview();
+  checkPattern();
+}
+
+function openPosMenu() {
+  posMenu.hidden = false;
+  posButton.setAttribute("aria-expanded", "true");
+  (posItems.find((i) => i.dataset.value === position) || posItems[0]).focus();
+}
+
+function closePosMenu(refocus) {
+  if (posMenu.hidden) return;
+  posMenu.hidden = true;
+  posButton.setAttribute("aria-expanded", "false");
+  if (refocus) posButton.focus();
+}
+
+posButton.addEventListener("click", () => (posMenu.hidden ? openPosMenu() : closePosMenu(true)));
+posButton.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    openPosMenu();
+  }
+});
+posItems.forEach((item) =>
+  item.addEventListener("click", () => {
+    closePosMenu(false);
+    setPosition(item.dataset.value);
+    $("word").focus();
   }),
 );
+posMenu.addEventListener("keydown", (e) => {
+  const at = posItems.indexOf(document.activeElement);
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    const step = e.key === "ArrowDown" ? 1 : -1;
+    posItems[(at + step + posItems.length) % posItems.length].focus();
+  } else if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    document.activeElement.click();
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    closePosMenu(true);
+  } else if (e.key === "Tab") {
+    closePosMenu(false);
+  }
+});
+document.addEventListener("pointerdown", (e) => {
+  if (!posMenu.hidden && !e.target.closest(".slot.pick")) closePosMenu(false);
+});
+$("exact").addEventListener("change", checkPattern);
+$("word").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  $("generate").click();
+});
 
 function checkPattern() {
+  clearTimeout(checkTimer);
   const p = readPattern();
   if (!p.prefix && !p.suffix && !p.contains) {
     renderEstimate(null);
@@ -322,45 +559,66 @@ function showEstimate(p, measured) {
 async function measureSpeed(p) {
   const token = ++benchToken;
   state.bench?.stop();
-  const pool = startPool(p, () => {});
+  const startedAt = performance.now();
+  let foundAfter = Infinity;
+  const pool = startPool(p, () => (foundAfter = performance.now() - startedAt));
   state.bench = pool;
   await sleep(BENCH_MS);
   const rate = pool.rate();
   pool.stop();
   if (token !== benchToken || !rate) return;
   state.bench = null;
+  // A match during warm-up means the threads barely ran, so the rate would be far too low.
+  if (foundAfter < WARMUP_MS) {
+    if (state.estimate && mode === "setup") {
+      state.estimate.quick = true;
+      renderEstimate(state.estimate);
+    }
+    return;
+  }
   state.speeds.set(speedKey(p), rate);
   const now = readPattern();
-  if (speedKey(now) === speedKey(p) && step === 2) checkPattern();
+  if (speedKey(now) === speedKey(p) && mode === "setup") checkPattern();
 }
 
 function renderEstimate(est, error) {
-  const box = $("estimate");
+  const meta = $("meta");
   const err = $("patternError");
   err.hidden = !error;
   err.textContent = error || "";
-  $("toGenerate").disabled = !est || est.risk === "impractical";
+  $("generate").disabled = !est || est.risk === "impractical";
+  meta.className = "meta";
+  meta.replaceChildren();
   if (!est) {
-    box.hidden = true;
+    if (!error) {
+      meta.append(
+        `${state.chain.hint.replace(/[.\s]*$/, ".")} Type a word above. Use `,
+        el("code", "", "*"),
+        " for any character, or commas for options like ",
+        el("code", "", "cafe,face"),
+        ".",
+      );
+    }
     return;
   }
-  box.hidden = false;
-  box.className = `estimate ${est.risk}`;
-  $("estTime").textContent =
-    est.risk === "impractical" ? "Not practical on one device" : `${capitalize(est.time_label)} on average`;
-  const source = est.measured ? "measured on this device" : "rough guess, measuring…";
-  $("estMeta").textContent = `${est.attempts_label} tries · ${formatSpeed(est.keys_per_sec)} keys/sec (${source})`;
-  $("estRule").textContent =
+  meta.classList.add("estimate", est.risk);
+  const time =
+    est.risk === "impractical" ? "Not practical on one device." : `${capitalize(est.time_label)} on average.`;
+  meta.append(el("strong", "", time));
+  const source = est.measured ? "measured here" : est.quick ? "rough guess" : "measuring…";
+  const detail =
     est.risk === "impractical"
-      ? `Expected wait: ${est.time_label.replace(/ —.*/, "")}. Shorten the pattern until the estimate is hours, not years.`
-      : `${est.guide_verdict}. ${est.guide_rule}.`;
+      ? ` Expected wait: ${est.time_label.replace(/ —.*/, "")}. Shorten the word until the estimate is hours, not years.`
+      : ` ${est.attempts_label} tries at ${formatSpeed(est.keys_per_sec)} keys/sec (${source}).${
+          est.risk === "none" ? "" : ` ${est.guide_rule}.`
+        }`;
+  meta.append(detail);
 }
 
-$("toGenerate").addEventListener("click", () => {
+$("generate").addEventListener("click", () => {
   // Re-check now: the debounced check may not have run for the latest keystroke yet.
-  clearTimeout(checkTimer);
   checkPattern();
-  if (!state.estimate || $("toGenerate").disabled) return;
+  if (!state.estimate || $("generate").disabled) return;
   startGenerating(readPattern());
 });
 
@@ -416,38 +674,29 @@ function startPool(job, onFound, onError) {
   };
 }
 
-/* ---------------- step 3: generate ---------------- */
+/* ---------------- generating ---------------- */
 
 let tick = 0;
 let reelTick = 0;
-
-function describeTarget(p) {
-  const parts = [];
-  if (p.prefix) parts.push(`starting with ${p.prefix}`);
-  if (p.suffix) parts.push(`ending with ${p.suffix}`);
-  if (p.contains) parts.push(`containing ${p.contains}`);
-  return `${state.chain.name} address ${parts.join(" and ")}`;
-}
 
 function startGenerating(p) {
   benchToken++;
   state.bench?.stop();
   state.bench = null;
   const expected = state.estimate.attempts;
-  $("s3target").textContent = `Looking for a ${describeTarget(p)}.`;
-  $("statTried").textContent = "0";
-  $("statSpeed").textContent = "—";
-  $("statAvg").textContent = state.estimate.time_label;
-  $("meterFill").style.width = "0%";
-  $("s3note").textContent = "Each try is a fresh coin flip, so a match can come early or late. Keep this tab open.";
-  go(3);
+  $("runMeta").textContent = `Starting… about ${state.estimate.time_label} on average.`;
+  $("runNote").textContent = "Each try is a fresh coin flip, so a match can come early or late. Keep this tab open.";
+  $("meterFill").style.setProperty("width", "0%");
+  setMode("running");
+  announce("Generating. This tab is searching for your address.");
+  board.setAttribute("aria-hidden", "true");
 
   state.pool = startPool(
     p,
     (result, attempts) => finish(p, result, attempts),
     (message) => {
       stopGenerating();
-      go(2);
+      setMode("setup");
       renderEstimate(state.estimate, message);
     },
   );
@@ -460,75 +709,83 @@ function startGenerating(p) {
     const tried = pool.attempts();
     const rate = pool.rate();
     const share = tried / Math.max(1, expected);
-    $("statTried").textContent = formatCount(tried);
-    $("statSpeed").textContent = `${formatSpeed(rate)}/s`;
+    let avg = state.estimate.time_label;
     if (performance.now() - startedAt > 1500 && rate > 0) {
-      $("statAvg").textContent = formatDuration(expected / rate);
+      avg = formatDuration(expected / rate);
       state.speeds.set(speedKey(p), rate);
     }
-    $("meterFill").style.width = `${Math.min(100, share * 100).toFixed(1)}%`;
+    $("runMeta").replaceChildren(
+      el("strong", "", `${formatCount(tried)} tried`),
+      ` at ${formatSpeed(rate)} keys/sec. Average wait ${avg}.`,
+    );
+    $("meterFill").style.setProperty("width", `${Math.min(100, share * 100).toFixed(1)}%`);
     if (share > 1) {
-      $("s3note").textContent = "Past the average — that's normal with random search. The next try is as likely as the first.";
+      $("runNote").textContent = "Past the average — that's normal with random search. The next try is as likely as the first.";
     }
   }, 250);
 
-  reelTick = setInterval(() => renderReel(), REEL_MS);
+  reelHead = 0;
+  const plate = $("plate");
+  syncSweep();
+  plate.classList.remove("scanning");
+  void plate.offsetWidth; // restart the beam so it lines up with the tile wave
+  plate.classList.add("scanning");
+  reelTick = setInterval(renderReel, REEL_MS);
   renderReel();
 }
 
-// Decorative only: shuffles characters in the shape of a real address while the search runs.
+// Decorative only: a wave of flips sweeps the free tiles column by column, in the shape of a real address.
 function renderReel() {
-  const sample = state.chain.sample;
-  const lead = leadOf(sample);
-  const pool = sample.slice(lead.length);
-  let out = lead;
-  for (let i = lead.length; i < sample.length; i++) {
-    out += pool[(Math.random() * pool.length) | 0];
-  }
-  $("reel").textContent = out;
-}
-
-function leadless(sample) {
-  return sample.slice(leadOf(sample).length);
-}
-
-function leadOf(sample) {
-  const colon = sample.indexOf(":");
-  if (colon !== -1) return sample.slice(0, colon + 1);
-  if (sample.startsWith("0x")) return "0x";
-  const bech = /^[a-z]+1/.exec(sample);
-  if (bech && bech[0].length > 2) return bech[0];
-  return sample.slice(0, 1);
+  const { chars } = previewLayout();
+  const fixed = state.chain.fixed;
+  const pool = [...state.chain.sample].filter((_, i) => !fixed[i]);
+  const span = boardCols + WAVE_TAIL;
+  const head = reelHead;
+  reelHead = (reelHead + WAVE_STEP) % span;
+  const out = chars.map((ch, i) => {
+    if (state.locked[i] || fixed[i]) return ch;
+    const behind = head - (i % boardCols);
+    const inWave = behind >= 0 && behind < WAVE_TAIL;
+    if (!inWave && Math.random() > 0.06) return boardTiles[i]?.textContent || ch;
+    return pool[(Math.random() * pool.length) | 0];
+  });
+  paintTiles(out, state.locked, fixed);
 }
 
 function stopGenerating() {
   clearInterval(tick);
   clearInterval(reelTick);
+  $("plate").classList.remove("scanning");
   state.pool?.stop();
   state.pool = null;
+  board.removeAttribute("aria-hidden");
 }
 
 $("stop").addEventListener("click", () => {
   stopGenerating();
-  go(2);
+  setMode("setup");
+  renderPreview();
+  announce("Stopped.");
 });
 
-/* ---------------- step 4: save ---------------- */
+/* ---------------- result ---------------- */
 
 function finish(p, result, attempts) {
   const elapsed = (performance.now() - state.startedAt) / 1000;
   stopGenerating();
   state.result = { ...result, chain: state.chain.name, pattern: p };
   state.saved = false;
-  renderAddress(result.address, p);
-  $("foundMeta").textContent = `Found after ${formatCount(attempts)} tries in ${formatDuration(elapsed)}.`;
+  $("foundMeta").replaceChildren(
+    el("strong", "", "Found it."),
+    ` ${formatCount(attempts)} tries in ${formatDuration(elapsed)}.`,
+  );
   renderSecrets(result.exports);
-  go(4);
+  setMode("done");
+  renderAddress(result.address, p);
+  announce(`Found it. Your address is ${result.address}.`);
 }
 
-function renderAddress(address, p) {
-  const el = $("address");
-  el.replaceChildren();
+function matchMarks(address, p) {
   const marks = new Array(address.length).fill(false);
   const lower = p.ignoreCase ? address.toLowerCase() : address;
   const norm = (s) => (p.ignoreCase ? s.toLowerCase() : s);
@@ -545,37 +802,44 @@ function renderAddress(address, p) {
     const at = lower.indexOf(norm(p.contains));
     if (at !== -1) mark(at, p.contains.length);
   }
-  let i = 0;
-  while (i < address.length) {
-    const hit = marks[i];
-    let j = i;
-    while (j < address.length && marks[j] === hit) j++;
-    const span = document.createElement("span");
-    if (hit) span.className = "hit";
-    span.textContent = address.slice(i, j);
-    el.append(span);
-    i = j;
-  }
+  return marks;
+}
+
+function renderAddress(address, p) {
+  const chars = [...address];
+  paintTiles(chars, matchMarks(address, p), null);
+  board.classList.add("found");
+  boardTiles.forEach((t, i) => t.style.setProperty("--i", String(i)));
+  board.setAttribute("aria-label", `Your ${state.chain.name} address: ${address}`);
 }
 
 function renderSecrets(exports) {
   const box = $("secrets");
   box.replaceChildren();
+
+  const addr = el("div", "secret");
+  const addrHead = el("div", "secret-head");
+  addrHead.append(el("span", "secret-label", "Address"));
+  const copyAddr = miniButton("Copy", async () => {
+    try {
+      await navigator.clipboard.writeText(state.result.address);
+      copyAddr.textContent = "Copied";
+      setTimeout(() => (copyAddr.textContent = "Copy"), 1500);
+    } catch {
+      copyAddr.textContent = "Copy failed";
+    }
+  });
+  const addrTools = el("div", "secret-tools");
+  addrTools.append(copyAddr);
+  addrHead.append(addrTools);
+  addr.append(addrHead, el("div", "secret-value", state.result.address));
+  box.append(addr);
+
   for (const item of exports) {
-    const card = document.createElement("div");
-    card.className = "secret";
-
-    const head = document.createElement("div");
-    head.className = "secret-head";
-    const label = document.createElement("span");
-    label.className = "secret-label";
-    label.textContent = item.label;
-    const tools = document.createElement("div");
-    tools.className = "secret-tools";
-
-    const value = document.createElement("div");
-    value.className = "secret-value hidden";
-    value.textContent = item.value;
+    const card = el("div", "secret");
+    const head = el("div", "secret-head");
+    const tools = el("div", "secret-tools");
+    const value = el("div", "secret-value hidden", item.value);
 
     const reveal = miniButton("Show", () => {
       const hidden = value.classList.toggle("hidden");
@@ -592,24 +856,16 @@ function renderSecrets(exports) {
       }
     });
     tools.append(reveal, copy);
-    head.append(label, tools);
+    head.append(el("span", "secret-label", item.label), tools);
     card.append(head, value);
-
-    if (item.hint) {
-      const hint = document.createElement("p");
-      hint.className = "secret-hint";
-      hint.textContent = item.hint;
-      card.append(hint);
-    }
+    if (item.hint) card.append(el("p", "secret-hint", item.hint));
     box.append(card);
   }
 }
 
 function miniButton(text, onClick) {
-  const b = document.createElement("button");
+  const b = el("button", "mini", text);
   b.type = "button";
-  b.className = "mini";
-  b.textContent = text;
   b.addEventListener("click", onClick);
   return b;
 }
@@ -642,9 +898,9 @@ $("download").addEventListener("click", () => {
 function wipe() {
   state.result = null;
   state.saved = false;
-  $("address").replaceChildren();
   $("secrets").replaceChildren();
   $("foundMeta").textContent = "";
+  board.classList.remove("found");
 }
 
 function confirmLeave() {
@@ -660,12 +916,18 @@ function confirmLeave() {
 $("again").addEventListener("click", async () => {
   if (!(await confirmLeave())) return;
   wipe();
-  go(2);
+  setMode("setup");
+  renderPreview();
+  checkPattern();
 });
 $("wipe").addEventListener("click", async () => {
   if (!(await confirmLeave())) return;
   wipe();
-  go(1);
+  $("word").value = "";
+  setMode("setup");
+  renderPreview();
+  checkPattern();
+  announce("Erased.");
 });
 
 window.addEventListener("beforeunload", (e) => {
@@ -720,8 +982,10 @@ async function loadEngine() {
     await init({ module_or_path: state.module });
     state.chains = list_chains();
     $("loading").hidden = true;
-    renderChains();
-    go(1);
+    $("composer").hidden = false;
+    const first = state.chains.find((c) => c.id === DEFAULT_CHAIN) || state.chains[0];
+    pickChain(first.id);
+    setMode("setup");
   } catch (e) {
     $("loading").textContent = `The generator couldn't start in this browser: ${e.message || e}. Try a recent Chrome, Firefox, Safari, or Edge.`;
   }

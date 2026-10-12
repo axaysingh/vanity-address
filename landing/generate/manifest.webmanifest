@@ -1,0 +1,15 @@
+{
+  "name": "vanity-address generator",
+  "short_name": "Vanity",
+  "description": "Make a crypto address with your own word. Keys are created on this device and never sent anywhere.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "app-icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "app-icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "app-icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

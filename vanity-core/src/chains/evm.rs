@@ -98,10 +98,10 @@ mod tests {
     fn evm_prefix_normalizes_0x() {
         let g = EvmGrinder;
         let p = g
-            .build_pattern(Some("dead"), Some("beef"), None, false)
+            .build_pattern(Some("dead"), Some("face"), None, false)
             .unwrap();
         assert_eq!(p.prefix_match, "0xdead");
-        assert_eq!(p.suffix_match, "beef");
+        assert_eq!(p.suffix_match, "face");
     }
 
     #[test]
@@ -114,9 +114,9 @@ mod tests {
     fn evm_matches_address() {
         let g = EvmGrinder;
         let p = g
-            .build_pattern(Some("dead"), Some("beef"), None, false)
+            .build_pattern(Some("dead"), Some("face"), None, false)
             .unwrap();
-        assert!(g.matches("0xdead000000000000000000000000000000beef", &p));
-        assert!(!g.matches("0xbeef000000000000000000000000000000dead", &p));
+        assert!(g.matches("0xdead000000000000000000000000000000face", &p));
+        assert!(!g.matches("0xface000000000000000000000000000000dead", &p));
     }
 }

@@ -9,3 +9,4 @@ npm/vanity-address-*/bin/vanity-address
 npm/vanity-address-*/bin/vanity-address.exe
 npm/**/*.tgz
 npm/vanity-address/wasm/
+.netlify/

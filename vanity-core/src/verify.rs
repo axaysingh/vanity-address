@@ -73,6 +73,6 @@ mod tests {
         let hex_key = &kp.exports[0].value;
         assert!(verify_address("evm", &addr, hex_key).is_ok());
         assert!(verify_address("evm", &addr, &format!("0x{hex_key}")).is_ok());
-        assert!(verify_address("evm", "0xdeadbeef", hex_key).is_err());
+        assert!(verify_address("evm", "0xdeadface", hex_key).is_err());
     }
 }

@@ -96,11 +96,11 @@ test("sets privateKey from the first export", async () => {
     attempts: 1,
     result: {
       address: "addr",
-      exports: [{ label: "Private Key (hex)", value: "deadbeef", hint: null }],
+      exports: [{ label: "Private Key (hex)", value: "deadface", hint: null }],
     },
   }));
   const wallet = await generateAddress({ chain: "sol", prefix: "a" });
-  assert.equal(wallet.privateKey, "deadbeef");
+  assert.equal(wallet.privateKey, "deadface");
 });
 
 test("rejects with TimeoutError when timeoutMs elapses", async () => {
