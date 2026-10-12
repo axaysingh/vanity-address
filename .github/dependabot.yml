@@ -18,6 +18,9 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+      # Test-only cross-check; 2.x+ pulls openssl-sys, which breaks the Windows CI build
+      - dependency-name: "solana-sdk"
+        update-types: ["version-update:semver-major"]
     groups:
       rust-minor-patch:
         patterns:
