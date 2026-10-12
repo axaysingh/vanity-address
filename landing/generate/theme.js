@@ -4,6 +4,5 @@
   try {
     saved = localStorage.getItem("vanity.theme");
   } catch (e) {}
-  var system = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-  document.documentElement.dataset.theme = saved === "light" || saved === "dark" ? saved : system;
+  document.documentElement.dataset.theme = saved === "dark" ? "dark" : "light";
 })();

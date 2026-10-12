@@ -1,10 +1,16 @@
 // Offline copy of this page's own files. Never sees keys: it only stores static assets fetched from this site.
-const CACHE = "vanity-generate-v1";
+const CACHE = "vanity-generate-v2";
 const SLOW_MS = 3000;
 
 const ICONS = [
   "ada", "algo", "apt", "atom", "btc", "dash", "doge", "dot", "dydx", "egld", "eth", "fil", "hbar", "icp", "inj",
   "kas", "ksm", "ltc", "near", "osmo", "sei", "sol", "sui", "tia", "ton", "trx", "xlm", "xrp", "xtz",
+];
+
+const EXPLORER_ICONS = [
+  "allo", "aptos", "arbiscan", "basescan", "blockchair", "blockstream", "bscscan", "cardanoscan", "etherscan",
+  "filfox", "litecoinspace", "mempool", "mintscan", "multiversx", "nearblocks", "optimism", "polygonscan", "solana",
+  "solscan", "stellarexpert", "subscan", "suiscan", "suivision", "tonviewer", "tronscan", "tzkt", "xrpscan",
 ];
 
 const PRECACHE = [
@@ -22,6 +28,7 @@ const PRECACHE = [
   "app-icons/apple-touch-180.png",
   "../assets/logo.svg",
   ...ICONS.map((t) => `icons/${t}.png`),
+  ...EXPLORER_ICONS.map((n) => `explorers/${n}.png`),
 ];
 
 self.addEventListener("install", (event) => {

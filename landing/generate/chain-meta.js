@@ -44,6 +44,58 @@ export const META = {
   trx: { ticker: "TRX", color: "#eb0029", words: "tron tronlink" },
 };
 
+// Public block explorers for checking a result: [name, icon path, address URL prefix].
+// Hedera has none: its address is a public key and the 0.0.N account id is assigned on-chain.
+const MEMPOOL = ["mempool.space", "explorers/mempool.png", "https://mempool.space/address/"];
+const BLOCKSTREAM = ["Blockstream", "explorers/blockstream.png", "https://blockstream.info/address/"];
+const mintscan = (net) => ["Mintscan", "explorers/mintscan.png", `https://www.mintscan.io/${net}/address/`];
+const blockchair = (net) => ["Blockchair", "explorers/blockchair.png", `https://blockchair.com/${net}/address/`];
+
+export const EXPLORERS = {
+  evm: [
+    ["Etherscan", "explorers/etherscan.png", "https://etherscan.io/address/"],
+    ["Basescan", "explorers/basescan.png", "https://basescan.org/address/"],
+    ["BscScan", "explorers/bscscan.png", "https://bscscan.com/address/"],
+    ["Arbiscan", "explorers/arbiscan.png", "https://arbiscan.io/address/"],
+    ["Polygonscan", "explorers/polygonscan.png", "https://polygonscan.com/address/"],
+    ["Optimism", "explorers/optimism.png", "https://optimistic.etherscan.io/address/"],
+  ],
+  sol: [
+    ["Solscan", "explorers/solscan.png", "https://solscan.io/account/"],
+    ["Solana Explorer", "explorers/solana.png", "https://explorer.solana.com/address/"],
+  ],
+  btc: [MEMPOOL, BLOCKSTREAM],
+  "btc-segwit": [MEMPOOL, BLOCKSTREAM],
+  "btc-taproot": [MEMPOOL, BLOCKSTREAM],
+  ltc: [["Litecoin Space", "explorers/litecoinspace.png", "https://litecoinspace.org/address/"], blockchair("litecoin")],
+  doge: [blockchair("dogecoin")],
+  dash: [blockchair("dash")],
+  ada: [["Cardanoscan", "explorers/cardanoscan.png", "https://cardanoscan.io/address/"]],
+  cosmos: [mintscan("cosmos")],
+  tia: [mintscan("celestia")],
+  dydx: [mintscan("dydx")],
+  osmo: [mintscan("osmosis")],
+  inj: [mintscan("injective")],
+  sei: [mintscan("sei")],
+  trx: [["Tronscan", "explorers/tronscan.png", "https://tronscan.org/#/address/"]],
+  ton: [["Tonviewer", "explorers/tonviewer.png", "https://tonviewer.com/"]],
+  sui: [
+    ["Suiscan", "explorers/suiscan.png", "https://suiscan.xyz/mainnet/account/"],
+    ["SuiVision", "explorers/suivision.png", "https://suivision.xyz/account/"],
+  ],
+  aptos: [["Aptos Explorer", "explorers/aptos.png", "https://explorer.aptoslabs.com/account/"]],
+  near: [["NearBlocks", "explorers/nearblocks.png", "https://nearblocks.io/address/"]],
+  dot: [["Subscan", "explorers/subscan.png", "https://polkadot.subscan.io/account/"]],
+  ksm: [["Subscan", "explorers/subscan.png", "https://kusama.subscan.io/account/"]],
+  xrp: [["XRPScan", "explorers/xrpscan.png", "https://xrpscan.com/account/"]],
+  xlm: [["StellarExpert", "explorers/stellarexpert.png", "https://stellar.expert/explorer/public/account/"]],
+  algo: [["Allo", "explorers/allo.png", "https://allo.info/account/"]],
+  xtz: [["TzKT", "explorers/tzkt.png", "https://tzkt.io/"]],
+  fil: [["Filfox", "explorers/filfox.png", "https://filfox.info/en/address/"]],
+  kaspa: [["Kaspa Explorer", "icons/kas.png", "https://explorer.kaspa.org/addresses/"]],
+  erd: [["MultiversX Explorer", "explorers/multiversx.png", "https://explorer.multiversx.com/accounts/"]],
+};
+
 // "Bitcoin SegWit (bc1q · P2WPKH)" -> { title: "Bitcoin SegWit", detail: "bc1q · P2WPKH" }
 export function splitLabel(label) {
   const m = /^(.*?)\s*\((.*)\)\s*$/.exec(label);

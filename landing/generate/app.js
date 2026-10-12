@@ -1,5 +1,5 @@
 import init, { list_chains, chain_details, validate_pattern, estimate_difficulty } from "./wasm/vanity_wasm.js";
-import { POPULAR, DEFAULT_CHAIN, META, splitLabel } from "./chain-meta.js";
+import { POPULAR, DEFAULT_CHAIN, META, EXPLORERS, splitLabel } from "./chain-meta.js";
 
 // No cookies, no network beyond this page's own files. localStorage holds only the theme and the
 // notice version below, and sw.js caches only static files — never keys or addresses.
@@ -78,11 +78,6 @@ $("themeToggle").addEventListener("click", () => {
   renderThemeButton();
 });
 
-window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
-  if (readPref("vanity.theme")) return;
-  document.documentElement.dataset.theme = e.matches ? "light" : "dark";
-  renderThemeButton();
-});
 renderThemeButton();
 
 /* ---------------- consent ---------------- */
@@ -833,6 +828,10 @@ function renderSecrets(exports) {
   addrTools.append(copyAddr);
   addrHead.append(addrTools);
   addr.append(addrHead, el("div", "secret-value", state.result.address));
+  const explorers = EXPLORERS[state.chain.id];
+  if (explorers && /^[A-Za-z0-9:_-]+$/.test(state.result.address)) {
+    addr.append(explorerLinks(explorers, state.result.address));
+  }
   box.append(addr);
 
   for (const item of exports) {
@@ -861,6 +860,26 @@ function renderSecrets(exports) {
     if (item.hint) card.append(el("p", "secret-hint", item.hint));
     box.append(card);
   }
+}
+
+function explorerLinks(explorers, address) {
+  const wrap = el("div", "explorers");
+  wrap.append(el("span", "explorers-label", "Check on"));
+  for (const [name, icon, base] of explorers) {
+    const a = el("a", "explorer");
+    a.href = base + address;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.setAttribute("aria-label", `View this address on ${name} (opens in a new tab)`);
+    const img = el("img");
+    img.src = icon;
+    img.alt = "";
+    img.width = 16;
+    img.height = 16;
+    a.append(img, el("span", "", name));
+    wrap.append(a);
+  }
+  return wrap;
 }
 
 function miniButton(text, onClick) {
