@@ -37,16 +37,17 @@ vanity-address/          (workspace root)
 
 ---
 
-## Current version state (as of 2026-09-21)
+## Current version state (as of 2026-10-12)
 
 | Package | Version | Published |
 | ------- | ------- | --------- |
-| vanity-core | **0.6.0** | ⏳ local — publish after tag |
-| vanity-address (CLI) | **0.6.0** | ⏳ local — publish after tag |
-| vanity-app (desktop) | **0.6.0** | ⏳ local — GitHub Release after tag |
-| vanity-wasm / npm SDK | **0.6.0** | ⏳ local — contains + 31 chains |
+| vanity-core | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
+| vanity-address (CLI) | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
+| vanity-app (desktop) | **0.6.4** | ⏳ local — GitHub Release after tag |
+| vanity-wasm / npm SDK | **0.6.4** | ⏳ local — publish after tag (0.6.3 live) |
+| Web app (`landing/generate/`) | — | Netlify deploys from `main` |
 
-**Git tags on GitHub:** `v0.3.0` … `v0.5.0` (check latest) · **v0.6.0 pending**  
+**Git tags on GitHub:** `v0.3.0` … `v0.6.3` · **v0.6.4 pending**  
 **GitHub Release:** tag + assets after cut
 
 **crates.io publish order (critical):**
@@ -231,7 +232,7 @@ make homebrew-formula VER=X.Y.Z
 
 ## Pending / optional next steps
 
-- [ ] Tag `v0.6.3` + publish crates / GitHub Release / Homebrew / npm (time-based difficulty, measured speed, npm binary fix) — bump versions BEFORE tagging
+- [ ] Tag `v0.6.4` + publish crates / GitHub Release / Homebrew / npm (web app, WASM key re-check, deps) — versions already bumped in tree
 - [ ] Winget / Scoop manifests (Windows package managers)
 - [ ] Code signing for macOS Gatekeeper / Windows SmartScreen (unsigned warnings documented)
 - [ ] Submit to homebrew-core when notability criteria met
@@ -315,4 +316,4 @@ make homebrew-formula VER=X.Y.Z
 
 ---
 
-*Last updated: 2026-09-21 — v0.6.0 in tree (pattern power, BTC SegWit/Taproot, trending chains, CREATE2 lite); publish pending.*
+*Last updated: 2026-10-12 — v0.6.4 in tree (web app at `/generate/`, WASM key re-check, Tauri 2.12 deps); publish pending.*

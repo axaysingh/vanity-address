@@ -60,7 +60,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **31 chains** + **contract & token-mint modes** · **CLI + desktop + web app + npm SDK** · **MIT licensed** · **privacy-first** (keys never leave your machine)
 
-> **New in 0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.4:** a [web app](https://vanity-address.netlify.app/generate/) — generate in your browser with the same Rust engine, nothing to install, keys never leave the tab. **0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 
@@ -119,9 +119,9 @@ Keys exist only in the open tab and are never stored or sent anywhere. The devic
 **Quick start (Linux):**
 
 ```bash
-# Replace 0.6.3 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
-curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.3/VanityAddress-0.6.3-Linux-CLI.tar.gz
-tar xzf VanityAddress-0.6.3-Linux-CLI.tar.gz
+# Replace 0.6.4 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
+curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.4/VanityAddress-0.6.4-Linux-CLI.tar.gz
+tar xzf VanityAddress-0.6.4-Linux-CLI.tar.gz
 ./vanity-address
 ```
 

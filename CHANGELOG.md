@@ -4,10 +4,17 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-10-12
+
 ### Added
 
 - **Web generator** at `/generate/` on the landing site — pick a chain, type a word, generate, save; runs the same Rust engine as WASM on all CPU cores in the browser. Keys never leave the tab and are never stored: no cookies, no third-party requests, strict CSP, safety notice before first use (remembered on the device, reopen via "Safety"), keys blurred until shown, dark and light themes
 - `scripts/build-web.sh` builds the browser engine into `landing/generate/wasm/`
+
+### Changed
+
+- WASM engine (web app + npm SDK) re-derives every found key and discards it unless it reproduces the matched address
+- Dependency updates: Tauri 2.12 (dialog 2.8, opener 2.7), clap 4.6, rand 0.8.8, base64 0.23, crc32fast 1.5, Vite 8.3
 
 ## [0.6.3] - 2026-10-08
 
