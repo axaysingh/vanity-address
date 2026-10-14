@@ -468,7 +468,18 @@ function renderPreview() {
   state.locked = locked;
   paintTiles(chars, locked, state.chain.fixed);
   board.setAttribute("aria-label", `Example ${state.chain.name} address: ${chars.join("")}`);
-  $("word").size = Math.max(4, $("word").value.length + 1);
+  syncWordFace();
+}
+
+function syncWordFace() {
+  const wordEl = $("word");
+  const face = $("wordFace");
+  if (face) face.textContent = wordEl.value;
+  // Extra ch so bold mono glyphs (esp. "y") aren't clipped on the right.
+  const units = Math.max(4, wordEl.value.length + 2);
+  wordEl.size = units;
+  wordEl.style.width = `${units}ch`;
+  if (face) face.style.minWidth = `${units}ch`;
 }
 
 new ResizeObserver(() => {
@@ -1045,8 +1056,16 @@ async function loadEngine() {
 }
 
 (async () => {
+  const bootMsg = $("bootMsg");
+  const bootVisor = document.querySelector(".boot-visor-text");
+  const setBoot = (msg, visor) => {
+    if (bootMsg) bootMsg.textContent = msg;
+    if (bootVisor && visor) bootVisor.textContent = visor;
+  };
   try {
+    setBoot("Fetching the engine…", "fetch…");
     state.module = await loadEngine();
+    setBoot("Starting the generator…", "init…");
     await init({ module_or_path: state.module });
     state.chains = list_chains();
     $("loading").hidden = true;
@@ -1055,6 +1074,10 @@ async function loadEngine() {
     pickChain(first.id);
     setMode("setup");
   } catch (e) {
-    $("loading").textContent = `The generator couldn't start in this browser: ${e.message || e}. Try a recent Chrome, Firefox, Safari, or Edge.`;
+    $("loading").classList.add("is-error");
+    setBoot(
+      `The generator couldn't start in this browser: ${e.message || e}. Try a recent Chrome, Firefox, Safari, or Edge.`,
+      "error",
+    );
   }
 })();

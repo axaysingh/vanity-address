@@ -45,7 +45,20 @@
 
 <main class="stage" id="shell" inert data-mode="setup">
   <h1 class="sr-only">Generate a vanity address</h1>
-  <p class="loading" id="loading">Loading the generator…</p>
+  <div class="loading" id="loading" role="status" aria-live="polite">
+    <div class="boot-bot" aria-hidden="true">
+      <img class="boot-bot-img" src="grind-bot.png" alt="" width="200" height="267" decoding="async" />
+      <span class="boot-glow"></span>
+      <span class="boot-visor">
+        <span class="boot-visor-scan"></span>
+        <span class="boot-visor-text mono">booting…</span>
+      </span>
+      <span class="boot-neck" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="boot-ear boot-ear-l"></span>
+      <span class="boot-ear boot-ear-r"></span>
+    </div>
+    <p class="boot-msg" id="bootMsg">Loading the generator…</p>
+  </div>
   <p class="sr-only" id="announce" aria-live="polite"></p>
 
   <div class="composer" id="composer" hidden>
@@ -128,7 +141,11 @@
       </span>
       <label class="slot type">
         <span class="sr-only">Your word</span>
-        <input id="word" class="mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
+        <span class="word-shell">
+          <!-- Face paints the glyphs; the input stays transparent so overflow:clip can't eat g/y/j/p. -->
+          <span class="word-face mono" id="wordFace" aria-hidden="true" data-placeholder="cafe"></span>
+          <input id="word" class="word-input mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
+        </span>
       </label>
     </p>
 

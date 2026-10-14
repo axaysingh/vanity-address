@@ -1,5 +1,5 @@
 // Offline copy of this page's own files. Never sees keys: it only stores static assets fetched from this site.
-const CACHE = "vanity-generate-v10";
+const CACHE = "vanity-generate-v12";
 
 const ICONS = [
   "ada", "algo", "apt", "atom", "btc", "dash", "doge", "dot", "dydx", "egld", "eth", "fil", "hbar", "icp", "inj",
