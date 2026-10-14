@@ -468,18 +468,8 @@ function renderPreview() {
   state.locked = locked;
   paintTiles(chars, locked, state.chain.fixed);
   board.setAttribute("aria-label", `Example ${state.chain.name} address: ${chars.join("")}`);
-  syncWordFace();
-}
-
-function syncWordFace() {
   const wordEl = $("word");
-  const face = $("wordFace");
-  if (face) face.textContent = wordEl.value;
-  // Extra ch so bold mono glyphs (esp. "y") aren't clipped on the right.
-  const units = Math.max(4, wordEl.value.length + 2);
-  wordEl.size = units;
-  wordEl.style.width = `${units}ch`;
-  if (face) face.style.minWidth = `${units}ch`;
+  wordEl.size = Math.max(4, wordEl.value.length + 1);
 }
 
 new ResizeObserver(() => {

@@ -158,11 +158,16 @@ code {
   display: grid; place-items: center; pointer-events: none; isolation: isolate;
 }
 .boot-bot-img {
-  position: relative; z-index: 1; width: 100%; height: 100%;
+  grid-area: 1 / 1; position: relative; z-index: 1; width: 100%; height: 100%;
   object-fit: contain; object-position: center 38%;
   filter: drop-shadow(0 12px 24px color-mix(in srgb, var(--text) 16%, transparent));
   animation: cyborg-breathe 2.8s ease-in-out infinite alternate;
 }
+html[data-theme="dark"] .boot-bot-img.bot-img-dark {
+  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.75))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--violet) 30%, transparent));
+}
+html[data-theme="dark"] .boot-glow { opacity: 0.72; }
 .boot-glow {
   position: absolute; z-index: 0; inset: 16% 12% 10%; border-radius: 50%;
   background: radial-gradient(
@@ -340,11 +345,18 @@ code {
   place-items: center; pointer-events: none; isolation: isolate;
 }
 .cyborg-img {
-  position: relative; z-index: 1; width: 100%; height: 100%;
+  grid-area: 1 / 1; position: relative; z-index: 1; width: 100%; height: 100%;
   object-fit: contain; object-position: center 38%;
   filter: drop-shadow(0 12px 24px color-mix(in srgb, var(--text) 18%, transparent));
   animation: cyborg-breathe 3.2s ease-in-out infinite alternate;
 }
+html[data-theme="dark"] .cyborg-img.bot-img-dark {
+  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.75))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--chain-a) 30%, transparent));
+}
+/* Theme swap: graded dark PNG (no live brightness/contrast — those caused face patches). */
+html[data-theme="dark"] .bot-img-light { display: none; }
+html:not([data-theme="dark"]) .bot-img-dark { display: none; }
 @keyframes cyborg-breathe {
   from { transform: translateY(2px) scale(0.988); }
   to { transform: translateY(-2px) scale(1.012); }
@@ -360,7 +372,7 @@ code {
   filter: blur(22px); opacity: 0.55;
   animation: halo 2.4s ease-in-out infinite alternate;
 }
-html[data-theme="dark"] .cyborg-glow { opacity: 0.7; }
+html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
 
 /*
  * Meta-glasses style: HUD light projected INTO the dark lens glass.
@@ -582,47 +594,28 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.7; }
 .menu-item:hover, .menu-item:focus-visible { background: var(--surface-2); color: var(--text); outline: none; }
 .menu-item[aria-selected="true"] { color: var(--text); font-weight: 600; }
 .menu-item[aria-selected="true"]::before { border-color: transparent; background: var(--grad); }
-/* Word field: a visible span paints glyphs; the real <input> is transparent.
-   Chromium forces overflow:clip on inputs, which eats g/y/j/p at this size. */
-.slot.type { align-items: baseline; }
-.word-shell {
-  display: inline-grid; align-items: end;
+/* Underline on the label — not on the input — so g/y/j/p descenders stay clear
+   of the gradient and the caret sits after the typed word as usual. */
+.slot.type {
+  align-items: baseline;
   background: var(--grad) left bottom / 100% 3px no-repeat;
   padding-bottom: 4px;
 }
-.word-face,
-.word-input {
-  grid-area: 1 / 1;
-  box-sizing: content-box;
-  min-width: 4.5ch; max-width: 16ch;
-  margin: 0; padding: 0.08em 0.18em 0.22em;
-  font-family: var(--mono); font-size: 0.86em; font-weight: 600; letter-spacing: 0.02em;
-  line-height: 1.5;
-}
-.word-face {
-  position: relative; z-index: 1;
-  pointer-events: none; white-space: pre; color: var(--text);
-}
-.word-face:empty::before {
-  content: attr(data-placeholder);
-  color: var(--muted); opacity: 0.45;
-}
-.word-input {
-  position: relative; z-index: 0;
+.slot.type input {
   appearance: none; -webkit-appearance: none;
-  width: 4.5ch; /* JS bumps with typed length */
-  height: 100%;
-  background: transparent !important; border: 0; border-radius: 0;
-  color: transparent; -webkit-text-fill-color: transparent;
+  box-sizing: content-box;
+  min-width: 4ch; max-width: 16ch;
+  margin: 0;
+  padding: 0.1em 0.06em 0.28em 0;
+  font-family: var(--mono); font-size: 0.86em; font-weight: 600; letter-spacing: 0;
+  line-height: 1.45; height: auto;
+  background: transparent; border: 0; border-radius: 0;
   caret-color: var(--cyan);
+  field-sizing: content;
 }
-.word-input::placeholder { color: transparent; }
-.word-input:focus { outline: none; }
+.slot.type input::placeholder { color: var(--muted); opacity: 0.45; }
+.slot.type input:focus { outline: none; }
 .sentence :disabled { cursor: default; opacity: 1; color: var(--text); -webkit-text-fill-color: var(--text); }
-.sentence .word-input:disabled,
-.sentence .word-input:disabled::placeholder {
-  color: transparent; -webkit-text-fill-color: transparent;
-}
 .sentence .chip:disabled { border-color: var(--rim); }
 .chip:disabled .caret, .pick-btn:disabled .caret { visibility: hidden; }
 .pick-btn:disabled { border-bottom-color: var(--rim); }

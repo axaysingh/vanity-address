@@ -16,6 +16,7 @@
 <script src="theme.js"></script>
 <link rel="stylesheet" href="app.css" />
 <link rel="preload" href="grind-bot.png" as="image" type="image/png" />
+<link rel="preload" href="grind-bot-dark.png" as="image" type="image/png" />
 <script type="module" src="app.js"></script>
 </head>
 <body>
@@ -47,7 +48,8 @@
   <h1 class="sr-only">Generate a vanity address</h1>
   <div class="loading" id="loading" role="status" aria-live="polite">
     <div class="boot-bot" aria-hidden="true">
-      <img class="boot-bot-img" src="grind-bot.png" alt="" width="200" height="267" decoding="async" />
+      <img class="boot-bot-img bot-img-light" src="grind-bot.png" alt="" width="200" height="267" decoding="async" />
+      <img class="boot-bot-img bot-img-dark" src="grind-bot-dark.png" alt="" width="200" height="267" decoding="async" />
       <span class="boot-glow"></span>
       <span class="boot-visor">
         <span class="boot-visor-scan"></span>
@@ -100,7 +102,8 @@
     </div>
     <!-- Option 3: original render + grind overlays (local asset; not a third-party photo). -->
     <div class="bot-cyborg" aria-hidden="true">
-      <img class="cyborg-img" src="grind-bot.png" alt="" width="260" height="347" decoding="async" />
+      <img class="cyborg-img bot-img-light" src="grind-bot.png" alt="" width="260" height="347" decoding="async" />
+      <img class="cyborg-img bot-img-dark" src="grind-bot-dark.png" alt="" width="260" height="347" decoding="async" />
       <span class="cyborg-glow"></span>
       <!-- address HUD is clipped to the glasses lenses, not a floating pill above them -->
       <span class="cyborg-visor">
@@ -141,11 +144,7 @@
       </span>
       <label class="slot type">
         <span class="sr-only">Your word</span>
-        <span class="word-shell">
-          <!-- Face paints the glyphs; the input stays transparent so overflow:clip can't eat g/y/j/p. -->
-          <span class="word-face mono" id="wordFace" aria-hidden="true" data-placeholder="cafe"></span>
-          <input id="word" class="word-input mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
-        </span>
+        <input id="word" class="mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
       </label>
     </p>
 
