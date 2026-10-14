@@ -1,6 +1,5 @@
 // Offline copy of this page's own files. Never sees keys: it only stores static assets fetched from this site.
-const CACHE = "vanity-generate-v2";
-const SLOW_MS = 3000;
+const CACHE = "vanity-generate-v8";
 
 const ICONS = [
   "ada", "algo", "apt", "atom", "btc", "dash", "doge", "dot", "dydx", "egld", "eth", "fil", "hbar", "icp", "inj",
@@ -26,6 +25,7 @@ const PRECACHE = [
   "app-icons/icon-192.png",
   "app-icons/icon-512.png",
   "app-icons/apple-touch-180.png",
+  "grind-bot.png",
   "../assets/logo.svg",
   ...ICONS.map((t) => `icons/${t}.png`),
   ...EXPLORER_ICONS.map((n) => `explorers/${n}.png`),
@@ -56,12 +56,13 @@ self.addEventListener("fetch", (event) => {
 async function fromNetworkElseCache(request) {
   const cache = await caches.open(CACHE);
   const key = request.mode === "navigate" ? "./" : request;
-  const network = fetch(request).then((res) => {
+  try {
+    const res = await fetch(request);
     if (res.ok && res.type === "basic") cache.put(key, res.clone());
     return res;
-  });
-  const cached = await cache.match(key, { ignoreSearch: request.mode === "navigate" });
-  if (!cached) return network;
-  const slow = new Promise((resolve) => setTimeout(() => resolve(cached), SLOW_MS));
-  return Promise.race([network.catch(() => cached), slow]);
+  } catch {
+    const cached = await cache.match(key, { ignoreSearch: request.mode === "navigate" });
+    if (cached) return cached;
+    throw new Error("offline and not cached");
+  }
 }

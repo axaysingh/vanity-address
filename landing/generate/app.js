@@ -420,6 +420,42 @@ function paintTiles(chars, locked, fixed) {
     t.classList.toggle("lock", Boolean(locked[i]));
     t.classList.toggle("fixed", Boolean(fixed?.[i]) && !locked[i]);
   });
+  if (mode === "running") paintVisor(chars, locked);
+}
+
+/** Specs HUD: show the address grinding, with locked pattern chars steady and the rest flickering. */
+function paintVisor(chars, locked) {
+  const el = $("visorAddr");
+  if (!el) return;
+  const max = 16;
+  let start = 0;
+  let end = chars.length;
+  if (chars.length > max) {
+    // Prefer keeping the locked prefix/suffix visible when we have to crop.
+    const firstLock = locked?.findIndex(Boolean) ?? -1;
+    const lastLock = locked ? locked.lastIndexOf(true) : -1;
+    if (firstLock >= 0 && firstLock < 4) {
+      start = 0;
+      end = max;
+    } else if (lastLock >= chars.length - 4) {
+      start = chars.length - max;
+      end = chars.length;
+    } else {
+      start = Math.max(0, Math.floor((chars.length - max) / 2));
+      end = start + max;
+    }
+  }
+  const frag = document.createDocumentFragment();
+  if (start > 0) frag.append("…");
+  for (let i = start; i < end; i++) {
+    const span = document.createElement("span");
+    span.textContent = chars[i];
+    if (locked?.[i]) span.className = "hit";
+    else span.className = "spin";
+    frag.append(span);
+  }
+  if (end < chars.length) frag.append("…");
+  el.replaceChildren(frag);
 }
 
 function flip(t) {
@@ -679,9 +715,14 @@ function startGenerating(p) {
   state.bench?.stop();
   state.bench = null;
   const expected = state.estimate.attempts;
-  $("runMeta").textContent = `Starting… about ${state.estimate.time_label} on average.`;
+  const workers = threadCount();
+  $("runMeta").replaceChildren(
+    el("strong", "", "Average wait "),
+    `${state.estimate.time_label}.`,
+  );
   $("runNote").textContent = "Each try is a fresh coin flip, so a match can come early or late. Keep this tab open.";
   $("meterFill").style.setProperty("width", "0%");
+  renderBotHud(`bot grinding… · warming up · ${workers} workers`);
   setMode("running");
   announce("Generating. This tab is searching for your address.");
   board.setAttribute("aria-hidden", "true");
@@ -709,10 +750,11 @@ function startGenerating(p) {
       avg = formatDuration(expected / rate);
       state.speeds.set(speedKey(p), rate);
     }
-    $("runMeta").replaceChildren(
-      el("strong", "", `${formatCount(tried)} tried`),
-      ` at ${formatSpeed(rate)} keys/sec. Average wait ${avg}.`,
+    // Terminal HUD owns live speed / tries / workers; meta only shows the wait estimate.
+    renderBotHud(
+      `bot grinding… · ${formatSpeed(rate)}/s · ${formatCount(tried)} tried · ${workers} workers`,
     );
+    $("runMeta").replaceChildren(el("strong", "", "Average wait "), `${avg}.`);
     $("meterFill").style.setProperty("width", `${Math.min(100, share * 100).toFixed(1)}%`);
     if (share > 1) {
       $("runNote").textContent = "Past the average — that's normal with random search. The next try is as likely as the first.";
@@ -745,6 +787,11 @@ function renderReel() {
     return pool[(Math.random() * pool.length) | 0];
   });
   paintTiles(out, state.locked, fixed);
+}
+
+function renderBotHud(text) {
+  const node = $("botHudText");
+  if (node) node.textContent = text;
 }
 
 function stopGenerating() {

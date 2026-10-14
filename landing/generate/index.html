@@ -58,8 +58,49 @@
         </defs>
         <polygon class="ring-track" points="100,18 171,59 171,141 100,182 29,141 29,59" />
         <polygon class="ring-comet" points="100,18 171,59 171,141 100,182 29,141 29,59" />
+        <!-- side ports (ear-like) -->
+        <g class="bot-ports" fill="none" stroke="url(#ringGrad)" stroke-linecap="round">
+          <circle class="port-ring" cx="28" cy="100" r="11" stroke-width="1.2" />
+          <circle class="port-ring" cx="28" cy="100" r="6" stroke-width="1.6" />
+          <circle class="port-core port-a" cx="28" cy="100" r="2.2" stroke="none" />
+          <circle class="port-ring" cx="172" cy="100" r="11" stroke-width="1.2" />
+          <circle class="port-ring" cx="172" cy="100" r="6" stroke-width="1.6" />
+          <circle class="port-core port-b" cx="172" cy="100" r="2.2" stroke="none" />
+        </g>
+        <!-- neck cables trailing down -->
+        <g class="bot-cables" fill="none" stroke="url(#ringGrad)" stroke-linecap="round" stroke-width="1.4">
+          <path class="cable" d="M78 168 C70 182, 62 190, 54 198" />
+          <path class="cable" d="M100 176 C100 188, 98 194, 96 200" />
+          <path class="cable" d="M122 168 C130 182, 138 190, 146 198" />
+        </g>
+        <!-- floating hex bits -->
+        <g class="bot-bits" fill="none" stroke="url(#ringGrad)" stroke-width="1.2">
+          <polygon class="bit bit-a" points="42,48 48,44 54,48 54,56 48,60 42,56" />
+          <polygon class="bit bit-b" points="150,42 155,39 160,42 160,48 155,51 150,48" />
+          <polygon class="bit bit-c" points="158,148 163,145 168,148 168,154 163,157 158,154" />
+          <polygon class="bit bit-d" points="36,142 40,139 44,142 44,147 40,150 36,147" />
+        </g>
       </svg>
+      <span class="bot-visor"></span>
       <img src="../assets/logo.svg" alt="" width="140" height="140" />
+    </div>
+    <!-- Option 3: original render + grind overlays (local asset; not a third-party photo). -->
+    <div class="bot-cyborg" aria-hidden="true">
+      <img class="cyborg-img" src="grind-bot.png" alt="" width="260" height="347" decoding="async" />
+      <span class="cyborg-glow"></span>
+      <!-- address HUD is clipped to the glasses lenses, not a floating pill above them -->
+      <span class="cyborg-visor">
+        <span class="cyborg-visor-glass">
+          <span class="cyborg-visor-scan"></span>
+          <span class="cyborg-visor-addr mono" id="visorAddr"></span>
+        </span>
+      </span>
+      <span class="cyborg-ear cyborg-ear-l"></span>
+      <span class="cyborg-ear cyborg-ear-r"></span>
+      <span class="cyborg-bits" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="cyborg-status mono"><em></em> grinding</span>
     </div>
     <p class="sentence">
       <span class="words">Make a</span>
@@ -107,6 +148,7 @@
     </section>
 
     <section class="panel" id="runPanel" aria-label="Progress" hidden>
+      <pre class="bot-hud" id="botHud" aria-hidden="true"><span class="bot-hud-line"><span class="bot-hud-prompt">$</span> <span id="botHudText">bot grinding…</span><span class="bot-hud-cursor">▌</span></span></pre>
       <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
       <p class="meta" id="runMeta"></p>
       <p class="note" id="runNote"></p>
