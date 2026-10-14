@@ -801,6 +801,8 @@ function stopGenerating() {
   state.pool?.stop();
   state.pool = null;
   board.removeAttribute("aria-hidden");
+  const visor = $("visorAddr");
+  if (visor) visor.replaceChildren();
 }
 
 $("stop").addEventListener("click", () => {
