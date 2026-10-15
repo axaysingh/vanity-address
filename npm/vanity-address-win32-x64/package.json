@@ -3,7 +3,7 @@
   "version": "0.6.4",
   "description": "Windows x64 binary for vanity-address",
   "license": "MIT",
-  "homepage": "https://vanity-address.netlify.app/",
+  "homepage": "https://vanity-address.pages.dev/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yudizaxay/vanity-address.git",

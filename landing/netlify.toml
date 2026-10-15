@@ -1,3 +1,6 @@
+# Legacy Netlify config. Primary host is Cloudflare Pages (landing/_headers).
+# Keep in sync with _headers if you ever redeploy here.
+
 [build]
   publish = "."
 

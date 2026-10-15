@@ -11,7 +11,7 @@ alwaysApply: true
 
 - Rust workspace: `vanity-core` (engine) + `vanity-address` (CLI) + `vanity-wasm` + `vanity-app` (Tauri desktop)
 - **v0.6.4** live everywhere (GitHub Release, crates.io, Homebrew, npm); chain logic only in `vanity-core`
-- Web generator `landing/generate/` deploys manually: `cd landing && npx netlify-cli deploy --prod --dir . --site f7c28e27-1645-4114-ae6e-3c07e5ee50d8`
+- Web: Cloudflare Pages → https://vanity-address.pages.dev/ (GitHub `main`, output dir `landing`, headers in `landing/_headers`)
 - Publish order: `vanity-core` then `vanity-address` (no `#` on same shell line)
 - npm: `prepare-npm.sh` + `build-wasm.sh` then `publish-npm.sh`
 - Windows CLI: `terminal.rs` Press-only keys; `menu.rs` crossterm clear

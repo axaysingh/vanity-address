@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build the browser WASM engine for the landing site's web generator (landing/generate/).
-# Netlify serves landing/ as-is, so the output is committed.
+# Cloudflare Pages serves landing/ as-is from Git, so the output is committed.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."

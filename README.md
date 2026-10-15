@@ -10,7 +10,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **Privacy-first:** keys are generated on your device only. No accounts. No telemetry. Audit the source before you trust any vanity tool.
 
-**No install?** [Generate in your browser →](https://vanity-address.netlify.app/generate/) — same engine, runs entirely in the tab.
+**No install?** [Generate in your browser →](https://vanity-address.pages.dev/generate/) — same engine, runs entirely in the tab.
 
 <br />
 
@@ -60,7 +60,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **31 chains** + **contract & token-mint modes** · **CLI + desktop + web app + npm SDK** · **MIT licensed** · **privacy-first** (keys never leave your machine)
 
-> **New in 0.6.4:** a [web app](https://vanity-address.netlify.app/generate/) — generate in your browser with the same Rust engine, nothing to install, keys never leave the tab. **0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.4:** a [web app](https://vanity-address.pages.dev/generate/) — generate in your browser with the same Rust engine, nothing to install, keys never leave the tab. **0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 
@@ -82,7 +82,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 ## 🌐 Web App
 
-**[vanity-address.netlify.app/generate](https://vanity-address.netlify.app/generate/)** — nothing to install. Works in recent Chrome, Firefox, Safari, and Edge.
+**[vanity-address.pages.dev/generate](https://vanity-address.pages.dev/generate/)** — nothing to install. Works in recent Chrome, Firefox, Safari, and Edge.
 
 ```text
 Pick a chain → type your word → generate → save
@@ -108,7 +108,7 @@ Keys exist only in the open tab and are never stored or sent anywhere. The devic
 
 | I want… | My computer | File |
 | ------- | ----------- | ---- |
-| **No install** | Any modern browser | [Web app](https://vanity-address.netlify.app/generate/) |
+| **No install** | Any modern browser | [Web app](https://vanity-address.pages.dev/generate/) |
 | **Desktop app** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-Desktop.dmg` |
 | **Desktop app** | Windows 10/11 | `VanityAddress-*-Windows-Desktop.exe` |
 | **CLI** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-CLI.tar.gz` |

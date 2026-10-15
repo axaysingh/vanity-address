@@ -45,18 +45,17 @@ vanity-address/          (workspace root)
 | vanity-address (CLI) | **0.6.4** | ✅ crates.io + Homebrew tap |
 | vanity-app (desktop) | **0.6.4** | ✅ GitHub Release |
 | vanity-wasm / npm SDK | **0.6.4** | ✅ npm |
-| Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.netlify.app/generate/ (manual deploy, see below) |
+| Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.pages.dev/generate/ |
 
 **Git tags on GitHub:** `v0.3.0` … `v0.6.4`  
 **GitHub Release:** [v0.6.4](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.4) (12 assets)
 
-**Website deploy (Netlify, manual — site is not linked to GitHub):**
+**Website deploy (Cloudflare Pages — GitHub `main` auto-deploys `landing/`):**
 
-```bash
-cd landing && npx netlify-cli deploy --prod --dir . --site f7c28e27-1645-4114-ae6e-3c07e5ee50d8
-```
-
-`landing/.netlify/` is local CLI state and is gitignored.
+- Live: https://vanity-address.pages.dev/ (generator: [/generate/](https://vanity-address.pages.dev/generate/))
+- Build settings: Framework `None`, build command empty, **output directory `landing`**, root directory empty, branch `main`
+- Headers/CSP: `landing/_headers` (Cloudflare). `landing/netlify.toml` is legacy/optional only
+- After `vanity-core` / `vanity-wasm` changes: `./scripts/build-web.sh`, commit `landing/generate/wasm/`, push — Pages serves Git as-is (no Rust build on CF)
 
 **crates.io publish order (critical):**
 
@@ -77,7 +76,7 @@ cargo publish -p vanity-address
 | **Homebrew tap** | ✅ v0.6.4 | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | **Homebrew local** | ✅ Works | `brew install --build-from-source ./Formula/vanity-address.rb` |
 | **npm** | ✅ v0.6.4 | `npx vanity-address` / `npm i vanity-address` |
-| **Web app** | ✅ Live | https://vanity-address.netlify.app/generate/ |
+| **Web app** | ✅ Live | https://vanity-address.pages.dev/generate/ |
 | **Winget / Scoop / AUR** | ❌ Not yet | Future optional channels |
 
 ### Homebrew user install (Homebrew 6+)
@@ -242,7 +241,7 @@ make homebrew-formula VER=X.Y.Z
 
 ## Pending / optional next steps
 
-- [ ] Optional: link the Netlify site to GitHub so `main` auto-deploys (today: manual `netlify-cli deploy`)
+- [x] Web host: Cloudflare Pages (`vanity-address.pages.dev`) from GitHub `main` + `landing/_headers`
 - [ ] Optional: ICP explorer link on the web result (needs a verified principal URL)
 - [ ] Winget / Scoop manifests (Windows package managers)
 - [ ] Code signing for macOS Gatekeeper / Windows SmartScreen (unsigned warnings documented)
@@ -315,7 +314,7 @@ make homebrew-formula VER=X.Y.Z
 | `npm/vanity-address/src/driver.js` | SDK core: generateAddress/es, estimate, validate, listChains |
 | `npm/vanity-address/src/pool.js` | Node `worker_threads` pool (multi-core grind) |
 | `npm/vanity-address/src/grind-worker.js` | Per-worker WASM grind loop |
-| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/netlify.toml`. Installable PWA: `manifest.webmanifest` + `sw.js` (network-first, cache only on network failure; add new static files to `PRECACHE` and bump `CACHE` when that list changes). Display-only chain data (ticker, colours, search words, `EXPLORERS`) lives in `chain-meta.js`; images must be local files because of `img-src 'self'`. Theme defaults to light (`theme.js`) |
+| `landing/generate/` | Browser web generator (`app.js`, `worker.js`, committed `wasm/` from `scripts/build-web.sh`) — no cookies or third-party requests; localStorage holds only `vanity.theme` + `vanity.consent` (bump `CONSENT_VERSION` in `app.js` when the notice changes), never keys; CSP in page + `landing/_headers` (Cloudflare Pages; `netlify.toml` legacy). Installable PWA: `manifest.webmanifest` + `sw.js` (network-first, cache only on network failure; add new static files to `PRECACHE` and bump `CACHE` when that list changes). Display-only chain data (ticker, colours, search words, `EXPLORERS`) lives in `chain-meta.js`; images must be local files because of `img-src 'self'`. Theme defaults to light (`theme.js`) |
 | `docs/HOMEBREW.md` | User + maintainer Homebrew guide |
 | `docs/NPM.md` | User + maintainer npm guide |
 | `.github/workflows/release.yml` | Release binaries on tag |
@@ -337,4 +336,4 @@ make homebrew-formula VER=X.Y.Z
 
 ---
 
-*Last updated: 2026-10-12 — v0.6.4 released everywhere; web generator redesign, offline PWA, sponsors and explorer links live on Netlify.*
+*Last updated: 2026-10-15 — site on Cloudflare Pages (vanity-address.pages.dev); wait-estimate Base58 case fix; web HUD polish.*
