@@ -1,4 +1,6 @@
+# Rust build output (workspace root and per-crate, e.g. vanity-wasm/target/)
 /target/
+**/target/
 **/*.rs.bk
 .DS_Store
 .env

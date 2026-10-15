@@ -48,8 +48,7 @@
   <h1 class="sr-only">Generate a vanity address</h1>
   <div class="loading" id="loading" role="status" aria-live="polite">
     <div class="boot-bot" aria-hidden="true">
-      <img class="boot-bot-img bot-img-light" src="grind-bot.png" alt="" width="200" height="267" decoding="async" />
-      <img class="boot-bot-img bot-img-dark" src="grind-bot-dark.png" alt="" width="200" height="267" decoding="async" />
+      <!-- Face via CSS background so theme swap can't leave an empty/collapsed <img> grid. -->
       <span class="boot-glow"></span>
       <span class="boot-visor">
         <span class="boot-visor-scan"></span>
@@ -131,21 +130,23 @@
         <svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <span class="words">address that</span>
-      <span class="slot pick">
-        <button class="pick-btn" type="button" id="position" aria-haspopup="listbox" aria-expanded="false" aria-controls="positionMenu">
-          <span id="positionLabel">starts with</span>
-          <svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <span class="menu" id="positionMenu" role="listbox" aria-label="Where your word goes" hidden>
-          <span class="menu-item" role="option" data-value="prefix" aria-selected="true" tabindex="-1">starts with</span>
-          <span class="menu-item" role="option" data-value="suffix" aria-selected="false" tabindex="-1">ends with</span>
-          <span class="menu-item" role="option" data-value="contains" aria-selected="false" tabindex="-1">contains</span>
+      <span class="pattern">
+        <span class="slot pick">
+          <button class="pick-btn" type="button" id="position" aria-haspopup="listbox" aria-expanded="false" aria-controls="positionMenu">
+            <span id="positionLabel">starts with</span>
+            <svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="menu" id="positionMenu" role="listbox" aria-label="Where your word goes" hidden>
+            <span class="menu-item" role="option" data-value="prefix" aria-selected="true" tabindex="-1">starts with</span>
+            <span class="menu-item" role="option" data-value="suffix" aria-selected="false" tabindex="-1">ends with</span>
+            <span class="menu-item" role="option" data-value="contains" aria-selected="false" tabindex="-1">contains</span>
+          </span>
         </span>
+        <label class="slot type">
+          <span class="sr-only">Your word</span>
+          <input id="word" class="mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
+        </label>
       </span>
-      <label class="slot type">
-        <span class="sr-only">Your word</span>
-        <input id="word" class="mono" type="text" placeholder="cafe" size="4" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go" />
-      </label>
     </p>
 
     <figure class="plate" id="plate">

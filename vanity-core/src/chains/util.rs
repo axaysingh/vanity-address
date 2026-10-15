@@ -325,8 +325,41 @@ pub fn build_hex_pattern(
     })
 }
 
+/// Expected attempts for one pattern character against a concrete alphabet.
+///
+/// When `ignore_case` is set, a letter counts as two matches only if **both**
+/// cases appear in `alphabet` (Base58 omits `O`/`I`/`l`, so `o`/`i`/`L` stay 1×).
+pub fn alphabet_char_expected(c: char, ignore_case: bool, alphabet: &str) -> f64 {
+    let size = alphabet.len() as f64;
+    let mut matches: f64 = 0.0;
+    if alphabet.contains(c) {
+        matches += 1.0;
+    }
+    if ignore_case && c.is_ascii_alphabetic() {
+        let other = if c.is_ascii_lowercase() {
+            c.to_ascii_uppercase()
+        } else {
+            c.to_ascii_lowercase()
+        };
+        if other != c && alphabet.contains(other) {
+            matches += 1.0;
+        }
+    }
+    size / matches.max(1.0)
+}
+
+/// Product of [`alphabet_char_expected`] over literal (non-`*`) pattern chars.
+pub fn alphabet_combinations(pattern: &str, ignore_case: bool, alphabet: &str) -> f64 {
+    pattern
+        .chars()
+        .filter(|c| *c != '*')
+        .map(|c| alphabet_char_expected(c, ignore_case, alphabet))
+        .product()
+}
+
+#[allow(dead_code)] // exact-case helper; layouts use alphabet_combinations with ignore_case
 pub fn base58_combinations(pattern: &str) -> f64 {
-    58f64.powi(literal_char_count(pattern) as i32)
+    alphabet_combinations(pattern, false, BASE58_ALPHABET)
 }
 
 pub fn hex_combinations(pattern: &str) -> f64 {
@@ -342,10 +375,6 @@ pub fn base32_combinations(pattern: &str) -> f64 {
     32f64.powi(literal_char_count(pattern) as i32)
 }
 
-pub fn base64url_combinations(pattern: &str) -> f64 {
-    64f64.powi(literal_char_count(pattern) as i32)
-}
-
 /// RFC 4648 base32 alphabet (Algorand / Filecoin / ICP).
 pub const BASE32_ALPHABET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 pub const BASE32_ALPHABET_LOWER: &str = "abcdefghijklmnopqrstuvwxyz234567";
@@ -353,6 +382,11 @@ pub const BASE32_ALPHABET_LOWER: &str = "abcdefghijklmnopqrstuvwxyz234567";
 /// TON user-friendly address alphabet (base64url).
 pub const BASE64URL_ALPHABET: &str =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+#[allow(dead_code)] // exact-case helper; TON uses alphabet_combinations with ignore_case
+pub fn base64url_combinations(pattern: &str) -> f64 {
+    alphabet_combinations(pattern, false, BASE64URL_ALPHABET)
+}
 
 /// DER-encodes a raw 32-byte Ed25519 public key as a SubjectPublicKeyInfo
 /// (RFC 8410), used by both ICP principals and Hedera's public key export.

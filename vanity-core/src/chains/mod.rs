@@ -137,8 +137,9 @@ impl Chain {
             "ton" => 64.0,
             "sol" | "sol-mint" | "btc" | "ltc" | "doge" | "dash" | "trx" | "xrp" | "dot"
             | "ksm" | "xtz" => {
+                // Typical letter: both cases in base58 → 58/2. (i/o/L are one-case; digits stay 58.)
                 if ignore_case {
-                    34.0
+                    29.0
                 } else {
                     58.0
                 }
@@ -593,5 +594,70 @@ mod tests {
             let (addr, attempt) = chain.grind_attempt();
             assert_eq!(chain.finalize(attempt).address, addr);
         }
+    }
+
+    /// Prefix / suffix / contains estimates must honor ignore-case only when both
+    /// letter cases exist in the alphabet (Base58 `i`/`o` stay full-cost).
+    #[test]
+    fn estimate_modes_respect_case_and_alphabet() {
+        // Solana: suffix + contains share the same char math.
+        let sol = Chain::from_id("sol").unwrap();
+        let suffix = sol.build_pattern(None, Some("aiboss"), None, false).unwrap();
+        let contains = sol
+            .build_pattern(None, None, Some("aiboss"), false)
+            .unwrap();
+        let want = 29.0_f64.powi(4) * 58.0_f64.powi(2);
+        assert!(
+            (sol.expected_attempts(&suffix) - want).abs() < 1.0,
+            "sol suffix aiboss"
+        );
+        assert!(
+            (sol.expected_attempts(&contains) - want).abs() < 1.0,
+            "sol contains aiboss"
+        );
+        let exact = sol.build_pattern(None, Some("aiboss"), None, true).unwrap();
+        assert!((sol.expected_attempts(&exact) - 58.0_f64.powi(6)).abs() < 1.0);
+
+        // BTC-like layout: ignore-case suffix must not still use 58^n.
+        let btc = Chain::from_id("btc").unwrap();
+        let p = btc.build_pattern(None, Some("ab"), None, false).unwrap();
+        assert!((btc.expected_attempts(&p) - 29.0 * 29.0).abs() < 1e-6);
+        let p = btc.build_pattern(None, Some("ab"), None, true).unwrap();
+        assert!((btc.expected_attempts(&p) - 58.0 * 58.0).abs() < 1e-6);
+        // Single-case letter `o` stays 58 even when ignore-case.
+        let p = btc.build_pattern(None, Some("ao"), None, false).unwrap();
+        assert!((btc.expected_attempts(&p) - 29.0 * 58.0).abs() < 1e-6);
+
+        // Hex chains: always 16^n (case normalized).
+        let evm = Chain::from_id("evm").unwrap();
+        for (mode, build) in [
+            ("prefix", evm.build_pattern(Some("ab"), None, None, false)),
+            ("suffix", evm.build_pattern(None, Some("ab"), None, false)),
+            ("contains", evm.build_pattern(None, None, Some("ab"), false)),
+        ] {
+            let p = build.unwrap();
+            assert!(
+                (evm.expected_attempts(&p) - 16.0_f64.powi(2)).abs() < 1e-9,
+                "evm {mode}"
+            );
+        }
+
+        // Bech32: lowercase-only alphabet → always 32^n (exact case unsupported).
+        let seg = Chain::from_id("btc-segwit").unwrap();
+        let p = seg.build_pattern(None, Some("qp"), None, false).unwrap();
+        assert!((seg.expected_attempts(&p) - 32.0 * 32.0).abs() < 1e-6);
+
+        // TON base64url: letters have both cases → ignore-case halves letter cost.
+        let ton = Chain::from_id("ton").unwrap();
+        let ignore = ton.build_pattern(None, Some("ab"), None, false).unwrap();
+        let exact = ton.build_pattern(None, Some("ab"), None, true).unwrap();
+        assert!((ton.expected_attempts(&ignore) - 32.0 * 32.0).abs() < 1e-6);
+        assert!((ton.expected_attempts(&exact) - 64.0 * 64.0).abs() < 1e-6);
+
+        // Combined suffix+contains multiplies.
+        let both = sol
+            .build_pattern(None, Some("ab"), Some("cd"), false)
+            .unwrap();
+        assert!((sol.expected_attempts(&both) - 29.0_f64.powi(4)).abs() < 1e-6);
     }
 }

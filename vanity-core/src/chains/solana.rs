@@ -1,6 +1,7 @@
 use super::base58_odds::Base58Layout;
 use super::util::{
-    grind_ed25519, keypair_from_secret, secret_from_attempt, Keypair, BASE58_ALPHABET,
+    alphabet_combinations, grind_ed25519, keypair_from_secret, secret_from_attempt, Keypair,
+    BASE58_ALPHABET,
 };
 use crate::chain::{ChainGrinder, GrindAttempt, KeyExport, KeypairResult};
 use crate::pattern::{matches_full, Pattern};
@@ -42,20 +43,6 @@ impl SolanaGrinder {
         }
         s.push(']');
         s
-    }
-
-    fn char_combinations(pattern: &str, ignore_case: bool) -> f64 {
-        pattern
-            .chars()
-            .filter(|c| *c != '*')
-            .map(|c| {
-                if ignore_case && c.is_ascii_alphabetic() {
-                    29.0
-                } else {
-                    58.0
-                }
-            })
-            .product()
     }
 
     fn validate_part(label: &str, pattern: &str) -> Result<(), String> {
@@ -176,10 +163,11 @@ impl ChainGrinder for SolanaGrinder {
             combos /= LAYOUT.prefix_probability(&pattern.prefix, pattern.ignore_case);
         }
         if pattern.has_suffix() {
-            combos *= Self::char_combinations(&pattern.suffix, pattern.ignore_case);
+            combos *= alphabet_combinations(&pattern.suffix, pattern.ignore_case, BASE58_ALPHABET);
         }
         if pattern.has_contains() {
-            combos *= Self::char_combinations(&pattern.contains, pattern.ignore_case);
+            combos *=
+                alphabet_combinations(&pattern.contains, pattern.ignore_case, BASE58_ALPHABET);
         }
         combos
     }
@@ -319,5 +307,36 @@ mod tests {
         let g = SolanaGrinder;
         let (addr, _) = g.grind_attempt();
         assert!(bs58::decode(&addr).into_vec().is_ok());
+    }
+
+    #[test]
+    fn suffix_estimate_uses_29_only_when_both_cases_exist() {
+        let g = SolanaGrinder;
+        // a/b/s have both cases → 29; i/o only lowercase in base58 → 58
+        let ignore = g
+            .build_pattern(None, Some("aiboss"), None, false)
+            .expect("aiboss");
+        let exact = g
+            .build_pattern(None, Some("aiboss"), None, true)
+            .expect("aiboss exact");
+        let want_ignore = 29.0_f64.powi(4) * 58.0_f64.powi(2);
+        let want_exact = 58.0_f64.powi(6);
+        assert!(
+            (g.expected_attempts(&ignore) - want_ignore).abs() < 1.0,
+            "ignore-case aiboss: got {} want {want_ignore}",
+            g.expected_attempts(&ignore)
+        );
+        assert!(
+            (g.expected_attempts(&exact) - want_exact).abs() < 1.0,
+            "exact aiboss: got {} want {want_exact}",
+            g.expected_attempts(&exact)
+        );
+    }
+
+    #[test]
+    fn both_case_letters_halve_per_char_odds() {
+        let g = SolanaGrinder;
+        let p = g.build_pattern(None, Some("ab"), None, false).expect("ab");
+        assert!((g.expected_attempts(&p) - 29.0 * 29.0).abs() < 1e-6);
     }
 }

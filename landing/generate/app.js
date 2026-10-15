@@ -365,19 +365,38 @@ function previewLayout() {
 }
 
 function fitBoard(count) {
-  const avail = $("composer").clientWidth || $("shell").clientWidth;
-  const narrow = avail < 600;
-  const inset = narrow ? 22 : 30; // .plate horizontal padding + border
-  const width = Math.min(1000, avail) - inset;
-  const gap = 2;
-  const wantTile = narrow ? (mode === "done" ? 16 : 21) : 20;
-  const maxTile = narrow ? 26 : 28;
-  let cols = count;
-  for (let rows = 1; rows <= 8; rows++) {
-    cols = Math.ceil(count / rows);
-    if ((width - gap * (cols - 1)) / cols >= wantTile) break;
+  const plate = $("plate");
+  const shell = $("composer") || $("shell");
+  let width = 0;
+  if (plate && plate.clientWidth > 0) {
+    const cs = getComputedStyle(plate);
+    width = plate.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+  } else {
+    const avail = shell?.clientWidth || 0;
+    const narrowGuess = avail < 600;
+    width = Math.min(1000, avail) - (narrowGuess ? 22 : 30);
   }
-  const tile = Math.min(maxTile, Math.floor((width - gap * (cols - 1)) / cols));
+  width = Math.max(120, width);
+  const narrow = width < 560;
+  const gap = 2;
+  const wantTile = narrow ? (mode === "done" ? 16 : 18) : 20;
+  const maxTile = narrow ? 26 : 28;
+  const minTile = narrow ? 13 : 14;
+  let rows = 1;
+  let cols = count;
+  let tile = minTile;
+  for (; rows <= Math.min(10, count); rows++) {
+    cols = Math.ceil(count / rows);
+    const fitted = Math.floor((width - gap * Math.max(0, cols - 1)) / cols);
+    tile = Math.max(minTile, Math.min(maxTile, fitted));
+    if (fitted >= wantTile) break;
+  }
+  // Never wider than the plate — overflow:hidden would clip the address tiles.
+  while (cols * tile + Math.max(0, cols - 1) * gap > width + 0.5 && rows < count) {
+    rows += 1;
+    cols = Math.ceil(count / rows);
+    tile = Math.max(minTile, Math.min(maxTile, Math.floor((width - gap * Math.max(0, cols - 1)) / cols)));
+  }
   boardCols = cols;
   syncSweep();
   board.style.setProperty("--cols", String(cols));
@@ -427,22 +446,48 @@ function paintTiles(chars, locked, fixed) {
 function paintVisor(chars, locked) {
   const el = $("visorAddr");
   if (!el) return;
-  const max = 16;
+  // Full-lens HUD type is big — keep few glyphs so the suffix stays inside the glass.
+  const max = 8;
   let start = 0;
   let end = chars.length;
   if (chars.length > max) {
-    // Prefer keeping the locked prefix/suffix visible when we have to crop.
     const firstLock = locked?.findIndex(Boolean) ?? -1;
     const lastLock = locked ? locked.lastIndexOf(true) : -1;
-    if (firstLock >= 0 && firstLock < 4) {
-      start = 0;
-      end = max;
-    } else if (lastLock >= chars.length - 4) {
-      start = chars.length - max;
-      end = chars.length;
+    if (firstLock >= 0 && lastLock >= firstLock) {
+      const lockLen = lastLock - firstLock + 1;
+      if (lockLen >= max) {
+        // Pattern longer than the HUD — show as much as fits, always including the end of the lock.
+        end = lastLock + 1;
+        start = Math.max(0, end - max);
+      } else if (firstLock <= 2) {
+        start = 0;
+        end = max;
+      } else if (lastLock >= chars.length - 3) {
+        // Suffix: keep the full pattern, but prefer a shorter window so hits sit mid-glass — not flush on the masked edge.
+        end = chars.length;
+        const show = Math.min(max, Math.max(lockLen + 3, 7));
+        start = end - show;
+      } else {
+        const pad = max - lockLen;
+        start = Math.max(0, firstLock - Math.floor(pad / 2));
+        end = Math.min(chars.length, start + max);
+        start = Math.max(0, end - max);
+      }
     } else {
       start = Math.max(0, Math.floor((chars.length - max) / 2));
       end = start + max;
+    }
+  }
+  // Never drop a locked char from the crop window.
+  if (locked) {
+    const firstLock = locked.findIndex(Boolean);
+    const lastLock = locked.lastIndexOf(true);
+    if (firstLock >= 0) {
+      if (firstLock < start) start = Math.max(0, lastLock + 1 - max);
+      if (lastLock >= end) {
+        end = lastLock + 1;
+        start = Math.max(0, end - max);
+      }
     }
   }
   const frag = document.createDocumentFragment();
@@ -455,6 +500,8 @@ function paintVisor(chars, locked) {
     frag.append(span);
   }
   if (end < chars.length) frag.append("…");
+  // Hair space after the last glyph so overflow/mask never eats the final hit (axay → axa).
+  frag.append("\u200A");
   el.replaceChildren(frag);
 }
 
@@ -723,7 +770,11 @@ function startGenerating(p) {
   );
   $("runNote").textContent = "Each try is a fresh coin flip, so a match can come early or late. Keep this tab open.";
   $("meterFill").style.setProperty("width", "0%");
-  renderBotHud(`bot grinding… · warming up · ${workers} workers`);
+  renderBotHud(
+    window.innerWidth < 420
+      ? `bot · warming up · ${workers}w`
+      : `bot grinding… · warming up · ${workers} workers`,
+  );
   setMode("running");
   announce("Generating. This tab is searching for your address.");
   board.setAttribute("aria-hidden", "true");
@@ -752,8 +803,11 @@ function startGenerating(p) {
       state.speeds.set(speedKey(p), rate);
     }
     // Terminal HUD owns live speed / tries / workers; meta only shows the wait estimate.
+    // Compact copy on phones so the line doesn't ellipsize mid-word.
     renderBotHud(
-      `bot grinding… · ${formatSpeed(rate)}/s · ${formatCount(tried)} tried · ${workers} workers`,
+      window.innerWidth < 420
+        ? `bot · ${formatSpeed(rate)}/s · ${formatCount(tried)} · ${workers}w`
+        : `bot grinding… · ${formatSpeed(rate)}/s · ${formatCount(tried)} tried · ${workers} workers`,
     );
     $("runMeta").replaceChildren(el("strong", "", "Average wait "), `${avg}.`);
     $("meterFill").style.setProperty("width", `${Math.min(100, share * 100).toFixed(1)}%`);
@@ -1052,11 +1106,18 @@ async function loadEngine() {
     if (bootMsg) bootMsg.textContent = msg;
     if (bootVisor && visor) bootVisor.textContent = visor;
   };
+  const withTimeout = (promise, ms, label) =>
+    Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(`${label} timed out. Check your connection and refresh.`)), ms);
+      }),
+    ]);
   try {
     setBoot("Fetching the engine…", "fetch…");
-    state.module = await loadEngine();
+    state.module = await withTimeout(loadEngine(), 45000, "Engine download");
     setBoot("Starting the generator…", "init…");
-    await init({ module_or_path: state.module });
+    await withTimeout(init({ module_or_path: state.module }), 30000, "Engine start");
     state.chains = list_chains();
     $("loading").hidden = true;
     $("composer").hidden = false;

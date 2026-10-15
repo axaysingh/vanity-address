@@ -8,7 +8,7 @@
 
 use crate::pattern::Pattern;
 
-use super::util::{apply_address_start, base58_combinations, expected_from_pattern};
+use super::util::{alphabet_combinations, apply_address_start};
 
 /// Overlaps smaller than this fraction of a digit slot are float noise or so rare
 /// they would need ~10⁹× the normal attempts — treat them as impossible.
@@ -87,14 +87,24 @@ impl Base58Layout<'_> {
         as_typed
     }
 
-    /// Expected attempts: exact odds for the prefix, the usual estimate for suffix/contains.
+    /// Expected attempts: exact odds for the prefix; suffix/contains use the alphabet
+    /// (with ignore-case only when both letter cases exist — same as Solana).
     pub fn expected_attempts(&self, pattern: &Pattern) -> f64 {
-        let rest = expected_from_pattern(pattern, base58_combinations)
-            / base58_combinations(pattern.user_prefix());
-        if !pattern.has_prefix() {
-            return rest;
+        let mut combos = 1.0_f64;
+        if pattern.has_prefix() {
+            let p = self.prefix_probability(&pattern.prefix, pattern.ignore_case);
+            if p <= 0.0 {
+                return f64::INFINITY;
+            }
+            combos /= p;
         }
-        rest / self.prefix_probability(&pattern.prefix, pattern.ignore_case)
+        if pattern.has_suffix() {
+            combos *= alphabet_combinations(&pattern.suffix, pattern.ignore_case, self.alphabet);
+        }
+        if pattern.has_contains() {
+            combos *= alphabet_combinations(&pattern.contains, pattern.ignore_case, self.alphabet);
+        }
+        combos
     }
 
     fn digit_sets(&self, prefix: &str, ignore_case: bool) -> Vec<Vec<u32>> {

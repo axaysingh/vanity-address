@@ -4,7 +4,7 @@ use crate::pattern::Pattern;
 use sha2::{Digest, Sha256};
 
 use super::util::{
-    address_start_factor, apply_address_start, base64url_combinations, build_base58_pattern,
+    address_start_factor, alphabet_combinations, apply_address_start, build_base58_pattern,
     crc16_xmodem, expected_from_pattern, grind_ed25519, keypair_from_secret, matches_pattern,
     secret_from_attempt, BASE64URL_ALPHABET,
 };
@@ -120,8 +120,10 @@ impl ChainGrinder for TonGrinder {
     }
 
     fn expected_attempts(&self, pattern: &Pattern) -> f64 {
-        expected_from_pattern(pattern, base64url_combinations)
-            * address_start_factor(pattern, TON_NEXT, 64.0)
+        let ignore = pattern.ignore_case;
+        expected_from_pattern(pattern, |p| {
+            alphabet_combinations(p, ignore, BASE64URL_ALPHABET)
+        }) * address_start_factor(pattern, TON_NEXT, 64.0)
     }
 
     fn matches(&self, address: &str, pattern: &Pattern) -> bool {
