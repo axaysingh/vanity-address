@@ -52,7 +52,15 @@ function normalizeOptions(options) {
     workers: opts.workers,
     keysPerSec: opts.keysPerSec,
     count: opts.count,
+    deployer: opts.deployer || opts.deployerAddress || "",
+    initCodeHash: opts.initCodeHash || opts.init_code_hash || "",
   };
+}
+
+function factoryArgs(opts) {
+  const deployer = opts.deployer || undefined;
+  const initCodeHash = opts.initCodeHash || undefined;
+  return [deployer || undefined, initCodeHash || undefined];
 }
 
 function requireChainPattern(opts) {
@@ -64,6 +72,15 @@ function requireChainPattern(opts) {
       "options.prefix, options.suffix, or options.contains is required",
       "INVALID_PATTERN",
     );
+  }
+  const id = opts.chain.toLowerCase();
+  if (id === "create2") {
+    if (!opts.deployer || !opts.initCodeHash) {
+      throw new VanityAddressError(
+        "create2 requires options.deployer and options.initCodeHash",
+        "INVALID_CHAIN",
+      );
+    }
   }
 }
 
@@ -119,6 +136,7 @@ function grindSingleThreaded(grindChunk, opts, expectedAttempts) {
           !opts.caseSensitive,
           CHUNK_SIZE,
           opts.contains || undefined,
+          ...factoryArgs(opts),
         );
       } catch (e) {
         const code = (e && e.code) || "INTERNAL";
@@ -159,6 +177,7 @@ function grindSingleThreaded(grindChunk, opts, expectedAttempts) {
 function createSdk(wasm, extras) {
   const grindChunk = wasm.grind_chunk.bind(wasm);
   const listChainsRaw = wasm.list_chains ? wasm.list_chains.bind(wasm) : null;
+  const listDeployRaw = wasm.list_deploy_modes ? wasm.list_deploy_modes.bind(wasm) : null;
   const estimateRaw = wasm.estimate_difficulty
     ? wasm.estimate_difficulty.bind(wasm)
     : null;
@@ -171,6 +190,23 @@ function createSdk(wasm, extras) {
       throw new VanityAddressError("list_chains is unavailable in this build", "INTERNAL");
     }
     return listChainsRaw();
+  }
+
+  function listDeployModes() {
+    if (!listDeployRaw) {
+      // Fallback for older wasm artifacts until rebuild.
+      return [
+        { id: "evm-contract", name: "EVM contract (CREATE · nonce 0)", needsFactory: false },
+        { id: "trx-contract", name: "Tron contract (CREATE · nonce 0)", needsFactory: false },
+        { id: "sol-mint", name: "Solana token mint", needsFactory: false },
+        { id: "create2", name: "EVM CREATE2 salt", needsFactory: true },
+      ];
+    }
+    return listDeployRaw().map((m) => ({
+      id: m.id,
+      name: m.name,
+      needsFactory: Boolean(m.needs_factory),
+    }));
   }
 
   function isValidChain(id) {
@@ -203,6 +239,7 @@ function createSdk(wasm, extras) {
       !opts.caseSensitive,
       userKps,
       opts.contains || undefined,
+      ...factoryArgs(opts),
     );
 
     // Re-run through the same wasm estimator at the scaled throughput so
@@ -217,6 +254,7 @@ function createSdk(wasm, extras) {
         !opts.caseSensitive,
         scaledKps,
         opts.contains || undefined,
+        ...factoryArgs(opts),
       );
     }
 
@@ -257,6 +295,7 @@ function createSdk(wasm, extras) {
       opts.suffix,
       !opts.caseSensitive,
       opts.contains || undefined,
+      ...factoryArgs(opts),
     );
     return {
       ok: Boolean(raw.ok),
@@ -288,6 +327,7 @@ function createSdk(wasm, extras) {
           !opts.caseSensitive,
           0,
           opts.contains || undefined,
+          ...factoryArgs(opts),
         );
         expectedAttempts = est.attempts || 0;
       }
@@ -387,6 +427,7 @@ function createSdk(wasm, extras) {
     estimateDifficulty,
     validatePattern,
     listChains,
+    listDeployModes,
     isValidChain,
     VanityAddressError,
     // test helper

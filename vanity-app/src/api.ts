@@ -9,6 +9,10 @@ export interface ChainInfo {
   menu_label: string;
   supports_exact_case: boolean;
   pattern_hint: string;
+  /** `"wallet"` or `"deploy"`. */
+  group: string;
+  /** CREATE2 needs deployer + init-code-hash. */
+  needs_factory: boolean;
 }
 
 export interface SystemInfo {
@@ -77,8 +81,16 @@ export function listChains(): Promise<ChainInfo[]> {
   return invoke("list_chains");
 }
 
-export function getSystemProfile(chain: string): Promise<SystemInfo> {
-  return invoke("get_system_profile", { chain });
+export function getSystemProfile(
+  chain: string,
+  deployer?: string,
+  initCodeHash?: string,
+): Promise<SystemInfo> {
+  return invoke("get_system_profile", {
+    chain,
+    deployer: deployer || null,
+    initCodeHash: initCodeHash || null,
+  });
 }
 
 export function estimate(
@@ -87,8 +99,18 @@ export function estimate(
   suffix: string,
   exact: boolean,
   contains = "",
+  deployer?: string,
+  initCodeHash?: string,
 ): Promise<EstimateResult> {
-  return invoke("estimate", { chain, prefix, suffix, exact, contains });
+  return invoke("estimate", {
+    chain,
+    prefix,
+    suffix,
+    exact,
+    contains,
+    deployer: deployer || null,
+    initCodeHash: initCodeHash || null,
+  });
 }
 
 export function startGrind(
@@ -98,8 +120,19 @@ export function startGrind(
   exact: boolean,
   force = false,
   contains = "",
+  deployer?: string,
+  initCodeHash?: string,
 ): Promise<void> {
-  return invoke("start_grind", { chain, prefix, suffix, exact, force, contains });
+  return invoke("start_grind", {
+    chain,
+    prefix,
+    suffix,
+    exact,
+    force,
+    contains,
+    deployer: deployer || null,
+    initCodeHash: initCodeHash || null,
+  });
 }
 
 export function stopGrind(): Promise<void> {

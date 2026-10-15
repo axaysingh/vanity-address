@@ -6,7 +6,7 @@ use tauri_plugin_dialog::DialogExt;
 use vanity_core::{
     benchmark, expected_attempts_any, grind_estimate, grind_patterns, pattern_guide,
     patterns_description, CancelToken, Chain, ChainGrinder, GrindResult, Pattern, PatternRisk,
-    SystemProfile, MENU_CHAINS,
+    SystemProfile, DEPLOY_MODES, MENU_CHAINS,
 };
 
 const BENCHMARK_SECS: f64 = 2.0;
@@ -18,24 +18,68 @@ pub struct ChainInfo {
     menu_label: String,
     supports_exact_case: bool,
     pattern_hint: String,
+    /// `"wallet"` or `"deploy"` (contract / mint / CREATE2).
+    group: String,
+    /// True for CREATE2 — UI must collect deployer + init-code-hash.
+    needs_factory: bool,
+}
+
+fn wallet_chain_info(i: usize, id: &str, menu_label: &str) -> Option<ChainInfo> {
+    let chain = Chain::from_menu_index(i)?;
+    Some(ChainInfo {
+        id: id.to_string(),
+        display_name: chain.display_name().to_string(),
+        menu_label: menu_label.to_string(),
+        supports_exact_case: chain.supports_exact_case(),
+        pattern_hint: chain.pattern_hint().to_string(),
+        group: "wallet".to_string(),
+        needs_factory: false,
+    })
+}
+
+fn deploy_mode_info(id: &str, menu_label: &str) -> ChainInfo {
+    if id == "create2" {
+        return ChainInfo {
+            id: id.to_string(),
+            display_name: "EVM CREATE2".to_string(),
+            menu_label: menu_label.to_string(),
+            supports_exact_case: true,
+            pattern_hint: "Hex 0-9 a-f · needs deployer address + init-code-hash".to_string(),
+            group: "deploy".to_string(),
+            needs_factory: true,
+        };
+    }
+    let chain = Chain::from_id(id).expect("deploy mode id must resolve");
+    ChainInfo {
+        id: id.to_string(),
+        display_name: chain.display_name().to_string(),
+        menu_label: menu_label.to_string(),
+        supports_exact_case: chain.supports_exact_case(),
+        pattern_hint: chain.pattern_hint().to_string(),
+        group: "deploy".to_string(),
+        needs_factory: false,
+    }
 }
 
 #[tauri::command]
 pub fn list_chains() -> Vec<ChainInfo> {
-    MENU_CHAINS
+    let mut out: Vec<ChainInfo> = MENU_CHAINS
         .iter()
         .enumerate()
-        .filter_map(|(i, (id, menu_label))| {
-            let chain = Chain::from_menu_index(i)?;
-            Some(ChainInfo {
-                id: id.to_string(),
-                display_name: chain.display_name().to_string(),
-                menu_label: menu_label.to_string(),
-                supports_exact_case: chain.supports_exact_case(),
-                pattern_hint: chain.pattern_hint().to_string(),
-            })
-        })
-        .collect()
+        .filter_map(|(i, (id, menu_label))| wallet_chain_info(i, id, menu_label))
+        .collect();
+    for (id, menu_label) in DEPLOY_MODES {
+        out.push(deploy_mode_info(id, menu_label));
+    }
+    out
+}
+
+fn resolve_app_chain(
+    chain: &str,
+    deployer: Option<&str>,
+    init_code_hash: Option<&str>,
+) -> Result<Chain, String> {
+    Chain::resolve_chain(chain, deployer, init_code_hash)
 }
 
 #[derive(Serialize)]
@@ -50,8 +94,16 @@ pub struct SystemInfo {
 }
 
 #[tauri::command]
-pub fn get_system_profile(chain: String) -> Result<SystemInfo, String> {
-    let chain = Chain::from_id(&chain)?;
+pub fn get_system_profile(
+    chain: String,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
+) -> Result<SystemInfo, String> {
+    let chain = resolve_app_chain(
+        &chain,
+        deployer.as_deref(),
+        init_code_hash.as_deref(),
+    )?;
     let profile = SystemProfile::detect();
     Ok(SystemInfo {
         cpu_description: profile.cpu_description(),
@@ -149,14 +201,21 @@ fn length_guide(chain: &Chain, pattern: &Pattern, estimate: &vanity_core::GrindE
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub fn estimate(
     chain: String,
     prefix: String,
     suffix: String,
     exact: bool,
     contains: Option<String>,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
 ) -> Result<EstimateResult, String> {
-    let chain = Chain::from_id(&chain)?;
+    let chain = resolve_app_chain(
+        &chain,
+        deployer.as_deref(),
+        init_code_hash.as_deref(),
+    )?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns_checked(&chain, &prefix, &suffix, &contains, exact)?;
     let expected = expected_attempts_any(
@@ -249,6 +308,8 @@ pub fn start_grind(
     exact: bool,
     force: bool,
     contains: Option<String>,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
 ) -> Result<(), String> {
     {
         let mut job = state
@@ -258,7 +319,11 @@ pub fn start_grind(
         if job.is_some() {
             return Err("A grind is already running".to_string());
         }
-        let chain_parsed = Chain::from_id(&chain)?;
+        let chain_parsed = resolve_app_chain(
+            &chain,
+            deployer.as_deref(),
+            init_code_hash.as_deref(),
+        )?;
         let contains = contains.unwrap_or_default();
         let patterns = build_patterns_checked(&chain_parsed, &prefix, &suffix, &contains, exact)?;
         let expected = expected_attempts_any(
@@ -517,10 +582,13 @@ mod tests {
     #[test]
     fn list_chains_covers_every_menu_entry() {
         let chains = list_chains();
-        assert_eq!(chains.len(), MENU_CHAINS.len());
+        assert_eq!(chains.len(), MENU_CHAINS.len() + DEPLOY_MODES.len());
         assert_eq!(chains[0].id, MENU_CHAINS[0].0);
         assert!(chains.iter().any(|c| c.id == "sol"));
         assert!(chains.iter().any(|c| c.id == "evm"));
+        assert!(chains.iter().any(|c| c.id == "evm-contract"));
+        assert!(chains.iter().any(|c| c.id == "trx-contract"));
+        assert!(chains.iter().any(|c| c.id == "create2" && c.needs_factory));
     }
 
     #[test]
@@ -530,6 +598,8 @@ mod tests {
             String::new(),
             "ax".to_string(),
             false,
+            None,
+            None,
             None,
         )
         .unwrap();
@@ -546,6 +616,8 @@ mod tests {
             "akshaysingheavysuffix".to_string(),
             false,
             None,
+            None,
+            None,
         )
         .unwrap();
         assert_eq!(result.risk, "Impractical");
@@ -554,8 +626,16 @@ mod tests {
 
     #[test]
     fn estimate_rejects_empty_pattern() {
-        let err =
-            estimate("sol".to_string(), String::new(), String::new(), false, None).unwrap_err();
+        let err = estimate(
+            "sol".to_string(),
+            String::new(),
+            String::new(),
+            false,
+            None,
+            None,
+            None,
+        )
+        .unwrap_err();
         assert!(err.contains("prefix") || err.contains("contains"));
     }
 
@@ -567,6 +647,8 @@ mod tests {
             "dead".to_string(),
             true,
             None,
+            None,
+            None,
         )
         .unwrap_err();
         assert!(err.contains("Exact case"));
@@ -574,7 +656,7 @@ mod tests {
 
     #[test]
     fn system_profile_returns_workers() {
-        let info = get_system_profile("sol".to_string()).unwrap();
+        let info = get_system_profile("sol".to_string(), None, None).unwrap();
         assert!(info.worker_description.contains("thread"));
         assert!(info.estimated_keys_per_sec > 0.0);
     }

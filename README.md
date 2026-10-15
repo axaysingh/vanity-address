@@ -42,25 +42,18 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 ## ✨ Features
 
-| Feature                     | Solana |   EVM    |
-| --------------------------- | :----: | :------: |
-| Prefix matching             |   ✅   |    ✅    |
-| Suffix matching             |   ✅   |    ✅    |
-| Contains + `*` wildcards    |   ✅   |    ✅    |
-| Multi-pattern OR            |   ✅   |    ✅    |
-| Case-insensitive mode       |   ✅   | ✅ (hex) |
-| Exact case mode             |   ✅   |    —     |
-| Parallel CPU grinding       |   ✅   |    ✅    |
-| Live progress + ETA         |   ✅   |    ✅    |
-| Multiple key export formats |   ✅   |    ✅    |
-| Contract address vanity     |   —    | ✅ CREATE + CREATE2 |
-| Token mint vanity           | ✅ SPL |    —     |
-| Owner-only key files (`0600`) |  ✅   |    ✅    |
-| 100% offline / local        |   ✅   |    ✅    |
+| Feature                     | Solana | EVM | Tron |
+| --------------------------- | :----: | :-: | :--: |
+| Prefix / suffix / contains  |   ✅   | ✅  |  ✅  |
+| Parallel CPU grinding       |   ✅   | ✅  |  ✅  |
+| Contract vanity (CREATE · nonce 0) | — | ✅ `evm-contract` | ✅ `trx-contract` |
+| CREATE2 salt vanity         |   —    | ✅ `--create2` / SDK | — |
+| Token mint vanity           | ✅ `sol-mint` | — | — |
+| 100% offline / local        |   ✅   | ✅  |  ✅  |
 
-**31 chains** + **contract & token-mint modes** · **CLI + desktop + web app + npm SDK** · **MIT licensed** · **privacy-first** (keys never leave your machine)
+**31 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
 
-> **New in 0.6.5:** a [web app](https://vanity-address.pages.dev/generate/) — generate in your browser with the same Rust engine, nothing to install, keys never leave the tab. **0.6.3:** difficulty warnings based on real measured speed, a per-character pattern guide, and an honest progress line. **0.6.2:** impossible prefixes are rejected up front (no more grinding forever on e.g. Kaspa `ax`), exact difficulty estimates for every chain, and fixed address starts are added for you. **0.6.1:** vanity **contract addresses** with no factory (`--chain evm-contract`), vanity **Solana token mints** (`--chain sol-mint`), Hyperliquid + Sonic aliases, owner-only key files. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.5:** Tron contract vanity, CREATE2 in the npm SDK (`listDeployModes`), deploy modes in the desktop app. Web app remains wallet-only. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 
@@ -96,7 +89,7 @@ Pick a chain → type your word → generate → save
 | Keys blurred until shown · copy · download as text | ✅ |
 | Cookies, analytics, or third-party requests | ❌ none |
 | Works offline once loaded (turn off Wi-Fi if you like) | ✅ |
-| Contract / token-mint modes, `--count`, `verify` | Use the CLI |
+| Contract / token-mint / CREATE2 modes | Use CLI, desktop, or npm SDK |
 
 Keys exist only in the open tab and are never stored or sent anywhere. The device remembers just two things in `localStorage`: your theme and that you've read the safety notice. The page ships a strict Content-Security-Policy that blocks any outside connection. For large balances, prefer the offline CLI or desktop app.
 
@@ -169,6 +162,7 @@ vanity-address --chain robinhood --suffix dead
 vanity-address verify --chain sol --address <addr> --key <hex-or-base58>
 vanity-address --create2 --deployer 0x… --init-code-hash 0x… --prefix cafe
 vanity-address --chain evm-contract --prefix cafe   # contract address (CREATE, deployer nonce 0)
+vanity-address --chain trx-contract --prefix Cafe   # Tron contract (CREATE, nonce 0)
 vanity-address --chain sol-mint --suffix pump       # SPL token mint keypair
 vanity-address --chain hyperliquid --prefix dead    # HyperEVM (also: sonic, base, monad, …)
 ```
@@ -177,25 +171,43 @@ vanity-address --chain hyperliquid --prefix dead    # HyperEVM (also: sonic, bas
 
 | Flag              | Description                              |
 | ----------------- | ---------------------------------------- |
-| `--chain <ID>`    | `sol`, `evm`, `base`, `hyperliquid`, `btc-segwit`, `sei`, … or deploy mode `evm-contract` / `sol-mint` |
+| `--chain <ID>`    | Wallet (`sol`, `evm`, `trx`, …) or deploy mode (`evm-contract`, `trx-contract`, `sol-mint`) |
 | `--prefix` / `--suffix` / `--contains` | Match start, end, or anywhere (`*` OK) |
+| `--create2`       | EVM CREATE2 salt grind (needs `--deployer` + `--init-code-hash`) |
+| `--deployer` / `--init-code-hash` | CREATE2 factory address + keccak256(init code) |
 | `--count N`       | Find N matches                           |
 | `--json`          | Machine-readable output (scripts)        |
 | `--save`          | Append keys to `vanity-results.txt` (owner-only `0600` on macOS/Linux) |
 | `-q, --quiet`     | Minimal output for scripts               |
 
-### Contract & token addresses
+### Contract & token addresses (deploy modes)
+
+Use these when you want a **vanity contract** or **token mint**, not a wallet.
+
+| Mode | Flag / chain | What you grind | Tip |
+| ---- | ------------ | -------------- | --- |
+| EVM contract | `--chain evm-contract` | Deployer key → contract at nonce 0 | First tx on that chain **must** be the deploy |
+| Tron contract | `--chain trx-contract` | Deployer key → `T…` contract at nonce 0 | Same rule as EVM |
+| EVM CREATE2 | `--create2 --deployer 0x… --init-code-hash 0x…` | Salt for a known factory | Output is a **salt**, not a private key |
+| Solana mint | `--chain sol-mint` | Mint keypair | Save JSON → `spl-token create-token mint.json` |
 
 ```bash
-# EVM: grind a deployer key — its first deploy (nonce 0) lands on 0xcafe…
+# EVM CREATE (nonce 0) — fund the deployer, deploy as its first transaction
 vanity-address --chain evm-contract --prefix cafe
 
-# Solana: vanity token mint → save "Mint Keypair (JSON)" as mint.json
+# Tron CREATE (nonce 0)
+vanity-address --chain trx-contract --prefix Cafe
+
+# EVM CREATE2 — you already have the factory + init-code hash
+vanity-address --create2 --deployer 0xYourFactory… --init-code-hash 0x… --prefix cafe
+
+# Solana token mint
 vanity-address --chain sol-mint --suffix pump
+# → save "Mint Keypair (JSON)" as mint.json, then:
 spl-token create-token mint.json
 ```
 
-> For `evm-contract`, the deploy must be the deployer's **very first transaction** on that chain. Using a factory? Use `--create2` instead.
+Interactive CLI: after the A–Z wallet list, digit keys pick deploy modes (CREATE2 stays `--create2` because it needs factory params). Desktop app: same modes under **Deploy / mint**, with CREATE2 fields on the pattern screen.
 
 📖 **Full guide:** [docs/USAGE.md](https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md) — all chains, deploy modes, JSON schema, pattern rules, performance tips
 
@@ -203,21 +215,38 @@ spl-token create-token mint.json
 
 ## 📦 Use it in your own code
 
-`npm install vanity-address` also gives you a programmatic API — no
-subprocess, runs in-process via WebAssembly (Node uses multi-core workers by default):
+`npm install vanity-address` — programmatic API via WebAssembly (Node: multi-core workers by default):
 
 ```js
-const { generateAddress, estimateDifficulty } = require("vanity-address");
+const {
+  generateAddress,
+  estimateDifficulty,
+  listChains,
+  listDeployModes,
+} = require("vanity-address");
 
-console.log(estimateDifficulty({ chain: "evm", prefix: "abc", workers: 4 }));
+listDeployModes();
+// [{ id: "evm-contract", needsFactory: false }, … { id: "create2", needsFactory: true }]
 
 const wallet = await generateAddress({ chain: "evm", prefix: "abc", workers: 4 });
 console.log(wallet.address, wallet.privateKey);
+
+// EVM / Tron contract (CREATE · nonce 0)
+const contract = await generateAddress({ chain: "evm-contract", prefix: "cafe" });
+// contract.address = vanity contract; contract.privateKey = deployer key
+
+// CREATE2 salt (needs factory params)
+const { address, privateKey: salt } = await generateAddress({
+  chain: "create2",
+  prefix: "cafe",
+  deployer: "0xYourFactory…",
+  initCodeHash: "0x…", // keccak256(init code)
+});
 ```
 
-Also: `generateAddresses`, `validatePattern`, `listChains`, `timeoutMs`, rich `onProgress`.
+Also: `generateAddresses`, `validatePattern`, `isValidChain`, `timeoutMs`, rich `onProgress`.
 
-📖 **Full guide:** [docs/SDK.md](https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md) — full API reference, workers, progress/ETA, supported chains
+📖 **Full guide:** [docs/SDK.md](https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md) — API reference, deploy modes, workers, progress/ETA
 
 ---
 
@@ -251,8 +280,8 @@ Home → Chain → Pattern → Summary → Grind → Result
 
 | Feature | Desktop |
 | ------- | ------- |
-| 31 chains, live ETA, stop mid-grind | ✅ |
-| Contract / token-mint modes | CLI only (for now) |
+| 31 wallet chains, live ETA, stop mid-grind | ✅ |
+| Deploy / mint modes (`evm-contract`, `trx-contract`, `sol-mint`, CREATE2) | ✅ |
 | Impractical-pattern warning | ✅ |
 | Masked keys + reveal / copy / save | ✅ |
 

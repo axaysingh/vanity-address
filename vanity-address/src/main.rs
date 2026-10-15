@@ -35,7 +35,7 @@ struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
 
-    /// Blockchain id or alias (e.g. sol, evm, base, hyperliquid, btc-segwit, sei) or deploy mode (evm-contract, sol-mint)
+    /// Blockchain id or alias (e.g. sol, evm, base, hyperliquid, btc-segwit, sei) or deploy mode (evm-contract, trx-contract, sol-mint)
     #[arg(long)]
     chain: Option<String>,
 

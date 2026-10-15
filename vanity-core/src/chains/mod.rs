@@ -23,6 +23,7 @@ mod sui;
 mod tezos;
 mod ton;
 mod tron;
+mod tron_contract;
 mod util;
 
 pub use algorand::AlgorandGrinder;
@@ -49,6 +50,7 @@ pub use sui::SuiGrinder;
 pub use tezos::TezosGrinder;
 pub use ton::TonGrinder;
 pub use tron::TronGrinder;
+pub use tron_contract::TronContractGrinder;
 
 use crate::chain::{ChainGrinder, GrindAttempt, KeypairResult};
 use crate::pattern::Pattern;
@@ -88,8 +90,18 @@ pub enum Chain {
     MultiversX(MultiversXGrinder),
     Create2(Create2Grinder),
     EvmContract(EvmContractGrinder),
+    TronContract(TronContractGrinder),
     SolanaMint(SolanaMintGrinder),
 }
+
+/// Deploy / mint modes (not wallet chains). Shown after MENU_CHAINS in CLI/desktop.
+/// CREATE2 needs factory params — listed for discovery; resolve via `resolve_chain`.
+pub const DEPLOY_MODES: [(&str, &str); 4] = [
+    ("evm-contract", "EVM contract (CREATE · nonce 0)"),
+    ("trx-contract", "Tron contract (CREATE · nonce 0)"),
+    ("sol-mint", "Solana token mint"),
+    ("create2", "EVM CREATE2 salt (needs deployer + init-code-hash)"),
+];
 
 /// Menu label for interactive chain picker (index 0-based).
 /// Ordered A–Z by display name for easier selection.
@@ -135,8 +147,8 @@ impl Chain {
             "evm" | "evm-contract" | "create2" | "aptos" | "sui" | "near" | "hedera" => 16.0,
             "ton" if ignore_case => 37.0,
             "ton" => 64.0,
-            "sol" | "sol-mint" | "btc" | "ltc" | "doge" | "dash" | "trx" | "xrp" | "dot"
-            | "ksm" | "xtz" => {
+            "sol" | "sol-mint" | "btc" | "ltc" | "doge" | "dash" | "trx" | "trx-contract"
+            | "xrp" | "dot" | "ksm" | "xtz" => {
                 // Typical letter: both cases in base58 → 58/2. (i/o/L are one-case; digits stay 58.)
                 if ignore_case {
                     29.0
@@ -199,6 +211,7 @@ impl Chain {
             "evm-contract" | "evm-create" | "contract" => {
                 Ok(Chain::EvmContract(EvmContractGrinder))
             }
+            "trx-contract" | "tron-contract" => Ok(Chain::TronContract(TronContractGrinder)),
             "btc" | "bitcoin" => Ok(Chain::Bitcoin(BitcoinLikeGrinder::bitcoin())),
             "btc-segwit" | "segwit" | "bc1q" => {
                 Ok(Chain::BitcoinSegwit(BitcoinSegwitGrinder::segwit()))
@@ -232,11 +245,42 @@ impl Chain {
             "ada" | "cardano" => Ok(Chain::Cardano(CardanoGrinder)),
             "hedera" | "hbar" => Ok(Chain::Hedera(HederaGrinder)),
             "erd" | "mvx" | "elrond" | "multiversx" => Ok(Chain::MultiversX(MultiversXGrinder)),
+            "create2" => Err(
+                "CREATE2 needs a deployer and init-code-hash — use resolve_chain / --create2 --deployer --init-code-hash"
+                    .into(),
+            ),
             _ => Err(format!(
-                "Unknown chain '{id}'. Supported: {} (deploy modes: evm-contract, sol-mint)",
-                Self::supported_ids_display()
+                "Unknown chain '{id}'. Supported: {} (deploy modes: {})",
+                Self::supported_ids_display(),
+                DEPLOY_MODES
+                    .iter()
+                    .map(|(id, _)| *id)
+                    .collect::<Vec<_>>()
+                    .join(", ")
             )),
         }
+    }
+
+    /// Resolve a wallet chain or deploy mode. For `create2`, pass deployer + init-code-hash hex.
+    pub fn resolve_chain(
+        id: &str,
+        deployer: Option<&str>,
+        init_code_hash: Option<&str>,
+    ) -> Result<Self, String> {
+        let id = id.trim().to_ascii_lowercase();
+        if id == "create2" {
+            let deployer = deployer
+                .filter(|s| !s.is_empty())
+                .ok_or("create2 requires deployer (20-byte hex)")?;
+            let init_code_hash = init_code_hash
+                .filter(|s| !s.is_empty())
+                .ok_or("create2 requires init-code-hash (32-byte hex)")?;
+            return Ok(Chain::Create2(Create2Grinder::parse(
+                deployer,
+                init_code_hash,
+            )?));
+        }
+        Self::from_id(&id)
     }
 
     /// Chain IDs in the same A–Z menu order.
@@ -317,6 +361,7 @@ macro_rules! dispatch {
             Chain::MultiversX(g) => g.$method($($arg),*),
             Chain::Create2(g) => g.$method($($arg),*),
             Chain::EvmContract(g) => g.$method($($arg),*),
+            Chain::TronContract(g) => g.$method($($arg),*),
             Chain::SolanaMint(g) => g.$method($($arg),*),
         }
     };
@@ -438,6 +483,7 @@ mod tests {
         for (id, input) in [
             ("evm", "ab"),
             ("evm-contract", "ab"),
+            ("trx-contract", "ab"),
             ("kaspa", "pq"),
             ("cosmos", "qp"),
             ("sei", "qp"),
@@ -539,7 +585,7 @@ mod tests {
     #[test]
     fn real_address_starts_are_always_accepted() {
         let mut ids: Vec<&str> = Chain::all_ids().to_vec();
-        ids.extend(["evm-contract", "sol-mint"]);
+        ids.extend(["evm-contract", "trx-contract", "sol-mint"]);
         for id in ids {
             let chain = Chain::from_id(id).unwrap();
             let addrs: Vec<String> = (0..300).map(|_| chain.grind_attempt().0).collect();
@@ -586,6 +632,8 @@ mod tests {
         for (alias, id) in [
             ("evm-contract", "evm-contract"),
             ("contract", "evm-contract"),
+            ("trx-contract", "trx-contract"),
+            ("tron-contract", "trx-contract"),
             ("sol-mint", "sol-mint"),
             ("mint", "sol-mint"),
         ] {
@@ -594,6 +642,14 @@ mod tests {
             let (addr, attempt) = chain.grind_attempt();
             assert_eq!(chain.finalize(attempt).address, addr);
         }
+        assert!(Chain::from_id("create2").is_err());
+        let c2 = Chain::resolve_chain(
+            "create2",
+            Some("0x0000000000000000000000000000000000000001"),
+            Some("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"),
+        )
+        .unwrap();
+        assert_eq!(c2.id(), "create2");
     }
 
     /// Prefix / suffix / contains estimates must honor ignore-case only when both

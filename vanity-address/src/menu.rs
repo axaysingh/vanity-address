@@ -6,7 +6,7 @@ use crate::warnings;
 use colored::Colorize;
 use vanity_core::{
     benchmark, grind_estimate, pattern_guide, Chain, ChainGrinder, GrindEstimate, PatternRisk,
-    SystemProfile, MENU_CHAINS,
+    SystemProfile, DEPLOY_MODES, MENU_CHAINS,
 };
 
 const SUMMARY_BENCHMARK_SECS: f64 = 1.0;
@@ -99,8 +99,25 @@ fn run_wizard() -> Option<InteractiveConfig> {
                 for (i, (_, label)) in MENU_CHAINS.iter().enumerate() {
                     println!("  {}  {}", format!("[{}]", i + 1).green(), label);
                 }
+                println!();
+                println!("{}", "  ── Deploy modes ──".dimmed());
+                let deploy_base = MENU_CHAINS.len();
+                for (i, (_, label)) in DEPLOY_MODES.iter().enumerate() {
+                    // Skip create2 in digit menu — needs --deployer / --init-code-hash
+                    if DEPLOY_MODES[i].0 == "create2" {
+                        continue;
+                    }
+                    let n = deploy_base + i + 1;
+                    println!("  {}  {}", format!("[{n}]").green(), label);
+                }
+                println!();
+                println!(
+                    "  {}",
+                    "CREATE2 salt: vanity-address --create2 --deployer 0x… --init-code-hash 0x…"
+                        .dimmed()
+                );
                 println!("  {}  Back to main menu", "[0]".dimmed());
-                if MENU_CHAINS.len() > 9 {
+                if deploy_base + DEPLOY_MODES.len() > 9 {
                     println!();
                     println!(
                         "  {}",
@@ -110,14 +127,27 @@ fn run_wizard() -> Option<InteractiveConfig> {
                 }
                 println!();
 
-                let max = MENU_CHAINS.len() as u32;
+                // Highest selectable index (sol-mint), create2 excluded from menu digits
+                let max = (deploy_base + DEPLOY_MODES.len() - 1) as u32;
                 let prompt = format!("  Press [0-{max}]: ");
                 match read_menu_choice(&prompt, 1, max, true) {
                     MenuChoice::Back => return None,
                     MenuChoice::Selected(n) => {
-                        if let Some(selected) = Chain::from_menu_index((n - 1) as usize) {
+                        let idx = (n - 1) as usize;
+                        if let Some(selected) = Chain::from_menu_index(idx) {
                             chain = selected;
                             step = WizardStep::MatchKind;
+                        } else if idx >= deploy_base {
+                            let di = idx - deploy_base;
+                            if let Some((id, _)) = DEPLOY_MODES.get(di) {
+                                if *id == "create2" {
+                                    continue;
+                                }
+                                if let Ok(selected) = Chain::from_id(id) {
+                                    chain = selected;
+                                    step = WizardStep::MatchKind;
+                                }
+                            }
                         }
                     }
                 }

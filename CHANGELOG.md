@@ -6,6 +6,13 @@ All notable changes to this project are documented here.
 
 ## [0.6.5] - 2026-10-15
 
+### Added
+
+- **Tron contract vanity (`trx-contract`)** — CREATE / nonce 0, same idea as `evm-contract`, base58 `T…` address
+- **CREATE2 in the npm SDK** — `chain: "create2"` with `deployer` + `initCodeHash`; `listDeployModes()` for discovery
+- Deploy modes in the **desktop** chain picker (including CREATE2 factory fields) and CLI interactive digit menu
+- WASM exports: `list_deploy_modes`, optional factory args on grind / estimate / validate / chain_details
+
 ### Fixed
 
 - **Wait-time estimates** match real grind odds for Base58 and TON when ignore-case is on (prefix / suffix / contains) — alphabet-aware combinations instead of a blind per-character factor

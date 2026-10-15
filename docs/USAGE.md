@@ -40,6 +40,7 @@ vanity-address --chain robinhood --suffix dead
 vanity-address verify --chain evm --address 0x… --key 0x…
 vanity-address --create2 --deployer 0x… --init-code-hash 0x… --prefix cafe
 vanity-address --chain evm-contract --prefix cafe
+vanity-address --chain trx-contract --prefix Cafe
 vanity-address --chain sol-mint --suffix pump
 vanity-address --chain hyperliquid --prefix dead
 ```
@@ -47,6 +48,10 @@ vanity-address --chain hyperliquid --prefix dead
 ---
 
 ## Deploy modes (contract + token addresses)
+
+**Where:** CLI interactive menu (digits after A–Z wallets), desktop **Deploy / mint** section, npm SDK (`listDeployModes()` / `chain: "…"`). Web generator is wallet-only for now.
+
+Interactive CLI: digit keys pick `evm-contract`, `trx-contract`, `sol-mint`. CREATE2 needs factory params — use `--create2 --deployer … --init-code-hash …` (or the desktop CREATE2 fields / SDK options).
 
 ### EVM contract address (`evm-contract`)
 
@@ -60,6 +65,25 @@ vanity-address verify --chain evm-contract --address 0xcafe… --key <deployer-p
 Output: contract address + deployer private key + deployer address. Fund the deployer and make the deploy its **very first transaction** on that chain — any earlier transaction bumps the nonce and the address changes. Works on every EVM chain (same address on each, as long as nonce 0 is the deploy).
 
 Use `--create2` instead when you deploy through a factory and already know its init code hash.
+
+### Tron contract address (`trx-contract`)
+
+Same CREATE / nonce-0 math as EVM, but the address is Tron’s base58 form (`T…`). The deployer key is still a 32-byte secp256k1 hex key (same as `--chain trx`).
+
+```bash
+vanity-address --chain trx-contract --prefix Cafe
+vanity-address verify --chain trx-contract --address TCafe… --key <deployer-private-key>
+```
+
+### EVM CREATE2 salt (`--create2`)
+
+Grinds a **salt** so `CREATE2(deployer, salt, initCodeHash)` matches your pattern. You already know the factory/deployer and the keccak256 of the init code.
+
+```bash
+vanity-address --create2 --deployer 0xYourFactory… --init-code-hash 0x… --prefix cafe
+```
+
+Output: contract address + salt (hex). Not a private key — use the salt in your factory call.
 
 ### Solana token mint (`sol-mint`)
 
@@ -175,7 +199,7 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 
 | Flag                 | Description                                                                              | Default              |
 | -------------------- | ---------------------------------------------------------------------------------------- | -------------------- |
-| `--chain <ID>`       | Blockchain, alias (`base`, `hyperliquid`, …) or deploy mode (`evm-contract`, `sol-mint`) | `sol`                |
+| `--chain <ID>`       | Blockchain, alias (`base`, `hyperliquid`, …) or deploy mode (`evm-contract`, `trx-contract`, `sol-mint`) | `sol`                |
 | `--prefix <PATTERN>` | Address must start with pattern (`*` OK)                                                 | —                    |
 | `--suffix <PATTERN>` | Address must end with pattern (`*` OK; comma = OR)                                       | —                    |
 | `--contains <PAT>`   | Substring anywhere (`*` wildcards OK)                                                    | —                    |

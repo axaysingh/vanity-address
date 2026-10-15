@@ -95,6 +95,17 @@
           <input id="input-contains" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. pump or p*p or moon,dao" />
         </label>
 
+        <div id="factory-fields" class="field-col" hidden>
+          <label class="field">
+            <span class="field-label">Deployer (0x…)</span>
+            <input id="input-deployer" type="text" autocomplete="off" spellcheck="false" placeholder="0x…" />
+          </label>
+          <label class="field">
+            <span class="field-label">Init code hash (0x…)</span>
+            <input id="input-init-code-hash" type="text" autocomplete="off" spellcheck="false" placeholder="keccak256(init code)" />
+          </label>
+        </div>
+
         <label class="checkbox-row" id="exact-row">
           <input id="input-exact" type="checkbox" />
           <span>Exact case</span>
