@@ -602,7 +602,9 @@ mod tests {
     fn estimate_modes_respect_case_and_alphabet() {
         // Solana: suffix + contains share the same char math.
         let sol = Chain::from_id("sol").unwrap();
-        let suffix = sol.build_pattern(None, Some("aiboss"), None, false).unwrap();
+        let suffix = sol
+            .build_pattern(None, Some("aiboss"), None, false)
+            .unwrap();
         let contains = sol
             .build_pattern(None, None, Some("aiboss"), false)
             .unwrap();
