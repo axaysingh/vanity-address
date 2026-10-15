@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-10-15
+
+### Fixed
+
+- **Wait-time estimates** match real grind odds for Base58 and TON when ignore-case is on (prefix / suffix / contains) — alphabet-aware combinations instead of a blind per-character factor
+- Web generator grind visor HUD no longer clips the last letter of short search words
+
+### Changed
+
+- Landing site hosts on **Cloudflare Pages** (`vanity-address.pages.dev`); CSP via `landing/_headers`. Docs and package homepages point at the new URL
+
 ## [0.6.4] - 2026-10-12
 
 ### Added

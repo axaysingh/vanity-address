@@ -37,18 +37,18 @@ vanity-address/          (workspace root)
 
 ---
 
-## Current version state (as of 2026-10-12)
+## Current version state (as of 2026-10-15)
 
 | Package | Version | Published |
 | ------- | ------- | --------- |
-| vanity-core | **0.6.4** | ✅ crates.io |
-| vanity-address (CLI) | **0.6.4** | ✅ crates.io + Homebrew tap |
-| vanity-app (desktop) | **0.6.4** | ✅ GitHub Release |
-| vanity-wasm / npm SDK | **0.6.4** | ✅ npm |
+| vanity-core | **0.6.5** | ⏳ in tree — publish after tag |
+| vanity-address (CLI) | **0.6.5** | ⏳ in tree — publish after tag |
+| vanity-app (desktop) | **0.6.5** | ⏳ in tree — GitHub Release after tag |
+| vanity-wasm / npm SDK | **0.6.5** | ⏳ in tree — npm after Release assets |
 | Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.pages.dev/generate/ |
 
-**Git tags on GitHub:** `v0.3.0` … `v0.6.4`  
-**GitHub Release:** [v0.6.4](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.4) (12 assets)
+**Git tags on GitHub:** `v0.3.0` … `v0.6.4` (next: `v0.6.5`)  
+**Latest GitHub Release:** [v0.6.4](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.4) (12 assets) — bump Formula/sha after `v0.6.5` exists
 
 **Website deploy (Cloudflare Pages — GitHub `main` auto-deploys `landing/`):**
 
@@ -71,11 +71,11 @@ cargo publish -p vanity-address
 
 | Channel | Status | User command |
 | ------- | ------ | ------------ |
-| **GitHub Releases** | ✅ v0.6.4 | Download `.dmg`, `.exe`, CLI archives |
-| **crates.io** | ✅ v0.6.4 | `cargo install vanity-address` |
-| **Homebrew tap** | ✅ v0.6.4 | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
+| **GitHub Releases** | ✅ v0.6.4 (⏳ v0.6.5 pending) | Download `.dmg`, `.exe`, CLI archives |
+| **crates.io** | ✅ v0.6.4 (⏳ v0.6.5 pending) | `cargo install vanity-address` |
+| **Homebrew tap** | ✅ v0.6.4 (⏳ v0.6.5 pending) | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | **Homebrew local** | ✅ Works | `brew install --build-from-source ./Formula/vanity-address.rb` |
-| **npm** | ✅ v0.6.4 | `npx vanity-address` / `npm i vanity-address` |
+| **npm** | ✅ v0.6.4 (⏳ v0.6.5 pending) | `npx vanity-address` / `npm i vanity-address` |
 | **Web app** | ✅ Live | https://vanity-address.pages.dev/generate/ |
 | **Winget / Scoop / AUR** | ❌ Not yet | Future optional channels |
 
@@ -250,6 +250,11 @@ make homebrew-formula VER=X.Y.Z
 - [ ] Phase 2 (0.7): full CREATE2/CREATE contract vanity + Solana mint vanity
 - [ ] Phase 3 (0.8): OpenCL GPU grind (Solana + EVM first)
 
+### Recently completed (2026-10-15)
+
+- [x] Version bump **0.6.5** in tree (Cargo/npm/Tauri/docs/CHANGELOG); Formula/sha still on 0.6.4 until tag
+- [x] Estimate fix (Base58/TON ignore-case), web grind HUD, Cloudflare Pages (`pages.dev`)
+
 ### Recently completed (2026-10-12)
 
 - [x] Full **0.6.4** release: tag, GitHub Release (12 assets), crates.io, Homebrew tap, npm
@@ -336,4 +341,4 @@ make homebrew-formula VER=X.Y.Z
 
 ---
 
-*Last updated: 2026-10-15 — site on Cloudflare Pages (vanity-address.pages.dev); wait-estimate Base58 case fix; web HUD polish.*
+*Last updated: 2026-10-15 — **0.6.5** version bump in tree; site on Cloudflare Pages; wait-estimate + web HUD fixes; tag/publish still pending.*

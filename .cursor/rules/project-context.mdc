@@ -10,7 +10,7 @@ alwaysApply: true
 ## Quick facts
 
 - Rust workspace: `vanity-core` (engine) + `vanity-address` (CLI) + `vanity-wasm` + `vanity-app` (Tauri desktop)
-- **v0.6.4** live everywhere (GitHub Release, crates.io, Homebrew, npm); chain logic only in `vanity-core`
+- **v0.6.5** in tree (tag/publish pending); **v0.6.4** still live on GitHub Release, crates.io, Homebrew, npm; chain logic only in `vanity-core`
 - Web: Cloudflare Pages → https://vanity-address.pages.dev/ (GitHub `main`, output dir `landing`, headers in `landing/_headers`)
 - Publish order: `vanity-core` then `vanity-address` (no `#` on same shell line)
 - npm: `prepare-npm.sh` + `build-wasm.sh` then `publish-npm.sh`
