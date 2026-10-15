@@ -911,35 +911,66 @@
     var state = {};
 
     function buildAscii() {
+      /* Same COLS / footprint — clearer glyphs only (no size change). */
       var COLS = 175;
-      var set = "3FRT@#%*=4-.:";
+      var dense = "3FRT@#%*=";
       var BW = 1000, BH = 230;
       var big = document.createElement("canvas");
       big.width = BW; big.height = BH;
       var bc = big.getContext("2d", { willReadFrequently: true });
       bc.fillStyle = "#fff";
       bc.textBaseline = "alphabetic";
-      bc.lineWidth = 7;
+      /* Light stroke: heavy 7px + fill closed holes in a/e/s */
+      bc.lineWidth = 2.5;
       bc.strokeStyle = "#fff";
+      bc.lineJoin = "round";
       var t = "vanity-address";
       var fs = 180;
+      var tracking = 0.045; /* tiny gaps so letters don't fuse after downsample */
       bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
-      var w = bc.measureText(t).width;
+
+      function measureTracked(str, size, track) {
+        bc.font = "700 " + size + "px 'Source Sans 3', Arial, sans-serif";
+        var total = 0;
+        for (var i = 0; i < str.length; i++) {
+          total += bc.measureText(str[i]).width;
+          if (i < str.length - 1) {
+            var gap = size * track;
+            if (str[i] === "-" || str[i + 1] === "-") gap *= 1.5;
+            total += gap;
+          }
+        }
+        return total;
+      }
+
+      var w = measureTracked(t, fs, tracking);
       if (w > BW - 40) {
         fs = Math.floor(fs * (BW - 40) / w);
-        bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
+        w = measureTracked(t, fs, tracking);
       }
-      var w2 = bc.measureText(t).width;
+      bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
       var baseline = BH * 0.72;
-      bc.fillText(t, (BW - w2) / 2, baseline);
-      bc.strokeText(t, (BW - w2) / 2, baseline);
+      var x = (BW - w) / 2;
+      for (var i = 0; i < t.length; i++) {
+        var ch = t[i];
+        var cw = bc.measureText(ch).width;
+        bc.fillText(ch, x, baseline);
+        bc.strokeText(ch, x, baseline);
+        x += cw;
+        if (i < t.length - 1) {
+          var gap = fs * tracking;
+          if (ch === "-" || t[i + 1] === "-") gap *= 1.5;
+          x += gap;
+        }
+      }
+
       var src = bc.getImageData(0, 0, BW, BH).data;
       var x0 = BW, x1 = 0, y0 = BH, y1 = 0;
       for (var y = 0; y < BH; y++) {
-        for (var x = 0; x < BW; x++) {
-          if (src[(y * BW + x) * 4 + 3] > 20) {
-            if (x < x0) x0 = x;
-            if (x > x1) x1 = x;
+        for (var xx = 0; xx < BW; xx++) {
+          if (src[(y * BW + xx) * 4 + 3] > 20) {
+            if (xx < x0) x0 = xx;
+            if (xx > x1) x1 = xx;
             if (y < y0) y0 = y;
             if (y > y1) y1 = y;
           }
@@ -955,11 +986,16 @@
       var grid = [], dens = [];
       for (var yy = 0; yy < ROWS; yy++) {
         var line = [], drow = [];
-        for (var xx = 0; xx < COLS; xx++) {
-          var a = d[(yy * COLS + xx) * 4 + 3] / 255;
-          if (a > 0.32) { line.push(set[Math.floor(Math.random() * 9)]); drow.push(2); }
-          else if (a > 0.17) { line.push(set[9 + Math.floor(Math.random() * 4)]); drow.push(1); }
-          else { line.push(" "); drow.push(0); }
+        for (var cx = 0; cx < COLS; cx++) {
+          var a = d[(yy * COLS + cx) * 4 + 3] / 255;
+          /* Binary ink — skip soft .: edges that blur a/i/e/s */
+          if (a > 0.38) {
+            line.push(dense[Math.floor(Math.random() * dense.length)]);
+            drow.push(2);
+          } else {
+            line.push(" ");
+            drow.push(0);
+          }
         }
         grid.push(line);
         dens.push(drow);
