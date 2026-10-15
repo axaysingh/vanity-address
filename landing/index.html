@@ -173,6 +173,7 @@
     max-height: min(72vh, 640px);
     overflow: hidden;
     contain: size;
+    pointer-events: none; /* empty band above/below glyphs must not trigger hover */
   }
   .hero-ascii {
     margin: 0;
@@ -184,6 +185,8 @@
     text-align: center;
     user-select: none;
     transform-origin: center center;
+    pointer-events: auto; /* animation only when cursor is on the word */
+    cursor: default;
   }
   .hero-ctas {
     display: flex;
@@ -1118,14 +1121,16 @@
     });
 
     if (!reduce) {
-      wrap.addEventListener("mousemove", function (e) {
+      /* Hit-test the glyph block only (not the tall wrap padding) */
+      pre.addEventListener("mousemove", function (e) {
         if (!state.cols) return;
-        var r = wrap.getBoundingClientRect();
-        state.cxT = (e.clientX - r.left) / r.width * state.cols;
-        state.cyT = (e.clientY - r.top) / r.height * state.rows;
+        var r = pre.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return;
+        state.cxT = ((e.clientX - r.left) / r.width) * state.cols;
+        state.cyT = ((e.clientY - r.top) / r.height) * state.rows;
         state.hover = true;
       });
-      wrap.addEventListener("mouseleave", function () { state.hover = false; });
+      pre.addEventListener("mouseleave", function () { state.hover = false; });
     }
   })();
 
