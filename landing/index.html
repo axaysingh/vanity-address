@@ -1037,7 +1037,13 @@
       var scale = 1;
       if (preBox.w > box.w) scale = box.w / preBox.w;
       if (preBox.h * scale > box.h) scale = Math.min(scale, box.h / preBox.h);
-      pre.style.transform = scale < 0.999 ? "scale(" + (scale * 0.985).toFixed(4) + ")" : "none";
+      scale *= 0.985;
+      /* Slight horizontal stretch so the wordmark fills the page better */
+      var sx = scale * 1.14;
+      var sy = scale;
+      if (preBox.w * sx > box.w) sx = (box.w / preBox.w) * 0.99;
+      if (preBox.h * sy > box.h) sy = (box.h / preBox.h) * 0.99;
+      pre.style.transform = "scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
     }
     if ("ResizeObserver" in window) {
       new ResizeObserver(function (entries) {
