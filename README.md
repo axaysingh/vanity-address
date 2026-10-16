@@ -89,8 +89,7 @@ Pick a chain → type your word → generate → save
 | Keys blurred until shown · copy · download as text | ✅ |
 | Cookies, analytics, or third-party requests | ❌ none |
 | Works offline once loaded (turn off Wi-Fi if you like) | ✅ |
-| Contract / token-mint / CREATE2 modes | Use CLI, desktop, or npm SDK |
-
+| Contract / token-mint / CREATE2 modes | ✅ Address / Contract header toggle |
 Keys exist only in the open tab and are never stored or sent anywhere. The device remembers just two things in `localStorage`: your theme and that you've read the safety notice. The page ships a strict Content-Security-Policy that blocks any outside connection. For large balances, prefer the offline CLI or desktop app.
 
 ---

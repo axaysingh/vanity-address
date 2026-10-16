@@ -49,7 +49,7 @@ vanity-address --chain hyperliquid --prefix dead
 
 ## Deploy modes (contract + token addresses)
 
-**Where:** CLI interactive menu (digits after A–Z wallets), desktop **Deploy / mint** section, npm SDK (`listDeployModes()` / `chain: "…"`). Web generator is wallet-only for now.
+**Where:** CLI interactive menu (digits after A–Z wallets), desktop **Deploy / mint** section, npm SDK (`listDeployModes()` / `chain: "…"`), and the web generator **Address | Contract** header toggle.
 
 Interactive CLI: digit keys pick `evm-contract`, `trx-contract`, `sol-mint`. CREATE2 needs factory params — use `--create2 --deployer … --init-code-hash …` (or the desktop CREATE2 fields / SDK options).
 

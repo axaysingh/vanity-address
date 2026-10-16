@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>vanity-address — stamp your own wallet word</title>
-<meta name="description" content="Generate custom crypto wallet, contract, and token mint addresses that start, end, or contain your word. 31 chains, 100% offline, open source." />
+<title>vanity-address — vanity wallets, contracts &amp; token mints</title>
+<meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 31 chains, 100% offline, open source." />
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -291,6 +291,40 @@
   @media (max-width: 640px) {
     .step { grid-template-columns: 1fr; text-align: left; }
     .step-art { margin: 0; }
+  }
+
+  /* deploy / contract modes */
+  #deploy { background: var(--paper-deep); }
+  .deploy-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  .deploy-card {
+    background: var(--white);
+    border: 2.5px solid var(--ink);
+    border-radius: 18px;
+    padding: 22px 20px;
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .deploy-card .mode-tag {
+    display: inline-block;
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+    background: var(--wax); border: 1.5px solid var(--ink);
+    border-radius: 999px; padding: 2px 9px; margin-bottom: 10px;
+  }
+  .deploy-card h3 {
+    font-family: var(--display); font-size: 1.3rem; font-weight: 700;
+    margin-bottom: 8px; letter-spacing: -0.02em;
+  }
+  .deploy-card p { color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 14px; }
+  .deploy-card code.inline { font-size: 0.8em; }
+  .deploy-card .deploy-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-weight: 700; font-size: 0.92rem; color: var(--forest-mid);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .deploy-card .deploy-cta:hover { color: var(--stamp-fill); }
+  @media (max-width: 860px) {
+    .deploy-grid { grid-template-columns: 1fr; }
   }
 
   /* download tickets */
@@ -612,6 +646,7 @@
       <a href="generate/">Web app</a>
       <a href="#download">Download</a>
       <a href="#how">How it works</a>
+      <a href="#deploy">Contracts</a>
       <a href="#demo">Demo</a>
       <a href="#chains">Chains</a>
       <a href="#install">Install</a>
@@ -650,7 +685,7 @@
     <div class="wrap">
       <p class="section-kicker">three presses</p>
       <h2 class="section-title">Pick a chain. Type a word. Press grind.</h2>
-      <p class="section-desc">Same Rust engine behind the CLI, desktop app, and npm SDK — 31 chains, one trust model.</p>
+      <p class="section-desc">Same Rust engine behind the CLI, desktop app, web app, and npm SDK — 31 wallet chains, plus vanity <strong>contract</strong> and <strong>token mint</strong> modes. One trust model.</p>
 
       <div class="steps">
         <article class="step">
@@ -662,8 +697,8 @@
           </svg>
           <div>
             <span class="step-num">01 · chain</span>
-            <h3>Choose where it lives</h3>
-            <p>Solana, EVM, Hyperliquid, Bitcoin SegWit/Taproot, Sei, Injective — any of the 31 ids, plus vanity contract addresses and Solana token mints.</p>
+            <h3>Wallet or contract</h3>
+            <p>Solana, EVM, Bitcoin, Tron, and 27 more wallets — or switch to Contract mode for a vanity deployer / CREATE2 / SPL mint address.</p>
           </div>
         </article>
         <article class="step">
@@ -690,6 +725,36 @@
             <h3>Match found, keys stay put</h3>
             <p>Export formats for Phantom, MetaMask, and friends. No network calls. No telemetry. Ever.</p>
           </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPLOY / CONTRACT -->
+  <section id="deploy">
+    <div class="wrap">
+      <p class="section-kicker">beyond wallets</p>
+      <h2 class="section-title">Vanity contract &amp; mint addresses too.</h2>
+      <p class="section-desc">Grind a deployer key so your <em>first</em> deploy lands on a pretty contract — or a CREATE2 salt / Solana token mint. Works in the <a href="generate/"><strong>web app</strong></a> (Address | Contract toggle), CLI, desktop, and SDK.</p>
+
+      <div class="deploy-grid">
+        <article class="deploy-card">
+          <span class="mode-tag">evm-contract · trx-contract</span>
+          <h3>Deployer → contract</h3>
+          <p>Find a private key whose first CREATE (nonce&nbsp;0) produces a contract address matching your word — EVM <code class="inline">0xcafe…</code> or Tron <code class="inline">TCafe…</code>.</p>
+          <a class="deploy-cta" href="generate/">Try Contract mode →</a>
+        </article>
+        <article class="deploy-card">
+          <span class="mode-tag">--create2</span>
+          <h3>CREATE2 salt</h3>
+          <p>Already have a factory and init-code hash? Grind a salt so <code class="inline">CREATE2</code> lands on your vanity address. Output is the salt, not a wallet key.</p>
+          <a class="deploy-cta" href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md#evm-create2-salt---create2" target="_blank" rel="noopener">Usage guide →</a>
+        </article>
+        <article class="deploy-card">
+          <span class="mode-tag">sol-mint</span>
+          <h3>Solana token mint</h3>
+          <p>Vanity mint address with keypair JSON ready for <code class="inline">spl-token create-token mint.json</code> — same online flow as a wallet grind.</p>
+          <a class="deploy-cta" href="generate/">Open the web app →</a>
         </article>
       </div>
     </div>
@@ -762,8 +827,8 @@
   <section id="chains">
     <div class="wrap">
       <p class="section-kicker">sticker wall · 31</p>
-      <h2 class="section-title">All 31, same trust model.</h2>
-      <p class="section-desc">Use any id with <code class="inline">--chain</code> — CLI, desktop, and SDK all match.</p>
+      <h2 class="section-title">All 31 wallets, same trust model.</h2>
+      <p class="section-desc">Use any id with <code class="inline">--chain</code> — plus deploy modes (<code class="inline">evm-contract</code>, <code class="inline">trx-contract</code>, <code class="inline">sol-mint</code>, CREATE2). CLI, desktop, web, and SDK all match.</p>
       <div class="chains-wall" id="chainsGrid"></div>
     </div>
   </section>

@@ -247,9 +247,8 @@ make homebrew-formula VER=X.Y.Z
 - [ ] Code signing for macOS Gatekeeper / Windows SmartScreen (unsigned warnings documented)
 - [ ] Submit to homebrew-core when notability criteria met
 - [ ] Growth: social posts / README badges polish
-- [x] Phase 1+2 deploy modes everywhere (CLI / SDK / desktop): `evm-contract`, `trx-contract`, `sol-mint`, CREATE2 + `listDeployModes` (web generator still wallet-only)
+- [x] Phase 1+2 deploy modes everywhere (CLI / SDK / desktop / web): `evm-contract`, `trx-contract`, `sol-mint`, CREATE2 + `listDeployModes`
 - [ ] Phase 3 (0.8): OpenCL GPU grind (Solana + EVM first)
-- [ ] Optional: wire deploy modes into web `/generate/`
 
 ### Recently completed (2026-10-15)
 
@@ -343,4 +342,4 @@ make homebrew-formula VER=X.Y.Z
 
 ---
 
-*Last updated: 2026-10-15 — **0.6.5** in tree; deploy modes (`trx-contract`, CREATE2 SDK, desktop picker); site on Cloudflare Pages; tag/publish still pending.*
+*Last updated: 2026-10-15 — **0.6.5** in tree; deploy modes on CLI/SDK/desktop/web (Address|Contract toggle); tag/publish still pending.*

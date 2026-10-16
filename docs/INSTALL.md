@@ -6,7 +6,7 @@ Full platform-by-platform instructions for **vanity-address** CLI and the **Vani
 
 No Rust or Node.js required for pre-built downloads — pick your file, extract, and run.
 
-**Don't want to install anything?** Use the **[web app](https://vanity-address.pages.dev/generate/)** — same engine, runs in your browser tab, no cookies, keys never leave the page (wallet chains). Use the **CLI or desktop app** for contract / token-mint / CREATE2 modes, `--count`, `verify`, or fully offline use.
+**Don't want to install anything?** Use the **[web app](https://vanity-address.pages.dev/generate/)** — same engine, runs in your browser tab, no cookies, keys never leave the page. Use the header **Address | Contract** toggle for wallets vs contract / mint / CREATE2. Prefer the CLI or desktop app for `--count`, `verify`, or fully offline use.
 
 ---
 
