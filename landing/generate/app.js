@@ -184,6 +184,11 @@ function activeCatalog() {
   return state.kind === "contract" ? state.deployModes : state.chains;
 }
 
+function pickRandomId(list) {
+  if (!list?.length) return null;
+  return list[Math.floor(Math.random() * list.length)].id;
+}
+
 function setKind(kind, { pick = true } = {}) {
   if (kind !== "address" && kind !== "contract") return;
   if (state.chain) {
@@ -1274,6 +1279,9 @@ async function loadEngine() {
       name: m.name,
       needs_factory: Boolean(m.needs_factory),
     }));
+    // Fresh random wallet + deploy pick every load (not always Solana / EVM).
+    state.lastWallet = pickRandomId(state.chains) || DEFAULT_CHAIN;
+    state.lastDeploy = pickRandomId(state.deployModes) || DEFAULT_DEPLOY;
     $("loading").hidden = true;
     $("composer").hidden = false;
     const savedKind = readPref("vanity.kind") === "contract" ? "contract" : "address";
