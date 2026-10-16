@@ -215,9 +215,9 @@ function createSdk(wasm, extras) {
       return Boolean(wasm.is_valid_chain(id));
     }
     try {
-      const chains = listChains();
       const needle = id.toLowerCase();
-      return chains.some((c) => c.id === needle);
+      if (listChains().some((c) => c.id === needle)) return true;
+      return listDeployModes().some((m) => m.id === needle);
     } catch {
       return false;
     }

@@ -22,5 +22,6 @@ export const generateAddresses = sdk.generateAddresses;
 export const estimateDifficulty = sdk.estimateDifficulty;
 export const validatePattern = sdk.validatePattern;
 export const listChains = sdk.listChains;
+export const listDeployModes = sdk.listDeployModes;
 export const isValidChain = sdk.isValidChain;
 export { VanityAddressError };

@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- npm SDK: export `listDeployModes` from ESM entry points; contract/mint aliases covered in demo + tests
+
 ## [0.6.5] - 2026-10-15
 
 ### Added

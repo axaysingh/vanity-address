@@ -201,6 +201,7 @@ const {
 } = require("vanity-address");
 
 listDeployModes(); // evm-contract, trx-contract, sol-mint, create2
+// Aliases: contract → evm-contract, mint → sol-mint, tron-contract → trx-contract
 
 console.log(estimateDifficulty({ chain: "evm", prefix: "abc", workers: 4 }));
 

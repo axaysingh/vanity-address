@@ -53,7 +53,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **31 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
 
-> **New in 0.6.5:** Tron contract vanity, CREATE2 in the npm SDK (`listDeployModes`), deploy modes in the desktop app. Web app remains wallet-only. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.5:** Tron contract vanity, CREATE2 in the npm SDK (`listDeployModes`), deploy modes in the desktop app and web generator (Address | Contract). See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 

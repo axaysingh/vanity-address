@@ -9,12 +9,24 @@ const {
   estimateDifficulty,
   validatePattern,
   listChains,
+  listDeployModes,
   isValidChain,
   VanityAddressError,
 } = require("../src/index.js");
 
 async function main() {
-  console.log("0) Chains:", listChains().length, "| eth alias?", isValidChain("eth"));
+  console.log(
+    "0) Chains:",
+    listChains().length,
+    "| deploy modes:",
+    listDeployModes()
+      .map((m) => m.id)
+      .join(", "),
+    "| eth alias?",
+    isValidChain("eth"),
+    "| contract alias?",
+    isValidChain("contract"),
+  );
 
   console.log("\n1) Estimate before grinding");
   const est = estimateDifficulty({ chain: "evm", prefix: "ab", workers: 4 });
@@ -84,6 +96,37 @@ async function main() {
       console.log("   caught VanityAddressError:", err.code, "-", err.message);
     }
   }
+
+  console.log("\n8) EVM contract (CREATE · nonce 0) — alias `contract`");
+  const contract = await generateAddress({
+    chain: "contract",
+    prefix: "a",
+    workers: 2,
+  });
+  console.log("   contract:", contract.address);
+  console.log("   deployer key:", contract.privateKey?.slice(0, 18) + "…");
+
+  console.log("\n9) Solana token mint — short suffix");
+  const mint = await generateAddress({
+    chain: "sol-mint",
+    suffix: "1",
+    workers: 2,
+  });
+  console.log("   mint:", mint.address);
+
+  console.log("\n10) CREATE2 — needs deployer + initCodeHash (salt in privateKey)");
+  const deployer = "0x0000000000000000000000000000000000000001";
+  const initCodeHash =
+    "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+  const create2 = await generateAddress({
+    chain: "create2",
+    prefix: "a",
+    deployer,
+    initCodeHash,
+    workers: 2,
+  });
+  console.log("   address:", create2.address);
+  console.log("   salt:", create2.privateKey?.slice(0, 18) + "…");
 
   console.log("\nAll good — SDK is working end to end.");
 }

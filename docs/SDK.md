@@ -199,6 +199,8 @@ Deploy modes (also from `listDeployModes()`; accepted as `chain`):
 | `sol-mint` | SPL token mint address | mint secret key (base58); `exports[1]` is the keypair JSON for `spl-token` |
 | `create2` | CREATE2 contract address | salt (hex) — pass `deployer` + `initCodeHash` |
 
+Aliases (same grind): `contract` / `evm-create` → `evm-contract`, `tron-contract` → `trx-contract`, `mint` / `spl-mint` → `sol-mint`.
+
 ```js
 const { address, privateKey: salt } = await generateAddress({
   chain: "create2",
