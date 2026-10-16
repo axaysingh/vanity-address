@@ -53,7 +53,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **31 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
 
-> **New in 0.6.5:** Tron contract vanity, CREATE2 in the npm SDK (`listDeployModes`), deploy modes in the desktop app and web generator (Address | Contract). See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **New in 0.6.6:** Tron contract vanity, CREATE2 in the npm SDK (`listDeployModes`), deploy modes in the desktop app and web generator (Address | Contract). See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
 
 ---
 
@@ -111,9 +111,9 @@ Keys exist only in the open tab and are never stored or sent anywhere. The devic
 **Quick start (Linux):**
 
 ```bash
-# Replace 0.6.5 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
-curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.5/VanityAddress-0.6.5-Linux-CLI.tar.gz
-tar xzf VanityAddress-0.6.5-Linux-CLI.tar.gz
+# Replace 0.6.6 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
+curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.6/VanityAddress-0.6.6-Linux-CLI.tar.gz
+tar xzf VanityAddress-0.6.6-Linux-CLI.tar.gz
 ./vanity-address
 ```
 
