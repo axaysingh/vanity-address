@@ -22,6 +22,7 @@ module.exports.generateAddresses = sdk.generateAddresses;
 module.exports.estimateDifficulty = sdk.estimateDifficulty;
 module.exports.validatePattern = sdk.validatePattern;
 module.exports.listChains = sdk.listChains;
+module.exports.listDeployModes = sdk.listDeployModes;
 module.exports.isValidChain = sdk.isValidChain;
 module.exports.VanityAddressError = VanityAddressError;
 module.exports.createGenerateAddress = createGenerateAddress;

@@ -43,7 +43,8 @@ Highlights (v0.6+):
 
 - `generateAddress()` / `generateAddresses({ count })`
 - `contains` + `*` wildcards (same as CLI)
-- `estimateDifficulty()`, `validatePattern()`, `listChains()`, `isValidChain()`
+- `estimateDifficulty()`, `validatePattern()`, `listChains()`, `listDeployModes()`, `isValidChain()`
+- Deploy modes: `evm-contract`, `trx-contract`, `sol-mint`, `create2` (`deployer` + `initCodeHash`)
 - `wallet.privateKey`, rich `onProgress`, `timeoutMs`, `workers`
 
 See [docs/SDK.md](SDK.md) for the full API and

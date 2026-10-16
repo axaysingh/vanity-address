@@ -1,19 +1,39 @@
-import init, { list_chains, chain_details, validate_pattern, estimate_difficulty } from "./wasm/vanity_wasm.js";
-import { POPULAR, DEFAULT_CHAIN, META, EXPLORERS, splitLabel } from "./chain-meta.js";
+import init, {
+  list_chains,
+  list_deploy_modes,
+  chain_details,
+  validate_pattern,
+  estimate_difficulty,
+} from "./wasm/vanity_wasm.js";
+import {
+  POPULAR,
+  DEFAULT_CHAIN,
+  DEFAULT_DEPLOY,
+  DEPLOY_POPULAR,
+  META,
+  EXPLORERS,
+  splitLabel,
+} from "./chain-meta.js";
 
-// No cookies, no network beyond this page's own files. localStorage holds only the theme and the
-// notice version below, and sw.js caches only static files — never keys or addresses.
+// No cookies, no network beyond this page's own files. localStorage holds only the theme, the
+// notice version, and Address/Contract mode — sw.js caches only static files, never keys.
 
 const $ = (id) => document.getElementById(id);
 const BENCH_MS = 1000;
 const WARMUP_MS = 400;
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const REEL_MS = REDUCED_MOTION ? 900 : 110;
+const ZERO_DEPLOYER = `0x${"00".repeat(20)}`;
+const ZERO_INIT_HASH = `0x${"00".repeat(32)}`;
 
 const state = {
   module: null,
-  chains: [],
-  chain: null, // { id, name, hint, sample, fixed: bool[] }
+  kind: "address", // "address" | "contract"
+  chains: [], // wallet list from wasm
+  deployModes: [], // deploy list from wasm
+  chain: null, // { id, name, hint, sample, fixed: bool[], needsFactory?: bool }
+  lastWallet: DEFAULT_CHAIN,
+  lastDeploy: DEFAULT_DEPLOY,
   speeds: new Map(), // chain id + case mode -> measured keys/sec, this tab only
   estimate: null,
   pool: null,
@@ -23,19 +43,6 @@ const state = {
   saved: false,
   locked: [], // board positions held by the user's word
 };
-
-/* ---------------- connection status ---------------- */
-
-function renderNet() {
-  const offline = !navigator.onLine;
-  $("net").classList.toggle("offline", offline);
-  $("net").classList.toggle("online", !offline);
-  $("netText").textContent = offline ? "Offline — nothing can leave" : "Online — works offline too";
-  $("net").title = $("netText").textContent;
-}
-window.addEventListener("online", renderNet);
-window.addEventListener("offline", renderNet);
-renderNet();
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {
@@ -131,7 +138,9 @@ function setMode(next) {
   $("donePanel").hidden = next !== "done";
   const editable = next === "setup";
   if (!editable) closePosMenu(false);
-  for (const id of ["chainChip", "position", "word"]) $(id).disabled = !editable;
+  for (const id of ["chainChip", "position", "word", "modeAddress", "modeContract", "deployer", "initCodeHash"]) {
+    $(id).disabled = !editable;
+  }
   if (boardTiles.length) fitBoard(boardTiles.length);
   updatePlate();
   focusMode();
@@ -169,17 +178,87 @@ function logo(id, size) {
   return img;
 }
 
+/* ---------------- Address | Contract mode ---------------- */
+
+function activeCatalog() {
+  return state.kind === "contract" ? state.deployModes : state.chains;
+}
+
+function pickRandomId(list) {
+  if (!list?.length) return null;
+  return list[Math.floor(Math.random() * list.length)].id;
+}
+
+function setKind(kind, { pick = true } = {}) {
+  if (kind !== "address" && kind !== "contract") return;
+  if (state.chain) {
+    if (state.kind === "contract") state.lastDeploy = state.chain.id;
+    else state.lastWallet = state.chain.id;
+  }
+  state.kind = kind;
+  writePref("vanity.kind", kind);
+  $("modeToggle").dataset.kind = kind;
+  $("modeAddress").classList.toggle("is-active", kind === "address");
+  $("modeContract").classList.toggle("is-active", kind === "contract");
+  $("modeAddress").setAttribute("aria-pressed", String(kind === "address"));
+  $("modeContract").setAttribute("aria-pressed", String(kind === "contract"));
+  // Same phrase in both modes so the sentence never reflows.
+  $("kindPhrase").textContent = "address that";
+  $("sheetTitle").textContent = kind === "contract" ? "Pick a deploy mode" : "Pick a blockchain";
+  $("chainSearch").placeholder =
+    kind === "contract"
+      ? "Search: contract, mint, create2…"
+      : "Search by name or ticker, like SOL, ETH or Base";
+  if (pick) {
+    const prefer = kind === "contract" ? state.lastDeploy : state.lastWallet;
+    const list = activeCatalog();
+    const next = list.find((c) => c.id === prefer) || list[0];
+    if (next) pickChain(next.id);
+  }
+}
+
+$("modeAddress").addEventListener("click", () => {
+  if (mode !== "setup" || state.kind === "address") return;
+  setKind("address");
+});
+$("modeContract").addEventListener("click", () => {
+  if (mode !== "setup" || state.kind === "contract") return;
+  setKind("contract");
+});
+
 /* ---------------- chain picker ---------------- */
 
 const sheet = $("chainSheet");
 
 function orderedChains() {
-  const byId = new Map(state.chains.map((c) => [c.id, c]));
-  const top = POPULAR.map((id) => byId.get(id)).filter(Boolean);
-  const rest = state.chains
-    .filter((c) => !POPULAR.includes(c.id))
+  const list = activeCatalog();
+  const popular = state.kind === "contract" ? DEPLOY_POPULAR : POPULAR;
+  const byId = new Map(list.map((c) => [c.id, c]));
+  const top = popular.map((id) => byId.get(id)).filter(Boolean);
+  const rest = list
+    .filter((c) => !popular.includes(c.id))
     .sort((a, b) => a.name.localeCompare(b.name));
   return [...top, ...rest];
+}
+
+function factoryValues(required) {
+  const deployer = $("deployer").value.trim();
+  const initCodeHash = $("initCodeHash").value.trim();
+  if (required && (!deployer || !initCodeHash)) return null;
+  return {
+    deployer: deployer || ZERO_DEPLOYER,
+    initCodeHash: initCodeHash || ZERO_INIT_HASH,
+    filled: Boolean(deployer && initCodeHash),
+  };
+}
+
+function syncFactoryFields(id) {
+  const needs = id === "create2";
+  $("factoryFields").hidden = !needs;
+  if (!needs) {
+    $("deployer").value = "";
+    $("initCodeHash").value = "";
+  }
 }
 
 // Lower is better; null means no match. Exact ticker beats name, name beats nicknames ("base" → EVM, not "base32").
@@ -278,24 +357,60 @@ function fixedPositions(samples) {
   return [...first].map((ch, i) => (sameLength || i < 4 ? samples.every((s) => s[i] === ch) : false));
 }
 
+function detailsArgs(id) {
+  if (id !== "create2") return [undefined, undefined];
+  const f = factoryValues(false);
+  return [f.deployer, f.initCodeHash];
+}
+
 function pickChain(id) {
-  const d = chain_details(id);
-  const samples = [d.sample, ...[1, 2, 3].map(() => chain_details(id).sample)];
-  state.chain = { id, name: d.name, hint: d.hint, sample: d.sample, fixed: fixedPositions(samples) };
+  syncFactoryFields(id);
+  const [deployer, initCodeHash] = detailsArgs(id);
+  const d = chain_details(id, deployer, initCodeHash);
+  const samples = [
+    d.sample,
+    ...[1, 2, 3].map(() => chain_details(id, deployer, initCodeHash).sample),
+  ];
+  const needsFactory = id === "create2";
+  state.chain = {
+    id,
+    name: d.name,
+    hint: d.hint,
+    sample: d.sample,
+    fixed: fixedPositions(samples),
+    needsFactory,
+  };
+  if (state.kind === "contract") state.lastDeploy = id;
+  else state.lastWallet = id;
+  // Chip shows the chain name (same visual weight as Address mode).
+  const shortChip = {
+    "evm-contract": "EVM",
+    "trx-contract": "Tron",
+    "sol-mint": "Solana",
+    create2: "CREATE2",
+  };
   const { title } = splitLabel(d.name);
-  $("chainName").textContent = title;
+  $("chainName").textContent = shortChip[id] || title;
   $("chainLogo").src = `icons/${tickerOf(id).toLowerCase()}.png`;
   const { color, color2, mono } = META[id] ?? {};
   const [a, b] = mono
     ? ["var(--mono-a)", "var(--mono-b)"]
     : [color || "var(--violet)", color2 || (color ? `color-mix(in srgb, ${color} 50%, white)` : "var(--cyan)")];
+  // Header toggle sits outside #shell — set chain colours on :root so the active pill matches.
+  document.documentElement.style.setProperty("--chain-a", a);
+  document.documentElement.style.setProperty("--chain-b", b);
   $("shell").style.setProperty("--chain-a", a);
   $("shell").style.setProperty("--chain-b", b);
-  $("chainChip").setAttribute("aria-label", `Blockchain: ${d.name}. Change`);
+  const label = state.kind === "contract" ? "Deploy mode" : "Blockchain";
+  $("chainChip").setAttribute("aria-label", `${label}: ${d.name}. Change`);
   // Case only matters where addresses mix upper and lower case (base58, TON).
   const free = [...d.sample].filter((_, i) => !state.chain.fixed[i]).join("");
-  $("exactWrap").hidden = !(/[A-Z]/.test(free) && /[a-z]/.test(free));
-  if ($("exactWrap").hidden) $("exact").checked = false;
+  const showExact = /[A-Z]/.test(free) && /[a-z]/.test(free);
+  // Keep the row's height (visibility) so Address↔Contract doesn't shove the stack up/down.
+  $("exactWrap").classList.toggle("is-ghost", !showExact);
+  $("exactWrap").hidden = false;
+  $("exact").disabled = !showExact;
+  if (!showExact) $("exact").checked = false;
   state.estimate = null;
   renderPreview();
   checkPattern();
@@ -327,12 +442,15 @@ function leadLength() {
 function readPattern() {
   const word = $("word").value.trim();
   const at = position;
+  const factory = state.chain?.needsFactory ? factoryValues(false) : null;
   return {
     chain: state.chain.id,
     prefix: at === "prefix" ? word : "",
     suffix: at === "suffix" ? word : "",
     contains: at === "contains" ? word : "",
     ignoreCase: !$("exact").checked,
+    deployer: factory?.filled ? factory.deployer : undefined,
+    initCodeHash: factory?.filled ? factory.initCodeHash : undefined,
   };
 }
 
@@ -376,7 +494,9 @@ function fitBoard(count) {
     const narrowGuess = avail < 600;
     width = Math.min(1000, avail) - (narrowGuess ? 22 : 30);
   }
-  width = Math.max(120, width);
+  // Never trust a measured width wider than the viewport (header overflow used to inflate this).
+  const viewportCap = Math.max(120, (window.innerWidth || width) - 28);
+  width = Math.max(120, Math.min(width, viewportCap));
   const narrow = width < 560;
   const gap = 2;
   const wantTile = narrow ? (mode === "done" ? 16 : 18) : 20;
@@ -419,13 +539,22 @@ function buildBoard(count) {
 
 function updatePlate() {
   if (!state.chain) return;
+  const shortPlate = {
+    "evm-contract": "EVM",
+    "trx-contract": "Tron",
+    "sol-mint": "Solana",
+    create2: "CREATE2",
+  };
+  const name = shortPlate[state.chain.id] || splitLabel(state.chain.name).title;
   const label = {
-    setup: `Example ${state.chain.name} address`,
-    running: `Searching ${state.chain.name} addresses…`,
-    done: `Your ${state.chain.name} address`,
+    setup: `Example ${name}`,
+    running: `Searching ${name}…`,
+    done: `Your ${name} address`,
   }[mode];
   $("plateLabel").textContent = label;
-  $("plateCount").textContent = `${boardTiles.length} characters`;
+  const n = boardTiles.length;
+  const compact = window.matchMedia("(max-width: 480px)").matches;
+  $("plateCount").textContent = compact ? `${n} chars` : `${n} characters`;
 }
 
 function paintTiles(chars, locked, fixed) {
@@ -525,7 +654,8 @@ new ResizeObserver(() => {
 
 /* ---------------- pattern + estimate ---------------- */
 
-const speedKey = (p) => `${p.chain}:${p.ignoreCase}`;
+const speedKey = (p) =>
+  `${p.chain}:${p.ignoreCase}:${p.deployer || ""}:${p.initCodeHash || ""}`;
 
 let checkTimer = 0;
 let benchToken = 0;
@@ -602,6 +732,8 @@ document.addEventListener("pointerdown", (e) => {
   if (!posMenu.hidden && !e.target.closest(".slot.pick")) closePosMenu(false);
 });
 $("exact").addEventListener("change", checkPattern);
+$("deployer").addEventListener("input", checkPattern);
+$("initCodeHash").addEventListener("input", checkPattern);
 $("word").addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
@@ -615,7 +747,19 @@ function checkPattern() {
     renderEstimate(null);
     return;
   }
-  const v = validate_pattern(p.chain, p.prefix, p.suffix, p.ignoreCase, p.contains || undefined);
+  if (state.chain?.needsFactory && (!p.deployer || !p.initCodeHash)) {
+    renderEstimate(null, "CREATE2 needs a deployer address and init-code hash");
+    return;
+  }
+  const v = validate_pattern(
+    p.chain,
+    p.prefix,
+    p.suffix,
+    p.ignoreCase,
+    p.contains || undefined,
+    p.deployer,
+    p.initCodeHash,
+  );
   if (!v.ok) {
     renderEstimate(null, v.error);
     return;
@@ -627,7 +771,16 @@ function checkPattern() {
 
 function showEstimate(p, measured) {
   try {
-    state.estimate = estimate_difficulty(p.chain, p.prefix, p.suffix, p.ignoreCase, measured || 0, p.contains || undefined);
+    state.estimate = estimate_difficulty(
+      p.chain,
+      p.prefix,
+      p.suffix,
+      p.ignoreCase,
+      measured || 0,
+      p.contains || undefined,
+      p.deployer,
+      p.initCodeHash,
+    );
     state.estimate.measured = Boolean(measured);
     renderEstimate(state.estimate);
   } catch (e) {
@@ -918,7 +1071,9 @@ function renderSecrets(exports) {
 
   const addr = el("div", "secret");
   const addrHead = el("div", "secret-head");
-  addrHead.append(el("span", "secret-label", "Address"));
+  addrHead.append(
+    el("span", "secret-label", state.kind === "contract" ? "Result address" : "Address"),
+  );
   const copyAddr = miniButton("Copy", async () => {
     try {
       await navigator.clipboard.writeText(state.result.address);
@@ -1119,10 +1274,18 @@ async function loadEngine() {
     setBoot("Starting the generator…", "init…");
     await withTimeout(init({ module_or_path: state.module }), 30000, "Engine start");
     state.chains = list_chains();
+    state.deployModes = list_deploy_modes().map((m) => ({
+      id: m.id,
+      name: m.name,
+      needs_factory: Boolean(m.needs_factory),
+    }));
+    // Fresh random wallet + deploy pick every load (not always Solana / EVM).
+    state.lastWallet = pickRandomId(state.chains) || DEFAULT_CHAIN;
+    state.lastDeploy = pickRandomId(state.deployModes) || DEFAULT_DEPLOY;
     $("loading").hidden = true;
     $("composer").hidden = false;
-    const first = state.chains.find((c) => c.id === DEFAULT_CHAIN) || state.chains[0];
-    pickChain(first.id);
+    const savedKind = readPref("vanity.kind") === "contract" ? "contract" : "address";
+    setKind(savedKind, { pick: true });
     setMode("setup");
   } catch (e) {
     $("loading").classList.add("is-error");

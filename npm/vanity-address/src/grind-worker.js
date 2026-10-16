@@ -43,6 +43,8 @@ parentPort.on("message", (msg) => {
         job.ignoreCase,
         chunkSize,
         job.contains || undefined,
+        job.deployer || undefined,
+        job.initCodeHash || undefined,
       );
 
       // Report attempts for every chunk, including the winning one, so

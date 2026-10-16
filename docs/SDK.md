@@ -24,19 +24,32 @@ single-thread grind; **Node uses a multi-core `worker_threads` pool by default**
 ## Quick start
 
 ```js
-const { generateAddress } = require("vanity-address");
+const { generateAddress, listDeployModes } = require("vanity-address");
 
 const wallet = await generateAddress({ chain: "evm", prefix: "abc" });
 
 console.log(wallet.address);     // 0xabc...
 console.log(wallet.privateKey);  // first export value (convenience)
 console.log(wallet.exports);     // full list of key formats
+
+listDeployModes(); // evm-contract, trx-contract, sol-mint, create2
 ```
 
 ```js
 import { generateAddress } from "vanity-address";
 
 const wallet = await generateAddress({ chain: "sui", prefix: "0xcafe", workers: 4 });
+
+// Contract vanity (CREATE · nonce 0) — privateKey is the deployer key
+const c = await generateAddress({ chain: "evm-contract", prefix: "cafe" });
+
+// CREATE2 — privateKey is the salt; pass factory params
+const { address, privateKey: salt } = await generateAddress({
+  chain: "create2",
+  prefix: "cafe",
+  deployer: "0xYourFactory…",
+  initCodeHash: "0x…",
+});
 ```
 
 TypeScript types ship in the package — no `@types` needed. Prefer `ChainId` for
@@ -61,6 +74,8 @@ interface GenerateAddressOptions {
   workers?: number;           // Node: default = CPU count; set 1 to disable pool
   keysPerSec?: number;        // override ETA heuristic
   count?: number;             // generateAddresses batch size
+  deployer?: string;          // CREATE2: 20-byte hex deployer / factory
+  initCodeHash?: string;      // CREATE2: 32-byte hex keccak256(init code)
 }
 
 interface ProgressInfo {
@@ -100,11 +115,13 @@ const v = validatePattern({ chain: "evm", prefix: "zzzz" });
 // { ok: false, error: "'prefix' contains 'z' — must be hex ..." }
 ```
 
-### `listChains()` / `isValidChain(id)`
+### `listChains()` / `listDeployModes()` / `isValidChain(id)`
 
 ```js
 listChains();          // [{ id: "algo", name: "Algorand (base32)" }, ...]
+listDeployModes();     // [{ id: "evm-contract", name: "…", needsFactory: false }, …]
 isValidChain("eth");   // true (alias → EVM)
+isValidChain("create2"); // true (still needs deployer + initCodeHash at grind time)
 ```
 
 ### Errors
@@ -173,12 +190,25 @@ All **31** chains — same ids as the CLI `--chain` flag:
 | `icp` | Internet Computer | | |
 | `kaspa` | Kaspa | | |
 
-Deploy modes (not in `listChains()`, but accepted as `chain`):
+Deploy modes (also from `listDeployModes()`; accepted as `chain`):
 
-| id | what you get | `privateKey` is |
+| id | what you get | `privateKey` / first export |
 |---|---|---|
 | `evm-contract` | contract address from the deployer's first deploy (CREATE, nonce 0) | deployer private key (hex) |
+| `trx-contract` | Tron contract address (`T…`) from CREATE / nonce 0 | deployer private key (hex) |
 | `sol-mint` | SPL token mint address | mint secret key (base58); `exports[1]` is the keypair JSON for `spl-token` |
+| `create2` | CREATE2 contract address | salt (hex) — pass `deployer` + `initCodeHash` |
+
+Aliases (same grind): `contract` / `evm-create` → `evm-contract`, `tron-contract` → `trx-contract`, `mint` / `spl-mint` → `sol-mint`.
+
+```js
+const { address, privateKey: salt } = await generateAddress({
+  chain: "create2",
+  prefix: "cafe",
+  deployer: "0xYourFactory…",
+  initCodeHash: "0x…", // keccak256(init code)
+});
+```
 
 ---
 

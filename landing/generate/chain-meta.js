@@ -3,6 +3,8 @@
 // Shown first in the picker; everything else follows alphabetically.
 export const POPULAR = ["sol", "evm", "btc", "ton", "trx", "sui"];
 export const DEFAULT_CHAIN = "sol";
+export const DEFAULT_DEPLOY = "evm-contract";
+export const DEPLOY_POPULAR = ["evm-contract", "trx-contract", "sol-mint", "create2"];
 
 // ticker, brand colour (color2 for two-tone logos, mono for black-and-white logos), and extra words people search for
 export const META = {
@@ -42,6 +44,28 @@ export const META = {
   xtz: { ticker: "XTZ", color: "#2c7df7", words: "tezos" },
   ton: { ticker: "TON", color: "#0098ea", words: "toncoin telegram tonkeeper" },
   trx: { ticker: "TRX", color: "#eb0029", words: "tron tronlink" },
+  // Deploy / mint modes (Contract toggle) — logos reuse wallet tickers
+  "evm-contract": {
+    ticker: "ETH",
+    color: "#7b8ff0",
+    words: "evm contract create deployer nonce cafe ethereum",
+  },
+  "trx-contract": {
+    ticker: "TRX",
+    color: "#eb0029",
+    words: "tron contract create deployer nonce cafe",
+  },
+  "sol-mint": {
+    ticker: "SOL",
+    color: "#a066ff",
+    color2: "#14f195",
+    words: "solana mint spl token pump",
+  },
+  create2: {
+    ticker: "ETH",
+    color: "#7b8ff0",
+    words: "create2 salt factory init code hash ethereum contract",
+  },
 };
 
 // Public block explorers for checking a result: [name, icon path, address URL prefix].
@@ -78,6 +102,19 @@ export const EXPLORERS = {
   inj: [mintscan("injective")],
   sei: [mintscan("sei")],
   trx: [["Tronscan", "explorers/tronscan.png", "https://tronscan.org/#/address/"]],
+  "evm-contract": [
+    ["Etherscan", "explorers/etherscan.png", "https://etherscan.io/address/"],
+    ["Basescan", "explorers/basescan.png", "https://basescan.org/address/"],
+  ],
+  "trx-contract": [["Tronscan", "explorers/tronscan.png", "https://tronscan.org/#/address/"]],
+  "sol-mint": [
+    ["Solscan", "explorers/solscan.png", "https://solscan.io/token/"],
+    ["Solana Explorer", "explorers/solana.png", "https://explorer.solana.com/address/"],
+  ],
+  create2: [
+    ["Etherscan", "explorers/etherscan.png", "https://etherscan.io/address/"],
+    ["Basescan", "explorers/basescan.png", "https://basescan.org/address/"],
+  ],
   ton: [["Tonviewer", "explorers/tonviewer.png", "https://tonviewer.com/"]],
   sui: [
     ["Suiscan", "explorers/suiscan.png", "https://suiscan.xyz/mainnet/account/"],

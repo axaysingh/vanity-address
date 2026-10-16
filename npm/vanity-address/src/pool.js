@@ -97,6 +97,8 @@ class WorkerPool {
         contains: opts.contains || "",
         ignoreCase: !opts.caseSensitive,
         chunkSize,
+        deployer: opts.deployer || "",
+        initCodeHash: opts.initCodeHash || "",
       };
 
       for (const worker of workers) {

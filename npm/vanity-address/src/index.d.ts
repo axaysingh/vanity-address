@@ -29,7 +29,13 @@ export type ChainId =
   | "sui"
   | "xtz"
   | "ton"
-  | "trx";
+  | "trx"
+  | "evm-contract"
+  | "trx-contract"
+  | "sol-mint"
+  | "create2";
+
+export type DeployModeId = "evm-contract" | "trx-contract" | "sol-mint" | "create2";
 
 export interface GenerateAddressOptions {
   chain: ChainId | string;
@@ -47,8 +53,11 @@ export interface GenerateAddressOptions {
   workers?: number;
   /** Override keys/sec used for ETA estimates. */
   keysPerSec?: number;
+  /** CREATE2: deployer address (20-byte hex). Alias: deployerAddress. */
+  deployer?: string;
+  /** CREATE2: keccak256(init code) (32-byte hex). Alias: init_code_hash. */
+  initCodeHash?: string;
 }
-
 export interface GenerateAddressesOptions extends GenerateAddressOptions {
   count: number;
 }
@@ -75,6 +84,13 @@ export interface Wallet {
 export interface ChainInfo {
   id: ChainId | string;
   name: string;
+}
+
+export interface DeployModeInfo {
+  id: DeployModeId | string;
+  name: string;
+  /** True for create2 — requires deployer + initCodeHash. */
+  needsFactory: boolean;
 }
 
 export type PatternRisk = "none" | "caution" | "long" | "impractical";
@@ -110,4 +126,5 @@ export function generateAddresses(options: GenerateAddressesOptions): Promise<Wa
 export function estimateDifficulty(options: GenerateAddressOptions): DifficultyEstimate;
 export function validatePattern(options: GenerateAddressOptions): ValidatePatternResult;
 export function listChains(): ChainInfo[];
+export function listDeployModes(): DeployModeInfo[];
 export function isValidChain(id: string): boolean;

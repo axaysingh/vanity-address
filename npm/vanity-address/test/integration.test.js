@@ -69,6 +69,64 @@ test("estimateDifficulty / listChains / validatePattern helpers", () => {
   assert.equal(bad.ok, false);
 });
 
+test("listDeployModes + deploy aliases", () => {
+  const { listDeployModes, isValidChain } = require("../src/index.js");
+  const modes = listDeployModes();
+  assert.equal(modes.length, 4);
+  const ids = new Set(modes.map((m) => m.id));
+  assert.ok(ids.has("evm-contract") && ids.has("trx-contract"));
+  assert.ok(ids.has("sol-mint") && ids.has("create2"));
+  const create2 = modes.find((m) => m.id === "create2");
+  assert.equal(create2.needsFactory, true);
+  assert.equal(
+    modes.filter((m) => m.id !== "create2").every((m) => !m.needsFactory),
+    true,
+  );
+  // Core aliases resolve through wasm is_valid_chain
+  assert.equal(isValidChain("contract"), true);
+  assert.equal(isValidChain("evm-create"), true);
+  assert.equal(isValidChain("tron-contract"), true);
+  assert.equal(isValidChain("mint"), true);
+  assert.equal(isValidChain("create2"), true);
+});
+
+test("evm-contract: CREATE nonce-0 address matches prefix", async () => {
+  const wallet = await generateAddress({
+    chain: "evm-contract",
+    prefix: "a",
+    workers: 2,
+  });
+  assert.match(wallet.address, /^0x[0-9a-fA-F]{40}$/);
+  assert.equal(wallet.address[2].toLowerCase(), "a");
+  assert.ok(wallet.privateKey);
+});
+
+test("contract alias resolves to evm-contract grind", async () => {
+  const wallet = await generateAddress({ chain: "contract", prefix: "b", workers: 2 });
+  assert.match(wallet.address, /^0x[0-9a-fA-F]{40}$/);
+  assert.equal(wallet.address[2].toLowerCase(), "b");
+});
+
+test("create2: salt grind with deployer + initCodeHash", async () => {
+  const wallet = await generateAddress({
+    chain: "create2",
+    prefix: "a",
+    deployer: "0x0000000000000000000000000000000000000001",
+    initCodeHash: "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+    workers: 2,
+  });
+  assert.match(wallet.address, /^0x[0-9a-fA-F]{40}$/);
+  assert.equal(wallet.address[2].toLowerCase(), "a");
+  assert.ok(wallet.privateKey);
+});
+
+test("create2 rejects without factory args", async () => {
+  await assert.rejects(
+    generateAddress({ chain: "create2", prefix: "a" }),
+    (err) => err instanceof VanityAddressError && err.code === "INVALID_CHAIN",
+  );
+});
+
 test("generateAddresses returns the requested count", async () => {
   const { generateAddresses } = require("../src/index.js");
   const wallets = await generateAddresses({ chain: "evm", prefix: "a", count: 2, workers: 2 });
@@ -87,4 +145,6 @@ test('Node ESM entry point (package exports "node" condition) works', async () =
   const mod = await import("vanity-address");
   const wallet = await mod.generateAddress({ chain: "evm", prefix: "a" });
   assert.match(wallet.address, /^0x[0-9a-fA-F]{40}$/);
+  assert.equal(typeof mod.listDeployModes, "function");
+  assert.ok(mod.listDeployModes().some((m) => m.id === "evm-contract"));
 });

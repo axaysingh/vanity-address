@@ -1,7 +1,7 @@
 use serde::Serialize;
 use vanity_core::{
     build_pattern_list, default_keys_per_sec, expected_attempts_any, grind_estimate, pattern_guide,
-    Chain, ChainGrinder, PatternRisk, MENU_CHAINS,
+    Chain, ChainGrinder, PatternRisk, DEPLOY_MODES, MENU_CHAINS,
 };
 use wasm_bindgen::prelude::*;
 
@@ -29,6 +29,23 @@ struct ChunkOut {
 struct ChainInfoOut {
     id: String,
     name: String,
+}
+
+#[derive(Serialize)]
+struct DeployModeOut {
+    id: String,
+    name: String,
+    /// True when caller must pass `deployer` + `initCodeHash` (CREATE2).
+    needs_factory: bool,
+}
+
+fn resolve_chain(
+    chain_id: &str,
+    deployer: Option<&str>,
+    init_code_hash: Option<&str>,
+) -> Result<Chain, JsValue> {
+    Chain::resolve_chain(chain_id, deployer, init_code_hash)
+        .map_err(|e| js_err("INVALID_CHAIN", &e))
 }
 
 #[derive(Serialize)]
@@ -106,7 +123,9 @@ fn expected_any(chain: &Chain, patterns: &[vanity_core::Pattern]) -> f64 {
 }
 
 /// Runs up to `attempts` grind tries. Supports contains + comma OR patterns.
+/// For `create2`, pass `deployer` + `init_code_hash` (20- and 32-byte hex).
 #[wasm_bindgen]
+#[allow(clippy::too_many_arguments)] // flat ABI for JS; factory args are optional
 pub fn grind_chunk(
     chain_id: &str,
     prefix: &str,
@@ -114,8 +133,10 @@ pub fn grind_chunk(
     ignore_case: bool,
     attempts: u32,
     contains: Option<String>,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = Chain::from_id(chain_id).map_err(|e| js_err("INVALID_CHAIN", &e))?;
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns(&chain, prefix, suffix, &contains, ignore_case)?;
 
@@ -160,6 +181,10 @@ pub fn grind_chunk(
 
 #[wasm_bindgen]
 pub fn is_valid_chain(chain_id: &str) -> bool {
+    let id = chain_id.trim().to_ascii_lowercase();
+    if id == "create2" {
+        return true;
+    }
     Chain::from_id(chain_id).is_ok()
 }
 
@@ -175,6 +200,20 @@ pub fn list_chains() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&list).map_err(|e| js_err("INTERNAL", &e.to_string()))
 }
 
+/// Deploy / mint modes (`evm-contract`, `trx-contract`, `sol-mint`, `create2`).
+#[wasm_bindgen]
+pub fn list_deploy_modes() -> Result<JsValue, JsValue> {
+    let list: Vec<DeployModeOut> = DEPLOY_MODES
+        .iter()
+        .map(|(id, name)| DeployModeOut {
+            id: (*id).to_string(),
+            name: (*name).to_string(),
+            needs_factory: *id == "create2",
+        })
+        .collect();
+    serde_wasm_bindgen::to_value(&list).map_err(|e| js_err("INTERNAL", &e.to_string()))
+}
+
 #[derive(Serialize)]
 struct ChainDetailOut {
     name: String,
@@ -183,9 +222,14 @@ struct ChainDetailOut {
 }
 
 /// Display name, pattern hint, and one random address (its key is discarded).
+/// For `create2`, pass `deployer` + `init_code_hash`.
 #[wasm_bindgen]
-pub fn chain_details(chain_id: &str) -> Result<JsValue, JsValue> {
-    let chain = Chain::from_id(chain_id).map_err(|e| js_err("INVALID_CHAIN", &e))?;
+pub fn chain_details(
+    chain_id: &str,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
+) -> Result<JsValue, JsValue> {
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let (sample, _discarded) = chain.grind_attempt();
     let out = ChainDetailOut {
         name: chain.display_name().to_string(),
@@ -196,6 +240,7 @@ pub fn chain_details(chain_id: &str) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
+#[allow(clippy::too_many_arguments)] // flat ABI for JS; factory args are optional
 pub fn estimate_difficulty(
     chain_id: &str,
     prefix: &str,
@@ -203,8 +248,10 @@ pub fn estimate_difficulty(
     ignore_case: bool,
     keys_per_sec: f64,
     contains: Option<String>,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = Chain::from_id(chain_id).map_err(|e| js_err("INVALID_CHAIN", &e))?;
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns(&chain, prefix, suffix, &contains, ignore_case)?;
     let attempts = expected_any(&chain, &patterns);
@@ -238,8 +285,11 @@ pub fn validate_pattern(
     suffix: &str,
     ignore_case: bool,
     contains: Option<String>,
+    deployer: Option<String>,
+    init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = match Chain::from_id(chain_id) {
+    let chain = match Chain::resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())
+    {
         Ok(c) => c,
         Err(e) => {
             let out = ValidateOut {

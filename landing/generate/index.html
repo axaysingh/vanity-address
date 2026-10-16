@@ -26,11 +26,12 @@
     <img src="../assets/logo.svg" alt="" width="41" height="42" />
     <span>vanity-address</span>
   </a>
-  <div class="bar-right">
-    <span class="net" id="net" role="status" aria-live="polite">
-      <span class="net-dot" aria-hidden="true"></span>
-      <span id="netText">Checking connection</span>
-    </span>
+  <div class="mode-toggle" id="modeToggle" data-kind="address" role="group" aria-label="What to generate">
+    <span class="mode-thumb" aria-hidden="true"></span>
+    <button type="button" class="mode-btn is-active" id="modeAddress" data-kind="address" aria-pressed="true">Address</button>
+    <button type="button" class="mode-btn" id="modeContract" data-kind="contract" aria-pressed="false">Contract</button>
+  </div>
+  <div class="bar-tools">
     <a class="bar-link" href="../">Home</a>
     <button class="bar-link link-btn" type="button" id="safetyLink">Safety</button>
     <a class="sponsor-link" href="https://github.com/sponsors/yudizaxay" target="_blank" rel="noopener noreferrer" aria-label="Sponsor yudizaxay on GitHub (opens in a new tab)">
@@ -129,7 +130,7 @@
         <span id="chainName"></span>
         <svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <span class="words">address that</span>
+      <span class="words" id="kindPhrase">address that</span>
       <span class="pattern">
         <span class="slot pick">
           <button class="pick-btn" type="button" id="position" aria-haspopup="listbox" aria-expanded="false" aria-controls="positionMenu">
@@ -148,6 +149,17 @@
         </label>
       </span>
     </p>
+
+    <div class="factory" id="factoryFields" hidden>
+      <label class="factory-field">
+        <span class="factory-label">Deployer / factory</span>
+        <input id="deployer" class="mono" type="text" placeholder="0x…" autocomplete="off" spellcheck="false" autocapitalize="off" />
+      </label>
+      <label class="factory-field">
+        <span class="factory-label">Init code hash</span>
+        <input id="initCodeHash" class="mono" type="text" placeholder="keccak256(init code)" autocomplete="off" spellcheck="false" autocapitalize="off" />
+      </label>
+    </div>
 
     <figure class="plate" id="plate">
       <figcaption class="plate-head" aria-hidden="true">

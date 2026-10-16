@@ -4,7 +4,17 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- npm SDK: export `listDeployModes` from ESM entry points; contract/mint aliases covered in demo + tests
+
 ## [0.6.5] - 2026-10-15
+
+### Added
+
+- **Tron contract vanity (`trx-contract`)** — CREATE / nonce 0, same idea as `evm-contract`, base58 `T…` address
+- **CREATE2 in the npm SDK** — `chain: "create2"` with `deployer` + `initCodeHash`; `listDeployModes()` for discovery
+- Deploy modes in the **desktop** chain picker (including CREATE2 factory fields) and CLI interactive digit menu
+- **Web generator** Address | Contract header toggle — `evm-contract`, `trx-contract`, `sol-mint`, CREATE2 (factory fields)
+- WASM exports: `list_deploy_modes`, optional factory args on grind / estimate / validate / chain_details
 
 ### Fixed
 

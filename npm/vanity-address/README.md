@@ -87,8 +87,14 @@ npx vanity-address --chain sol --suffix moon --save
 # JSON output for scripts / automation
 npx vanity-address --chain sol --suffix ax --json --no-benchmark
 
-# Contract address starting with 0xcafe (deployer's first deploy, nonce 0)
+# EVM contract starting with 0xcafe (deployer's first deploy, nonce 0)
 npx vanity-address --chain evm-contract --prefix cafe
+
+# Tron contract starting with TCafe…
+npx vanity-address --chain trx-contract --prefix Cafe
+
+# CREATE2 salt for a known factory
+npx vanity-address --create2 --deployer 0x… --init-code-hash 0x… --prefix cafe
 
 # Solana token mint ending in "pump" → spl-token create-token mint.json
 npx vanity-address --chain sol-mint --suffix pump
@@ -154,11 +160,12 @@ Example output:
 
 ### Deploy modes
 
-| Mode | `--chain` | What you get |
-| ---- | --------- | ------------ |
-| EVM contract (CREATE) | `evm-contract` | Deployer key whose **first** deploy (nonce 0) lands on your vanity contract address |
-| EVM contract (CREATE2) | `--create2 --deployer … --init-code-hash …` | Salt for a factory deploy |
-| Solana token mint | `sol-mint` | Mint keypair JSON for `spl-token create-token mint.json` |
+| Mode | How to run | What you get |
+| ---- | ---------- | ------------ |
+| EVM contract (CREATE) | `--chain evm-contract` | Deployer key whose **first** deploy (nonce 0) lands on your vanity contract |
+| Tron contract (CREATE) | `--chain trx-contract` | Same idea, Tron `T…` contract address |
+| EVM CREATE2 | `--create2 --deployer … --init-code-hash …` | Salt for a factory deploy (not a private key) |
+| Solana token mint | `--chain sol-mint` | Mint keypair JSON for `spl-token create-token mint.json` |
 
 ---
 
@@ -190,9 +197,12 @@ const {
   generateAddress,
   estimateDifficulty,
   listChains,
+  listDeployModes,
 } = require("vanity-address");
 
-// Optional: check difficulty first
+listDeployModes(); // evm-contract, trx-contract, sol-mint, create2
+// Aliases: contract → evm-contract, mint → sol-mint, tron-contract → trx-contract
+
 console.log(estimateDifficulty({ chain: "evm", prefix: "abc", workers: 4 }));
 
 const wallet = await generateAddress({
@@ -204,9 +214,17 @@ const wallet = await generateAddress({
   },
 });
 console.log(wallet.address, wallet.privateKey);
+
+// CREATE2 — pass deployer + initCodeHash; privateKey is the salt
+await generateAddress({
+  chain: "create2",
+  prefix: "cafe",
+  deployer: "0xYourFactory…",
+  initCodeHash: "0x…",
+});
 ```
 
-Also: `generateAddresses({ count })`, `validatePattern()`, `listChains()`, `isValidChain()`, `timeoutMs`, AbortSignal.
+Also: `generateAddresses({ count })`, `validatePattern()`, `isValidChain()`, `timeoutMs`, AbortSignal.
 
 Supports `import` (ESM) and `require` (CJS). Node uses a **worker_threads** pool by default; browsers stay single-threaded.
 

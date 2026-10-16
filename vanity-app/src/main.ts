@@ -60,7 +60,10 @@ let lastResult: DonePayload | null = null;
 
 async function initHelpScreen() {
   const chains = await listChains();
-  el("#help-chains").textContent = `Supported: ${chains.map((c) => c.id).join(", ")}`;
+  const wallets = chains.filter((c) => c.group !== "deploy").map((c) => c.id);
+  const deploy = chains.filter((c) => c.group === "deploy").map((c) => c.id);
+  el("#help-chains").textContent =
+    `Wallets: ${wallets.join(", ")}. Deploy/mint: ${deploy.join(", ")}.`;
 }
 
 function goHome() {
@@ -74,12 +77,29 @@ async function initChainScreen() {
   const grid = el("#chain-grid");
   const chains = await listChains();
   grid.innerHTML = "";
-  for (const chain of chains) {
+
+  const appendSection = (title: string) => {
+    const heading = document.createElement("div");
+    heading.className = "chain-section";
+    heading.textContent = title;
+    grid.appendChild(heading);
+  };
+
+  const appendCard = (chain: ChainInfo) => {
     const card = document.createElement("button");
     card.className = "chain-card";
     card.innerHTML = `<span class="chain-id">${chain.id}</span><span class="chain-label">${chain.menu_label}</span>`;
     card.addEventListener("click", () => selectChain(chain));
     grid.appendChild(card);
+  };
+
+  appendSection("Wallet addresses");
+  for (const chain of chains.filter((c) => c.group !== "deploy")) {
+    appendCard(chain);
+  }
+  appendSection("Deploy / mint");
+  for (const chain of chains.filter((c) => c.group === "deploy")) {
+    appendCard(chain);
   }
 }
 
@@ -92,6 +112,11 @@ function selectChain(chain: ChainInfo) {
   el<HTMLInputElement>("#input-suffix").value = "";
   el<HTMLInputElement>("#input-contains").value = "";
   el<HTMLInputElement>("#input-exact").checked = false;
+  el<HTMLInputElement>("#input-deployer").value = "";
+  el<HTMLInputElement>("#input-init-code-hash").value = "";
+
+  const factoryFields = el("#factory-fields");
+  factoryFields.hidden = !chain.needs_factory;
 
   const exactRow = el("#exact-row");
   const exactInput = el<HTMLInputElement>("#input-exact");
@@ -101,6 +126,16 @@ function selectChain(chain: ChainInfo) {
   setMatchKind("suffix");
   hideEstimate();
   showScreen("pattern");
+}
+
+function factoryValues() {
+  if (!selectedChain?.needs_factory) {
+    return { deployer: undefined as string | undefined, initCodeHash: undefined as string | undefined };
+  }
+  return {
+    deployer: el<HTMLInputElement>("#input-deployer").value.trim() || undefined,
+    initCodeHash: el<HTMLInputElement>("#input-init-code-hash").value.trim() || undefined,
+  };
 }
 
 // ── Pattern screen ─────────────────────────────────────────────────
@@ -166,14 +201,31 @@ function currentPatternValues() {
 async function runEstimate() {
   if (!selectedChain) return;
   const { prefix, suffix, contains, exact } = currentPatternValues();
+  const { deployer, initCodeHash } = factoryValues();
 
   if (!prefix && !suffix && !contains) {
     hideEstimate();
     return;
   }
+  if (selectedChain.needs_factory && (!deployer || !initCodeHash)) {
+    hideEstimate();
+    const errBox = el("#pattern-error");
+    errBox.hidden = false;
+    errBox.textContent = "CREATE2 needs deployer address and init-code-hash";
+    el<HTMLButtonElement>("#btn-continue").disabled = true;
+    return;
+  }
 
   try {
-    const result = await estimate(selectedChain.id, prefix, suffix, exact, contains);
+    const result = await estimate(
+      selectedChain.id,
+      prefix,
+      suffix,
+      exact,
+      contains,
+      deployer,
+      initCodeHash,
+    );
     lastEstimate = result;
     el("#pattern-error").hidden = true;
     el("#estimate-box").hidden = false;
@@ -216,7 +268,8 @@ async function showSummary() {
   el("#confirm-impractical").hidden = true;
 
   const { prefix, suffix, contains, exact } = currentPatternValues();
-  const sys = await getSystemProfile(selectedChain.id);
+  const { deployer, initCodeHash } = factoryValues();
+  const sys = await getSystemProfile(selectedChain.id, deployer, initCodeHash);
 
   el("#sum-chain").textContent = selectedChain.display_name;
   el("#sum-target").textContent = lastEstimate.pattern_description;
@@ -263,6 +316,8 @@ async function showSummary() {
   el("#btn-grind").dataset.suffix = suffix;
   el("#btn-grind").dataset.contains = contains;
   el("#btn-grind").dataset.exact = String(exact);
+  el("#btn-grind").dataset.deployer = deployer ?? "";
+  el("#btn-grind").dataset.initCodeHash = initCodeHash ?? "";
 
   showScreen("summary");
 }
@@ -281,6 +336,8 @@ async function beginGrind() {
   const suffix = btn.dataset.suffix ?? "";
   const contains = btn.dataset.contains ?? "";
   const exact = btn.dataset.exact === "true";
+  const deployer = btn.dataset.deployer || undefined;
+  const initCodeHash = btn.dataset.initCodeHash || undefined;
   const force = lastEstimate.risk === "Impractical";
 
   if (force && !impracticalConfirmShown) {
@@ -329,7 +386,16 @@ async function beginGrind() {
   });
 
   try {
-    await startGrind(selectedChain.id, prefix, suffix, exact, force, contains);
+    await startGrind(
+      selectedChain.id,
+      prefix,
+      suffix,
+      exact,
+      force,
+      contains,
+      deployer,
+      initCodeHash,
+    );
   } catch (e) {
     grindUnlisten?.();
     grindUnlisten = null;
@@ -501,6 +567,8 @@ function init() {
   el<HTMLInputElement>("#input-prefix").addEventListener("input", scheduleEstimate);
   el<HTMLInputElement>("#input-suffix").addEventListener("input", scheduleEstimate);
   el<HTMLInputElement>("#input-contains").addEventListener("input", scheduleEstimate);
+  el<HTMLInputElement>("#input-deployer").addEventListener("input", scheduleEstimate);
+  el<HTMLInputElement>("#input-init-code-hash").addEventListener("input", scheduleEstimate);
   el<HTMLInputElement>("#input-exact").addEventListener("change", scheduleEstimate);
   el("#btn-continue").addEventListener("click", showSummary);
   el("#btn-grind").addEventListener("click", beginGrind);

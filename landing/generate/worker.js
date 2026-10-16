@@ -17,7 +17,16 @@ function grindLoop(job) {
   let chunk = 256;
   for (;;) {
     const started = performance.now();
-    const out = grind_chunk(job.chain, job.prefix, job.suffix, job.ignoreCase, chunk, job.contains || undefined);
+    const out = grind_chunk(
+      job.chain,
+      job.prefix,
+      job.suffix,
+      job.ignoreCase,
+      chunk,
+      job.contains || undefined,
+      job.deployer || undefined,
+      job.initCodeHash || undefined,
+    );
     const took = performance.now() - started;
 
     if (out.found) {

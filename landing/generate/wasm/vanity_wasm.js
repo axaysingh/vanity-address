@@ -2,13 +2,20 @@
 
 /**
  * Display name, pattern hint, and one random address (its key is discarded).
+ * For `create2`, pass `deployer` + `init_code_hash`.
  * @param {string} chain_id
+ * @param {string | null} [deployer]
+ * @param {string | null} [init_code_hash]
  * @returns {any}
  */
-export function chain_details(chain_id) {
+export function chain_details(chain_id, deployer, init_code_hash) {
     const ptr0 = passStringToWasm0(chain_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.chain_details(ptr0, len0);
+    var ptr1 = isLikeNone(deployer) ? 0 : passStringToWasm0(deployer, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len1 = WASM_VECTOR_LEN;
+    var ptr2 = isLikeNone(init_code_hash) ? 0 : passStringToWasm0(init_code_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len2 = WASM_VECTOR_LEN;
+    const ret = wasm.chain_details(ptr0, len0, ptr1, len1, ptr2, len2);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -22,9 +29,11 @@ export function chain_details(chain_id) {
  * @param {boolean} ignore_case
  * @param {number} keys_per_sec
  * @param {string | null} [contains]
+ * @param {string | null} [deployer]
+ * @param {string | null} [init_code_hash]
  * @returns {any}
  */
-export function estimate_difficulty(chain_id, prefix, suffix, ignore_case, keys_per_sec, contains) {
+export function estimate_difficulty(chain_id, prefix, suffix, ignore_case, keys_per_sec, contains, deployer, init_code_hash) {
     const ptr0 = passStringToWasm0(chain_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
     const ptr1 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -33,7 +42,11 @@ export function estimate_difficulty(chain_id, prefix, suffix, ignore_case, keys_
     const len2 = WASM_VECTOR_LEN;
     var ptr3 = isLikeNone(contains) ? 0 : passStringToWasm0(contains, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len3 = WASM_VECTOR_LEN;
-    const ret = wasm.estimate_difficulty(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, keys_per_sec, ptr3, len3);
+    var ptr4 = isLikeNone(deployer) ? 0 : passStringToWasm0(deployer, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len4 = WASM_VECTOR_LEN;
+    var ptr5 = isLikeNone(init_code_hash) ? 0 : passStringToWasm0(init_code_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len5 = WASM_VECTOR_LEN;
+    const ret = wasm.estimate_difficulty(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, keys_per_sec, ptr3, len3, ptr4, len4, ptr5, len5);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -42,15 +55,18 @@ export function estimate_difficulty(chain_id, prefix, suffix, ignore_case, keys_
 
 /**
  * Runs up to `attempts` grind tries. Supports contains + comma OR patterns.
+ * For `create2`, pass `deployer` + `init_code_hash` (20- and 32-byte hex).
  * @param {string} chain_id
  * @param {string} prefix
  * @param {string} suffix
  * @param {boolean} ignore_case
  * @param {number} attempts
  * @param {string | null} [contains]
+ * @param {string | null} [deployer]
+ * @param {string | null} [init_code_hash]
  * @returns {any}
  */
-export function grind_chunk(chain_id, prefix, suffix, ignore_case, attempts, contains) {
+export function grind_chunk(chain_id, prefix, suffix, ignore_case, attempts, contains, deployer, init_code_hash) {
     const ptr0 = passStringToWasm0(chain_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
     const ptr1 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -59,7 +75,11 @@ export function grind_chunk(chain_id, prefix, suffix, ignore_case, attempts, con
     const len2 = WASM_VECTOR_LEN;
     var ptr3 = isLikeNone(contains) ? 0 : passStringToWasm0(contains, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len3 = WASM_VECTOR_LEN;
-    const ret = wasm.grind_chunk(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, attempts, ptr3, len3);
+    var ptr4 = isLikeNone(deployer) ? 0 : passStringToWasm0(deployer, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len4 = WASM_VECTOR_LEN;
+    var ptr5 = isLikeNone(init_code_hash) ? 0 : passStringToWasm0(init_code_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len5 = WASM_VECTOR_LEN;
+    const ret = wasm.grind_chunk(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, attempts, ptr3, len3, ptr4, len4, ptr5, len5);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -89,14 +109,28 @@ export function list_chains() {
 }
 
 /**
+ * Deploy / mint modes (`evm-contract`, `trx-contract`, `sol-mint`, `create2`).
+ * @returns {any}
+ */
+export function list_deploy_modes() {
+    const ret = wasm.list_deploy_modes();
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
  * @param {string} chain_id
  * @param {string} prefix
  * @param {string} suffix
  * @param {boolean} ignore_case
  * @param {string | null} [contains]
+ * @param {string | null} [deployer]
+ * @param {string | null} [init_code_hash]
  * @returns {any}
  */
-export function validate_pattern(chain_id, prefix, suffix, ignore_case, contains) {
+export function validate_pattern(chain_id, prefix, suffix, ignore_case, contains, deployer, init_code_hash) {
     const ptr0 = passStringToWasm0(chain_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
     const ptr1 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -105,7 +139,11 @@ export function validate_pattern(chain_id, prefix, suffix, ignore_case, contains
     const len2 = WASM_VECTOR_LEN;
     var ptr3 = isLikeNone(contains) ? 0 : passStringToWasm0(contains, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len3 = WASM_VECTOR_LEN;
-    const ret = wasm.validate_pattern(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, ptr3, len3);
+    var ptr4 = isLikeNone(deployer) ? 0 : passStringToWasm0(deployer, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len4 = WASM_VECTOR_LEN;
+    var ptr5 = isLikeNone(init_code_hash) ? 0 : passStringToWasm0(init_code_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len5 = WASM_VECTOR_LEN;
+    const ret = wasm.validate_pattern(ptr0, len0, ptr1, len1, ptr2, len2, ignore_case, ptr3, len3, ptr4, len4, ptr5, len5);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
