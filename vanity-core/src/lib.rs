@@ -11,9 +11,7 @@ pub mod system;
 pub mod verify;
 
 pub use chain::{ChainGrinder, GrindAttempt, KeyExport, KeypairResult};
-pub use chains::{
-    Chain, Create2Grinder, EvmGrinder, SolanaGrinder, DEPLOY_MODES, MENU_CHAINS,
-};
+pub use chains::{Chain, Create2Grinder, EvmGrinder, SolanaGrinder, DEPLOY_MODES, MENU_CHAINS};
 pub use estimate::{
     default_keys_per_sec, effective_pattern_chars, format_attempts, format_duration,
     grind_estimate, pattern_guide, GrindEstimate, PatternRisk,

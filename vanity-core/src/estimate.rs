@@ -86,8 +86,8 @@ pub fn format_duration(avg_secs: f64) -> String {
 /// Single-thread heuristic throughput when no live benchmark is available (wasm / SDK).
 pub fn default_keys_per_sec(chain_id: &str) -> f64 {
     match chain_id {
-        "evm" | "eth" | "ethereum" | "evm-contract" | "trx-contract" | "create2"
-        | "aptos" | "apt" | "sui" | "near" => 35_000.0,
+        "evm" | "eth" | "ethereum" | "evm-contract" | "trx-contract" | "create2" | "aptos"
+        | "apt" | "sui" | "near" => 35_000.0,
         _ => 80_000.0,
     }
 }

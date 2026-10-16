@@ -99,11 +99,7 @@ pub fn get_system_profile(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<SystemInfo, String> {
-    let chain = resolve_app_chain(
-        &chain,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    )?;
+    let chain = resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
     let profile = SystemProfile::detect();
     Ok(SystemInfo {
         cpu_description: profile.cpu_description(),
@@ -211,11 +207,7 @@ pub fn estimate(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<EstimateResult, String> {
-    let chain = resolve_app_chain(
-        &chain,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    )?;
+    let chain = resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns_checked(&chain, &prefix, &suffix, &contains, exact)?;
     let expected = expected_attempts_any(
@@ -319,11 +311,8 @@ pub fn start_grind(
         if job.is_some() {
             return Err("A grind is already running".to_string());
         }
-        let chain_parsed = resolve_app_chain(
-            &chain,
-            deployer.as_deref(),
-            init_code_hash.as_deref(),
-        )?;
+        let chain_parsed =
+            resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
         let contains = contains.unwrap_or_default();
         let patterns = build_patterns_checked(&chain_parsed, &prefix, &suffix, &contains, exact)?;
         let expected = expected_attempts_any(

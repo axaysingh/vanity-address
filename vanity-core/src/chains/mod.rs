@@ -100,7 +100,10 @@ pub const DEPLOY_MODES: [(&str, &str); 4] = [
     ("evm-contract", "EVM contract (CREATE · nonce 0)"),
     ("trx-contract", "Tron contract (CREATE · nonce 0)"),
     ("sol-mint", "Solana token mint"),
-    ("create2", "EVM CREATE2 salt (needs deployer + init-code-hash)"),
+    (
+        "create2",
+        "EVM CREATE2 salt (needs deployer + init-code-hash)",
+    ),
 ];
 
 /// Menu label for interactive chain picker (index 0-based).

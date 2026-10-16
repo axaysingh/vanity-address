@@ -125,6 +125,7 @@ fn expected_any(chain: &Chain, patterns: &[vanity_core::Pattern]) -> f64 {
 /// Runs up to `attempts` grind tries. Supports contains + comma OR patterns.
 /// For `create2`, pass `deployer` + `init_code_hash` (20- and 32-byte hex).
 #[wasm_bindgen]
+#[allow(clippy::too_many_arguments)] // flat ABI for JS; factory args are optional
 pub fn grind_chunk(
     chain_id: &str,
     prefix: &str,
@@ -135,11 +136,7 @@ pub fn grind_chunk(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = resolve_chain(
-        chain_id,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    )?;
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns(&chain, prefix, suffix, &contains, ignore_case)?;
 
@@ -232,11 +229,7 @@ pub fn chain_details(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = resolve_chain(
-        chain_id,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    )?;
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let (sample, _discarded) = chain.grind_attempt();
     let out = ChainDetailOut {
         name: chain.display_name().to_string(),
@@ -247,6 +240,7 @@ pub fn chain_details(
 }
 
 #[wasm_bindgen]
+#[allow(clippy::too_many_arguments)] // flat ABI for JS; factory args are optional
 pub fn estimate_difficulty(
     chain_id: &str,
     prefix: &str,
@@ -257,11 +251,7 @@ pub fn estimate_difficulty(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = resolve_chain(
-        chain_id,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    )?;
+    let chain = resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
     let patterns = build_patterns(&chain, prefix, suffix, &contains, ignore_case)?;
     let attempts = expected_any(&chain, &patterns);
@@ -298,11 +288,8 @@ pub fn validate_pattern(
     deployer: Option<String>,
     init_code_hash: Option<String>,
 ) -> Result<JsValue, JsValue> {
-    let chain = match Chain::resolve_chain(
-        chain_id,
-        deployer.as_deref(),
-        init_code_hash.as_deref(),
-    ) {
+    let chain = match Chain::resolve_chain(chain_id, deployer.as_deref(), init_code_hash.as_deref())
+    {
         Ok(c) => c,
         Err(e) => {
             let out = ValidateOut {
