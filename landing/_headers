@@ -7,6 +7,16 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Link: </.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/ai-catalog+json", </llms.txt>; rel="describedby"; type="text/markdown"
 
+# Home page: allow fonts + GitHub API/sponsors; block Cloudflare Insights beacon
+# (Pages Analytics injects beacon.min.js — CSP stops it loading so PageSpeed
+# stops flagging its cache TTL / legacy polyfills). Prefer also disabling
+# Web Analytics in the Pages project → Metrics, then redeploy.
+/
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://github.com; base-uri 'self'; form-action 'self'
+
+/index.html
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://github.com; base-uri 'self'; form-action 'self'
+
 /generate/*
   Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
   Referrer-Policy: no-referrer
@@ -34,5 +44,5 @@
   Cache-Control: public, max-age=86400
 
 /.well-known/ai-catalog.json
-  Content-Type: application/json; charset=utf-8
+  Content-Type: application/ai-catalog+json; charset=utf-8
   Cache-Control: public, max-age=86400

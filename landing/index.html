@@ -1196,9 +1196,12 @@
     /* sizes come from ResizeObservers (delivered after layout), never from
        synchronous reads — wrap is `contain: size` so its box is CSS-only */
     var box = { w: 0, h: 0 }, preBox = { w: 0, h: 0 };
+    var fitRaf = 0;
     function applyFontSize() {
       if (!state.rows || !box.h) return;
       pre.style.fontSize = Math.max(6, box.h / (state.rows * 0.86)) + "px";
+      /* defer scale until after layout; avoids style-write → geometry-read reflow */
+      scheduleFit();
     }
     /* font metrics are only ever a guess, so scale the measured box down to
        fit exactly — transform doesn't change the observed layout size */
@@ -1215,19 +1218,38 @@
       if (preBox.h * sy > box.h) sy = (box.h / preBox.h) * 0.99;
       pre.style.transform = "scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
     }
+    function scheduleFit() {
+      if (fitRaf) return;
+      fitRaf = requestAnimationFrame(function () {
+        fitRaf = 0;
+        fitScale();
+        /* next frame: geometry read after transform settles (no forced reflow) */
+        requestAnimationFrame(refreshPreViewport);
+      });
+    }
+    /* cached viewport box for hover mapping — no getBoundingClientRect on mousemove */
+    var preViewport = { left: 0, top: 0, width: 1, height: 1 };
+    function refreshPreViewport() {
+      var r = pre.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return;
+      preViewport.left = r.left;
+      preViewport.top = r.top;
+      preViewport.width = r.width;
+      preViewport.height = r.height;
+    }
     if ("ResizeObserver" in window) {
       new ResizeObserver(function (entries) {
         var r = entries[0].contentRect;
         box.w = r.width; box.h = r.height;
         applyFontSize();
-        fitScale();
       }).observe(wrap);
       new ResizeObserver(function (entries) {
         var r = entries[0].contentRect;
         preBox.w = r.width; preBox.h = r.height;
-        fitScale();
+        scheduleFit();
       }).observe(pre);
     }
+    window.addEventListener("scroll", refreshPreViewport, { passive: true });
 
     function renderStatic() {
       pre.textContent = state.grid.map(function (row) { return row.join(""); }).join("\n");
@@ -1300,7 +1322,7 @@
       /* Hit-test the glyph block only (not the tall wrap padding) */
       pre.addEventListener("mousemove", function (e) {
         if (!state.cols) return;
-        var r = pre.getBoundingClientRect();
+        var r = preViewport;
         if (r.width < 1 || r.height < 1) return;
         state.cxT = ((e.clientX - r.left) / r.width) * state.cols;
         state.cyT = ((e.clientY - r.top) / r.height) * state.rows;

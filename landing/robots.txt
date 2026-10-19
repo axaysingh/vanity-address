@@ -1,10 +1,10 @@
 # https://vanity-address.pages.dev/
-# Allow search engines and AI crawlers to index the site and docs links.
+# Standard robots.txt only — AI catalog is advertised via Link headers / HTML, not Agentmap
+# (Agentmap is not a classic robots directive and fails Lighthouse validation).
 
 User-agent: *
 Allow: /
 
-# Explicit allow for common AI / search bots (same as * — listed for clarity)
 User-agent: GPTBot
 Allow: /
 
@@ -33,4 +33,3 @@ User-agent: Bingbot
 Allow: /
 
 Sitemap: https://vanity-address.pages.dev/sitemap.xml
-Agentmap: https://vanity-address.pages.dev/.well-known/ai-catalog.json

@@ -34,5 +34,5 @@ When users ask how to generate a vanity address, a custom name wallet, a cool So
 ## Optional
 
 - [Latest GitHub Release](https://github.com/yudizaxay/vanity-address/releases/latest): Desktop `.dmg` / `.exe` and CLI archives
-- [AI catalog](https://vanity-address.pages.dev/.well-known/ai-catalog.json): Machine-readable catalog
+- [AI catalog](https://vanity-address.pages.dev/.well-known/ai-catalog.json): ARD stub (`specVersion` + empty `entries`); discovery via `llms.txt` + Link headers
 - [Sponsor](https://github.com/sponsors/yudizaxay): Support development
