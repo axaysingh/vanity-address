@@ -4,9 +4,15 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-10-19
+
 ### Added
 
 - **Grind power presets** (`eco` · `balanced` · `fast` · `extreme`) in `vanity-core`, CLI (`--preset` + interactive Power step), desktop summary picker, and web generator — memory caps still apply; `--threads` wins over preset
+
+### Changed
+
+- Landing PageSpeed / AI crawl hygiene: drop invalid `Agentmap` from `robots.txt`, schema-valid empty `ai-catalog.json`, homepage CSP to block Cloudflare Insights beacon, softer hero layout reads
 
 ## [0.6.6] - 2026-10-16
 
