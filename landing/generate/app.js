@@ -655,8 +655,9 @@ new ResizeObserver(() => {
 
 /* ---------------- pattern + estimate ---------------- */
 
+// Include worker count so Eco vs Fast/Extreme get different keys/sec (and ETAs).
 const speedKey = (p) =>
-  `${p.chain}:${p.ignoreCase}:${p.deployer || ""}:${p.initCodeHash || ""}`;
+  `${p.chain}:${p.ignoreCase}:${p.deployer || ""}:${p.initCodeHash || ""}:t${threadCount()}`;
 
 let checkTimer = 0;
 let benchToken = 0;
@@ -899,9 +900,23 @@ function closePresetMenu(refocus) {
 }
 
 function setPreset(id) {
+  const prevWorkers = threadCount();
   const value = PRESET_IDS.includes(id) ? id : "balanced";
   writePreset(value);
   syncPresetUi(value);
+  const nextWorkers = threadCount();
+  // Re-run estimate for the new power level (bench uses threadCount()).
+  if (mode !== "setup") return;
+  if (prevWorkers === nextWorkers) {
+    // Fast and Extreme share the same worker count — refresh label/UI only.
+    if (state.estimate) renderEstimate(state.estimate);
+    return;
+  }
+  // Drop in-flight bench; checkPattern will measure under the new worker count.
+  benchToken++;
+  state.bench?.stop();
+  state.bench = null;
+  checkPattern();
 }
 
 if (presetBtn && presetMenu) {
