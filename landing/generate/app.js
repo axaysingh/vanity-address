@@ -576,7 +576,8 @@ function paintVisor(chars, locked) {
   const el = $("visorAddr");
   if (!el) return;
   // Full-lens HUD type is big — keep few glyphs so the suffix stays inside the glass.
-  const max = 8;
+  // Narrow viewports + letter-spacing: fewer chars or text spills past the dark specs.
+  const max = window.matchMedia("(max-width: 640px)").matches ? 6 : 8;
   let start = 0;
   let end = chars.length;
   if (chars.length > max) {
@@ -866,6 +867,80 @@ function readPreset() {
 
 function writePreset(id) {
   writePref("vanity.preset", PRESET_IDS.includes(id) ? id : "balanced");
+}
+
+const PRESET_LABELS = { eco: "Eco", balanced: "Balanced", fast: "Fast", extreme: "Extreme" };
+const presetBtn = $("presetBtn");
+const presetMenu = $("presetMenu");
+const presetItems = presetMenu ? [...presetMenu.querySelectorAll(".menu-item")] : [];
+
+function syncPresetUi(id) {
+  const value = PRESET_IDS.includes(id) ? id : "balanced";
+  const label = $("presetLabel");
+  if (label) label.textContent = PRESET_LABELS[value] || "Balanced";
+  presetItems.forEach((item) => {
+    item.setAttribute("aria-selected", String(item.dataset.value === value));
+  });
+}
+
+function openPresetMenu() {
+  if (!presetMenu || !presetBtn) return;
+  presetMenu.hidden = false;
+  presetBtn.setAttribute("aria-expanded", "true");
+  const cur = readPreset();
+  (presetItems.find((i) => i.dataset.value === cur) || presetItems[0])?.focus();
+}
+
+function closePresetMenu(refocus) {
+  if (!presetMenu || !presetBtn || presetMenu.hidden) return;
+  presetMenu.hidden = true;
+  presetBtn.setAttribute("aria-expanded", "false");
+  if (refocus) presetBtn.focus();
+}
+
+function setPreset(id) {
+  const value = PRESET_IDS.includes(id) ? id : "balanced";
+  writePreset(value);
+  syncPresetUi(value);
+}
+
+if (presetBtn && presetMenu) {
+  presetBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    presetMenu.hidden ? openPresetMenu() : closePresetMenu(true);
+  });
+  presetBtn.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      openPresetMenu();
+    }
+  });
+  presetItems.forEach((item) =>
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closePresetMenu(false);
+      setPreset(item.dataset.value);
+    }),
+  );
+  presetMenu.addEventListener("keydown", (e) => {
+    const at = presetItems.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      presetItems[(at + step + presetItems.length) % presetItems.length].focus();
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      document.activeElement.click();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      closePresetMenu(true);
+    } else if (e.key === "Tab") {
+      closePresetMenu(false);
+    }
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (!presetMenu.hidden && !e.target.closest(".preset-wrap")) closePresetMenu(false);
+  });
 }
 
 function threadCount() {
@@ -1303,11 +1378,7 @@ async function loadEngine() {
     $("composer").hidden = false;
     const savedKind = readPref("vanity.kind") === "contract" ? "contract" : "address";
     setKind(savedKind, { pick: true });
-    const presetEl = $("presetSelect");
-    if (presetEl) {
-      presetEl.value = readPreset();
-      presetEl.addEventListener("change", () => writePreset(presetEl.value));
-    }
+    syncPresetUi(readPreset());
     setMode("setup");
   } catch (e) {
     $("loading").classList.add("is-error");

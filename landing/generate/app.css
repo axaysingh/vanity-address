@@ -103,6 +103,8 @@ code {
 /* ---- top bar ---- */
 .bar {
   flex: none;
+  position: relative;
+  z-index: 20;
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
@@ -113,6 +115,7 @@ code {
   padding: 14px 24px;
   min-width: 0;
   box-sizing: border-box;
+  overflow: visible;
 }
 .brand {
   grid-column: 1;
@@ -259,16 +262,37 @@ code {
 }
 .link-btn { background: none; border: 0; cursor: pointer; padding: 0; }
 .preset-wrap {
+  position: relative;
   display: flex; align-items: center; flex: none;
+  z-index: 5;
 }
-.preset-wrap select {
-  font: inherit; font-size: 0.78rem; font-family: var(--font-mono, ui-monospace, monospace);
-  color: var(--text); background: var(--panel, transparent);
+.preset-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: inherit; font-size: 0.78rem; font-family: var(--mono);
+  font-weight: 600; line-height: 1.2; white-space: nowrap;
+  color: var(--text); background: var(--surface);
   border: 1px solid var(--rim); border-radius: 8px;
-  padding: 6px 8px; cursor: pointer;
+  padding: 6px 10px; cursor: pointer;
 }
-.preset-wrap select:focus {
-  outline: none; border-color: var(--rim-strong);
+.preset-btn:hover { border-color: var(--rim-strong); }
+.preset-btn[aria-expanded="true"] {
+  border-color: var(--rim-strong);
+}
+.preset-btn .caret {
+  flex: none; opacity: 0.65;
+  transition: transform 0.15s ease;
+}
+.preset-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+/* Anchor under the trigger on the right — never native OS popup (misplaces on mobile) */
+.preset-menu {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  transform: none;
+  min-width: 148px;
+  z-index: 50;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 .theme-toggle {
   display: grid; place-items: center; width: 34px; height: 34px; cursor: pointer;
@@ -281,12 +305,19 @@ code {
 :root[data-theme="light"] .icon-sun { display: block; }
 :root[data-theme="light"] .icon-moon { display: none; }
 
-/* ---- stage: always one screen ---- */
+/* ---- stage: full-width scroll so the scrollbar sits on the viewport edge ---- */
 .stage {
   --chain-a: var(--violet); --chain-b: var(--cyan);
-  flex: 1; min-height: 0; width: 100%; max-width: 1120px; margin: 0 auto;
-  display: flex; flex-direction: column; overflow-y: auto;
+  flex: 1; min-height: 0; width: 100%; max-width: none; margin: 0;
+  display: flex; flex-direction: column; align-items: center;
+  overflow-x: clip; overflow-y: auto;
   padding: 0 24px max(20px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.stage > .loading,
+.stage > .composer {
+  width: 100%;
+  max-width: 1120px;
 }
 /* ---- boot loader (grind-bot while WASM compiles) ---- */
 .loading {
@@ -537,9 +568,10 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
  */
 .cyborg-visor {
   position: absolute; z-index: 3; pointer-events: none;
-  /* Match the full dark lens band on the PNG — not a thin strip in the middle. */
-  left: 12%; right: 12%; top: 30.8%; height: 16.5%;
+  /* Stay inside the dark lens band — too wide spills glyphs onto the white cheeks. */
+  left: 17%; right: 17%; top: 31.2%; height: 15.2%;
   display: grid; place-items: center;
+  overflow: hidden;
   transform: perspective(480px) rotateX(7deg);
   transform-origin: center center;
 }
@@ -548,13 +580,13 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
   border-radius: 48% / 70%;
   overflow: hidden;
   display: grid; place-items: center;
-  padding: 0 5%;
+  padding: 0 8%;
   box-sizing: border-box;
   container-type: size;
   background: none !important;
   border: 0; box-shadow: none; outline: none;
-  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, #000 84%, transparent 100%);
-  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, #000 84%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 92% 100% at 50% 50%, #000 78%, transparent 100%);
+  mask-image: radial-gradient(ellipse 92% 100% at 50% 50%, #000 78%, transparent 100%);
 }
 /* thin laser gleam across the lens — not a wide banner */
 .cyborg-visor-scan {
@@ -582,11 +614,13 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
   border: 0; box-shadow: none;
   color: rgba(220, 255, 242, 0.95);
   /* Scale to the lens itself so glyphs fill the specs, not a sticker strip. */
-  font-size: clamp(0.95rem, min(62cqh, 9.5cqw), 1.55rem);
-  font-weight: 700; letter-spacing: 0.07em;
+  font-size: clamp(0.8rem, min(58cqh, 8.2cqw), 1.35rem);
+  font-weight: 700; letter-spacing: 0.04em;
   line-height: 1;
-  white-space: nowrap; overflow: hidden;
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
   text-align: center;
+  max-width: 100%;
+  min-width: 0;
   mix-blend-mode: plus-lighter;
   opacity: 0.98;
   text-shadow:
@@ -599,7 +633,7 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
   .cyborg-visor-addr { mix-blend-mode: screen; }
 }
 @supports not (font-size: 1cqh) {
-  .cyborg-visor-addr { font-size: clamp(0.95rem, 3.8vw, 1.45rem); }
+  .cyborg-visor-addr { font-size: clamp(0.75rem, 3.2vw, 1.2rem); }
 }
 .cyborg-visor-addr .hit {
   color: rgba(255, 255, 255, 1);
@@ -1219,9 +1253,12 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
   .bot-hud { font-size: 0.8rem; padding: 10px 12px; border-radius: 10px; }
   .bot-hud-line { letter-spacing: 0; }
   .cyborg-visor {
-    left: 11%; right: 11%; top: 30.5%; height: 17%;
+    left: 18%; right: 18%; top: 31.4%; height: 14.8%;
   }
-  .cyborg-visor-addr { font-size: clamp(0.85rem, min(58cqh, 10cqw), 1.25rem); }
+  .cyborg-visor-addr {
+    font-size: clamp(0.72rem, min(52cqh, 7.5cqw), 1.05rem);
+    letter-spacing: 0.03em;
+  }
   .stage[data-mode="running"] .bot-cyborg {
     width: clamp(108px, 30vw, 168px);
   }
@@ -1257,11 +1294,11 @@ html[data-theme="dark"] .cyborg-glow { opacity: 0.78; }
   .plate-head { font-size: 0.78rem; }
   .bot-hud { font-size: 0.76rem; padding: 9px 10px; }
   .cyborg-visor {
-    left: 10%; right: 10%; top: 30.2%; height: 17.5%;
+    left: 19%; right: 19%; top: 31.5%; height: 14.5%;
   }
   .cyborg-visor-addr {
-    font-size: clamp(0.78rem, min(56cqh, 11cqw), 1.15rem);
-    letter-spacing: 0.05em;
+    font-size: clamp(0.66rem, min(50cqh, 7cqw), 0.95rem);
+    letter-spacing: 0.02em;
   }
 }
 @media (max-height: 560px) and (min-width: 641px) {
