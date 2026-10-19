@@ -81,15 +81,19 @@ export function listChains(): Promise<ChainInfo[]> {
   return invoke("list_chains");
 }
 
+export type GrindPresetId = "eco" | "balanced" | "fast" | "extreme";
+
 export function getSystemProfile(
   chain: string,
   deployer?: string,
   initCodeHash?: string,
+  preset?: GrindPresetId | string,
 ): Promise<SystemInfo> {
   return invoke("get_system_profile", {
     chain,
     deployer: deployer || null,
     initCodeHash: initCodeHash || null,
+    preset: preset || null,
   });
 }
 
@@ -101,6 +105,7 @@ export function estimate(
   contains = "",
   deployer?: string,
   initCodeHash?: string,
+  preset?: GrindPresetId | string,
 ): Promise<EstimateResult> {
   return invoke("estimate", {
     chain,
@@ -110,6 +115,7 @@ export function estimate(
     contains,
     deployer: deployer || null,
     initCodeHash: initCodeHash || null,
+    preset: preset || null,
   });
 }
 
@@ -122,6 +128,7 @@ export function startGrind(
   contains = "",
   deployer?: string,
   initCodeHash?: string,
+  preset?: GrindPresetId | string,
 ): Promise<void> {
   return invoke("start_grind", {
     chain,
@@ -132,6 +139,7 @@ export function startGrind(
     contains,
     deployer: deployer || null,
     initCodeHash: initCodeHash || null,
+    preset: preset || null,
   });
 }
 

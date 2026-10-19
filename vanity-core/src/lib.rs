@@ -24,7 +24,7 @@ pub use pattern::{
 #[cfg(feature = "native")]
 pub use secure_file::open_private_append;
 #[cfg(feature = "native")]
-pub use system::{build_thread_pool, MemoryPressure, SystemProfile};
+pub use system::{build_thread_pool, GrindPreset, MemoryPressure, SystemProfile};
 pub use verify::verify_address;
 
 /// Expand comma-OR alternatives then `build_pattern` each (shared by CLI / WASM / desktop).

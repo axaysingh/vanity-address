@@ -14,8 +14,8 @@ use std::path::{Path, PathBuf};
 use vanity_core::{
     benchmark, build_pattern_list, expected_attempts_any, format_attempts, format_duration,
     grind_estimate, grind_n, grind_patterns, open_private_append, patterns_description,
-    verify_address, CancelToken, Chain, ChainGrinder, Create2Grinder, GrindResult, Pattern,
-    PatternRisk, SystemProfile,
+    verify_address, CancelToken, Chain, ChainGrinder, Create2Grinder, GrindPreset, GrindResult,
+    Pattern, PatternRisk, SystemProfile,
 };
 
 const BENCHMARK_SECS: f64 = 2.0;
@@ -61,6 +61,10 @@ struct Cli {
 
     #[arg(long)]
     threads: Option<usize>,
+
+    /// Grind power: eco | balanced | fast | extreme (aliases: efficient, best, superman)
+    #[arg(long, value_name = "PRESET")]
+    preset: Option<String>,
 
     /// Append match to vanity-results.txt (private keys — keep this file safe)
     #[arg(long)]
@@ -117,6 +121,8 @@ struct RunConfig {
     count: usize,
     quiet: bool,
     threads: Option<usize>,
+    /// Named power profile; ignored when `threads` is set.
+    preset: Option<GrindPreset>,
     /// Skip the big system dump (interactive already showed a summary).
     compact_header: bool,
     /// Auto-save without prompting (CLI --save).
@@ -142,6 +148,7 @@ impl Clone for RunConfig {
             count: self.count,
             quiet: self.quiet,
             threads: self.threads,
+            preset: self.preset,
             compact_header: self.compact_header,
             save: self.save,
             prompt_save: self.prompt_save,
@@ -165,6 +172,7 @@ impl Cli {
             || self.count != 1
             || self.quiet
             || self.threads.is_some()
+            || self.preset.is_some()
             || self.save
             || self.output.is_some()
             || self.no_benchmark
@@ -195,6 +203,11 @@ impl Cli {
             }
         };
 
+        let preset = match self.preset.as_deref() {
+            Some(s) => Some(GrindPreset::parse(s)?),
+            None => None,
+        };
+
         Ok(RunConfig {
             chain,
             prefix: self.prefix,
@@ -204,6 +217,7 @@ impl Cli {
             count: self.count.max(1),
             quiet: self.quiet,
             threads: self.threads,
+            preset,
             compact_header: false,
             save: self.save,
             prompt_save: false,
@@ -290,6 +304,10 @@ fn run_grind(config: RunConfig) {
     let pattern_desc = patterns_description(&patterns);
 
     let mut profile = SystemProfile::detect();
+    if let Some(preset) = config.preset {
+        profile = profile.with_preset(preset);
+    }
+    // Explicit --threads wins over --preset.
     if let Some(threads) = config.threads {
         if threads == 0 {
             exit_error(
@@ -841,6 +859,7 @@ fn main() {
             count: 1,
             quiet: false,
             threads: None,
+            preset: Some(config.preset),
             compact_header: true,
             save: false,
             prompt_save: true,

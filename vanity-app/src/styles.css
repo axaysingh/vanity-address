@@ -642,6 +642,22 @@ button.wide {
   font-size: 0.82rem;
 }
 
+.preset-select-wrap {
+  margin-left: auto;
+}
+
+.preset-select-wrap select {
+  font: inherit;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+  max-width: 16rem;
+}
+
 .risk-ok { color: var(--green); }
 .risk-long { color: var(--yellow); }
 .risk-impractical { color: var(--red); font-weight: 600; }

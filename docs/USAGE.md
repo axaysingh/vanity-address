@@ -215,6 +215,7 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 | `--json`             | Machine-readable JSON on stdout (direct mode)                                            | off                  |
 | `-q, --quiet`        | Minimal plain-text output (script-friendly)                                              | off                  |
 | `--threads <N>`      | Override worker threads                                                                  | auto                 |
+| `--preset <ID>`      | Power profile: `eco` · `balanced` · `fast` · `extreme` (aliases: efficient, best, superman). Ignored if `--threads` is set | `balanced` |
 | `verify`             | Subcommand: check key derives address                                                    | —                    |
 | `-h, --help`         | Show help                                                                                | —                    |
 | `-V, --version`      | Show version                                                                             | —                    |
@@ -266,6 +267,8 @@ vanity-address --chain sol --suffix axay
 
 # Manual override
 vanity-address --chain sol --suffix axay --threads 4
+vanity-address --chain evm --prefix cafe --preset eco
+vanity-address --chain sol --suffix pump --preset extreme
 ```
 
 Example startup:

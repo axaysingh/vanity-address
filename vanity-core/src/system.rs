@@ -1,6 +1,55 @@
 use rayon::ThreadPoolBuilder;
 use std::fmt;
 
+/// Named grind power profiles — frontends pass an id; core owns the thread math.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GrindPreset {
+    /// ~25% of cores — cool / battery-friendly.
+    Eco,
+    /// Current auto-tune (usually cores − 1). Default.
+    #[default]
+    Balanced,
+    /// Use all logical CPUs (still respects memory caps).
+    Fast,
+    /// Same workers as Fast; denser progress reporting.
+    Extreme,
+}
+
+impl GrindPreset {
+    pub fn id(self) -> &'static str {
+        match self {
+            Self::Eco => "eco",
+            Self::Balanced => "balanced",
+            Self::Fast => "fast",
+            Self::Extreme => "extreme",
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Eco => "Eco",
+            Self::Balanced => "Balanced",
+            Self::Fast => "Fast",
+            Self::Extreme => "Extreme",
+        }
+    }
+
+    /// Parse a preset id or alias (`efficient`, `best`, `superman`, …).
+    pub fn parse(s: &str) -> Result<Self, String> {
+        match s.trim().to_ascii_lowercase().as_str() {
+            "eco" | "minimal" | "efficient" | "low" => Ok(Self::Eco),
+            "balanced" | "auto" | "default" | "moderate" => Ok(Self::Balanced),
+            "fast" | "best" | "performance" | "high" => Ok(Self::Fast),
+            "extreme" | "superman" | "max" | "all-out" | "allout" => Ok(Self::Extreme),
+            other => Err(format!(
+                "Unknown preset '{other}'. Use: eco, balanced, fast, extreme"
+            )),
+        }
+    }
+
+    pub const ALL: [GrindPreset; 4] = [Self::Eco, Self::Balanced, Self::Fast, Self::Extreme];
+}
+
 /// Detected host capabilities used to tune the grinder before work starts.
 #[derive(Debug, Clone)]
 pub struct SystemProfile {
@@ -69,6 +118,27 @@ impl SystemProfile {
         let threads = threads.clamp(1, self.logical_cpus);
         self.worker_threads = threads;
         self.progress_interval = compute_progress_interval(threads);
+        self
+    }
+
+    /// Apply a named power preset. Call before `with_threads` if both are set
+    /// (explicit thread count should win at the call site).
+    pub fn with_preset(mut self, preset: GrindPreset) -> Self {
+        let logical = self.logical_cpus.max(1);
+        let mem_cap = memory_worker_cap(self.available_memory_mb);
+        let threads = match preset {
+            GrindPreset::Eco => (logical / 4).max(1).min(mem_cap),
+            GrindPreset::Balanced => {
+                compute_worker_threads(logical, self.physical_cpus, self.available_memory_mb)
+            }
+            GrindPreset::Fast | GrindPreset::Extreme => logical.min(mem_cap).max(1),
+        };
+        self.worker_threads = threads;
+        let base = compute_progress_interval(threads);
+        self.progress_interval = match preset {
+            GrindPreset::Extreme => (base / 2).max(50_000),
+            _ => base,
+        };
         self
     }
 
@@ -172,15 +242,17 @@ pub fn compute_worker_threads(
     }
 
     // Back off when memory is tight — each worker holds crypto state on its stack.
-    let mem_cap = match available_mem_mb {
+    threads.min(memory_worker_cap(available_mem_mb)).max(1)
+}
+
+fn memory_worker_cap(available_mem_mb: u64) -> usize {
+    match available_mem_mb {
         m if m < 512 => 1,
         m if m < 1_024 => 2,
         m if m < 2_048 => 4,
         m if m < 4_096 => 8,
         _ => usize::MAX,
-    };
-
-    threads.min(mem_cap).max(1)
+    }
 }
 
 /// Progress callback frequency — scales with worker count, bounded to limit overhead.
@@ -221,5 +293,75 @@ mod tests {
         assert_eq!(compute_progress_interval(1), 100_000);
         assert_eq!(compute_progress_interval(8), 400_000);
         assert_eq!(compute_progress_interval(64), 2_000_000);
+    }
+
+    fn profile(logical: usize, physical: Option<usize>, mem_mb: u64) -> SystemProfile {
+        SystemProfile {
+            logical_cpus: logical,
+            physical_cpus: physical,
+            total_memory_mb: mem_mb,
+            available_memory_mb: mem_mb,
+            worker_threads: 1,
+            progress_interval: 100_000,
+            memory_pressure: MemoryPressure::Comfortable,
+            measured_keys_per_sec: None,
+        }
+    }
+
+    #[test]
+    fn eco_on_8_cores_uses_2() {
+        let p = profile(8, Some(8), 16_384).with_preset(GrindPreset::Eco);
+        assert_eq!(p.worker_threads, 2);
+    }
+
+    #[test]
+    fn balanced_matches_compute_worker_threads() {
+        let p = profile(8, Some(8), 16_384).with_preset(GrindPreset::Balanced);
+        assert_eq!(p.worker_threads, compute_worker_threads(8, Some(8), 16_384));
+    }
+
+    #[test]
+    fn fast_uses_all_logical_cpus() {
+        let p = profile(8, Some(8), 16_384).with_preset(GrindPreset::Fast);
+        assert_eq!(p.worker_threads, 8);
+    }
+
+    #[test]
+    fn extreme_same_threads_as_fast_tighter_progress() {
+        let fast = profile(8, Some(8), 16_384).with_preset(GrindPreset::Fast);
+        let extreme = profile(8, Some(8), 16_384).with_preset(GrindPreset::Extreme);
+        assert_eq!(extreme.worker_threads, fast.worker_threads);
+        assert!(extreme.progress_interval < fast.progress_interval);
+        assert_eq!(
+            extreme.progress_interval,
+            (compute_progress_interval(8) / 2).max(50_000)
+        );
+    }
+
+    #[test]
+    fn parse_accepts_aliases() {
+        assert_eq!(GrindPreset::parse("efficient").unwrap(), GrindPreset::Eco);
+        assert_eq!(GrindPreset::parse("best").unwrap(), GrindPreset::Fast);
+        assert_eq!(
+            GrindPreset::parse("performance").unwrap(),
+            GrindPreset::Fast
+        );
+        assert_eq!(
+            GrindPreset::parse("superman").unwrap(),
+            GrindPreset::Extreme
+        );
+        assert!(GrindPreset::parse("nope").is_err());
+    }
+
+    #[test]
+    fn mem_cap_still_limits_extreme() {
+        let p = profile(16, Some(16), 800).with_preset(GrindPreset::Extreme);
+        assert_eq!(p.worker_threads, 2);
+    }
+
+    #[test]
+    fn eco_on_dual_core_still_one_worker_min() {
+        let p = profile(2, Some(2), 16_384).with_preset(GrindPreset::Eco);
+        assert_eq!(p.worker_threads, 1);
     }
 }

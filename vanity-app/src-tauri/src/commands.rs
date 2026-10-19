@@ -5,9 +5,20 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 use vanity_core::{
     benchmark, expected_attempts_any, grind_estimate, grind_patterns, pattern_guide,
-    patterns_description, CancelToken, Chain, ChainGrinder, GrindResult, Pattern, PatternRisk,
-    SystemProfile, DEPLOY_MODES, MENU_CHAINS,
+    patterns_description, CancelToken, Chain, ChainGrinder, GrindPreset, GrindResult, Pattern,
+    PatternRisk, SystemProfile, DEPLOY_MODES, MENU_CHAINS,
 };
+
+fn parse_preset(preset: Option<&str>) -> Result<GrindPreset, String> {
+    match preset {
+        None | Some("") => Ok(GrindPreset::Balanced),
+        Some(s) => GrindPreset::parse(s),
+    }
+}
+
+fn profile_with_preset(preset: Option<&str>) -> Result<SystemProfile, String> {
+    Ok(SystemProfile::detect().with_preset(parse_preset(preset)?))
+}
 
 const BENCHMARK_SECS: f64 = 2.0;
 
@@ -98,9 +109,10 @@ pub fn get_system_profile(
     chain: String,
     deployer: Option<String>,
     init_code_hash: Option<String>,
+    preset: Option<String>,
 ) -> Result<SystemInfo, String> {
     let chain = resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
-    let profile = SystemProfile::detect();
+    let profile = profile_with_preset(preset.as_deref())?;
     Ok(SystemInfo {
         cpu_description: profile.cpu_description(),
         worker_description: profile.worker_description(),
@@ -206,6 +218,7 @@ pub fn estimate(
     contains: Option<String>,
     deployer: Option<String>,
     init_code_hash: Option<String>,
+    preset: Option<String>,
 ) -> Result<EstimateResult, String> {
     let chain = resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
     let contains = contains.unwrap_or_default();
@@ -217,7 +230,7 @@ pub fn estimate(
             .collect::<Vec<_>>(),
     );
     let pattern = &patterns[0];
-    let profile = SystemProfile::detect();
+    let profile = profile_with_preset(preset.as_deref())?;
     let est = grind_estimate(
         expected,
         profile.estimated_keys_per_sec(chain.id()),
@@ -302,6 +315,7 @@ pub fn start_grind(
     contains: Option<String>,
     deployer: Option<String>,
     init_code_hash: Option<String>,
+    preset: Option<String>,
 ) -> Result<(), String> {
     {
         let mut job = state
@@ -321,7 +335,7 @@ pub fn start_grind(
                 .map(|p| chain_parsed.expected_attempts(p))
                 .collect::<Vec<_>>(),
         );
-        let profile = SystemProfile::detect();
+        let profile = profile_with_preset(preset.as_deref())?;
         let pre = grind_estimate(
             expected,
             profile.estimated_keys_per_sec(chain_parsed.id()),
@@ -590,6 +604,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         )
         .unwrap();
         assert!(result.pattern_description.contains("ax"));
@@ -604,6 +619,7 @@ mod tests {
             String::new(),
             "akshaysingheavysuffix".to_string(),
             false,
+            None,
             None,
             None,
             None,
@@ -623,6 +639,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         )
         .unwrap_err();
         assert!(err.contains("prefix") || err.contains("contains"));
@@ -638,6 +655,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         )
         .unwrap_err();
         assert!(err.contains("Exact case"));
@@ -645,8 +663,18 @@ mod tests {
 
     #[test]
     fn system_profile_returns_workers() {
-        let info = get_system_profile("sol".to_string(), None, None).unwrap();
+        let info = get_system_profile("sol".to_string(), None, None, None).unwrap();
         assert!(info.worker_description.contains("thread"));
         assert!(info.estimated_keys_per_sec > 0.0);
+    }
+
+    #[test]
+    fn system_profile_eco_uses_fewer_workers_than_extreme() {
+        let eco = get_system_profile("sol".to_string(), None, None, Some("eco".into())).unwrap();
+        let extreme =
+            get_system_profile("sol".to_string(), None, None, Some("extreme".into())).unwrap();
+        // Descriptions differ when the machine has enough cores for eco < extreme.
+        assert!(eco.worker_description.contains("thread"));
+        assert!(extreme.worker_description.contains("thread"));
     }
 }
