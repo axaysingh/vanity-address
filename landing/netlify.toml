@@ -1,26 +1,3 @@
-# Legacy Netlify config. Primary host is Cloudflare Pages (landing/_headers).
-# Keep in sync with _headers if you ever redeploy here.
-
-[build]
-  publish = "."
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-[[headers]]
-  for = "/generate/*"
-  [headers.values]
-    Content-Security-Policy = "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
-    Referrer-Policy = "no-referrer"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
-    Cross-Origin-Opener-Policy = "same-origin"
-    Cache-Control = "no-cache"
-
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800"
+# UNUSED — site is on Cloudflare Pages (vanity-address.pages.dev).
+# Deploy config: GitHub main → Pages output directory `landing/`
+# Headers/CSP: landing/_headers only. Do not rely on this file.

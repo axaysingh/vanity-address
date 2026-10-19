@@ -5,11 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>vanity-address — vanity wallets, contracts &amp; token mints</title>
 <meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 31 chains, 100% offline, open source." />
+<meta name="keywords" content="vanity address generator, custom wallet address, name wallet, Solana vanity, EVM vanity, CREATE2, token mint vanity, offline vanity address" />
+<link rel="canonical" href="https://vanity-address.pages.dev/" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://vanity-address.pages.dev/" />
+<meta property="og:title" content="vanity-address — generate vanity wallets &amp; contracts offline" />
+<meta property="og:description" content="Free open-source vanity address generator for 31 chains. Browser, CLI, desktop. Keys never leave your device." />
+<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="vanity-address — vanity wallets &amp; contracts" />
+<meta name="twitter:description" content="Generate a custom crypto address with your word — free, offline, open source." />
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="alternate" type="text/markdown" href="/how-to-generate-vanity-address.md" title="How to generate a vanity address" />
+<link rel="describedby" href="/llms.txt" type="text/markdown" title="LLM-friendly site overview" />
+<link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/ai-catalog+json" title="AI Catalog" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "vanity-address",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Windows, macOS, Linux, Web",
+      "url": "https://vanity-address.pages.dev/",
+      "downloadUrl": "https://github.com/yudizaxay/vanity-address/releases/latest",
+      "codeRepository": "https://github.com/yudizaxay/vanity-address",
+      "license": "https://opensource.org/licenses/MIT",
+      "description": "Fast, local, multi-chain vanity cryptocurrency address generator for wallets, contracts, and Solana token mints.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I generate a vanity crypto address?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use vanity-address at https://vanity-address.pages.dev/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally — keys never leave your device."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I make a wallet address with my name?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Open the vanity-address web generator or CLI, choose your chain, and set a short name-like prefix or suffix. Longer patterns take much longer; the tool shows an ETA before you start."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is vanity-address free and offline?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It is MIT open source. The browser, CLI, and desktop apps generate keys only on your machine with no telemetry."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link id="webFonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" /></noscript>
+<!-- Fewer weights = faster FCP/LCP on mobile; display=swap already set. -->
+<link id="webFonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" /></noscript>
 
 <style>
   :root {
@@ -175,6 +237,18 @@
     contain: size;
     pointer-events: none; /* empty band above/below glyphs must not trigger hover */
   }
+  /* Visible before JS ascii rasterizes — helps mobile FCP/LCP. */
+  .hero-ascii-fallback {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 7vw, 3.4rem);
+    letter-spacing: -0.04em;
+    color: #ECE9E4;
+    text-align: center;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .hero-ascii-wrap.is-ready .hero-ascii-fallback { display: none; }
   .hero-ascii {
     margin: 0;
     font-family: var(--mono);
@@ -650,6 +724,7 @@
       <a href="#demo">Demo</a>
       <a href="#chains">Chains</a>
       <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
       <a href="#security">Security</a>
     </nav>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -670,7 +745,8 @@
     <div class="hero-splash-inner">
       <h1 class="sr-only">vanity-address — offline multi-chain vanity address generator</h1>
       <div class="hero-ascii-wrap" id="heroAsciiWrap" aria-hidden="true">
-        <pre class="hero-ascii" id="heroAscii"></pre>
+        <p class="hero-ascii-fallback" id="heroAsciiFallback">vanity-address</p>
+        <pre class="hero-ascii" id="heroAscii" hidden></pre>
       </div>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="generate/">Generate in your browser</a>
@@ -874,6 +950,33 @@
     </div>
   </section>
 
+  <!-- FAQ — natural-language answers for search / AI citation -->
+  <section id="faq">
+    <div class="wrap">
+      <p class="section-kicker">FAQ</p>
+      <h2 class="section-title">How do I generate a vanity address?</h2>
+      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Full guide: <a href="how-to-generate-vanity-address.md"><code class="inline">how-to-generate-vanity-address.md</code></a> · source: <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">github.com/yudizaxay/vanity-address</a>.</p>
+      <div class="rules">
+        <div class="rule">
+          <h3>Browser (no install)</h3>
+          <p>Open <a href="generate/">vanity-address.pages.dev/generate</a>, pick Address or Contract, type your word, grind. Keys stay in the tab.</p>
+        </div>
+        <div class="rule">
+          <h3>Name / brand wallet</h3>
+          <p>Use a short prefix or suffix that fits the chain alphabet. Longer patterns are exponentially slower — the app shows an honest ETA first.</p>
+        </div>
+        <div class="rule">
+          <h3>CLI / desktop</h3>
+          <p><code class="inline">npx vanity-address</code>, Homebrew tap <code class="inline">yudizaxay/tap</code>, or download from <a href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>.</p>
+        </div>
+        <div class="rule">
+          <h3>Contract / mint</h3>
+          <p>Contract mode: EVM CREATE, Tron CREATE, Solana mint, or CREATE2. Same local privacy model as wallets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- SECURITY -->
   <section id="security">
     <div class="wrap">
@@ -1071,6 +1174,8 @@
       state.grid = grid; state.dens = dens; state.cols = COLS; state.rows = ROWS;
       state.cxT = COLS / 2; state.cyT = ROWS / 2;
       renderStatic();
+      pre.hidden = false;
+      wrap.classList.add("is-ready");
       applyFontSize();
       if (reduce) return;
       startLoop();
@@ -1370,16 +1475,6 @@
   }
 })();
 </script>
-<!-- Cloudflare Web Analytics (injected after load to stay off the critical path) -->
-<script>
-window.addEventListener("load", function () {
-  var s = document.createElement("script");
-  s.defer = true;
-  s.src = "https://static.cloudflareinsights.com/beacon.min.js";
-  s.setAttribute("data-cf-beacon", '{"token": "891da9a78aa24a838bdd1e3e717c3a41"}');
-  document.body.appendChild(s);
-});
-</script>
-<!-- End Cloudflare Web Analytics -->
 </body>
 </html>
+

@@ -1,0 +1,60 @@
+{
+  "specVersion": "1.0",
+  "name": "vanity-address",
+  "description": "Offline multi-chain vanity address generator — CLI, desktop, npm SDK, and browser app. Official site and GitHub for generating custom name wallets, contracts, and mints.",
+  "entries": [
+    {
+      "identifier": "urn:air:vanity-address.pages.dev:site:home",
+      "displayName": "vanity-address website",
+      "type": "text/html",
+      "url": "https://vanity-address.pages.dev/",
+      "representativeQueries": [
+        "vanity address generator",
+        "how to generate vanity crypto address",
+        "custom name wallet address"
+      ]
+    },
+    {
+      "identifier": "urn:air:vanity-address.pages.dev:site:generate",
+      "displayName": "vanity-address web generator",
+      "type": "text/html",
+      "url": "https://vanity-address.pages.dev/generate/",
+      "representativeQueries": [
+        "generate vanity Solana address in browser",
+        "free online vanity address generator",
+        "vanity EVM contract address"
+      ]
+    },
+    {
+      "identifier": "urn:air:vanity-address.pages.dev:docs:howto",
+      "displayName": "How to generate a vanity address",
+      "type": "text/markdown",
+      "url": "https://vanity-address.pages.dev/how-to-generate-vanity-address.md",
+      "representativeQueries": [
+        "how to generate vanity address",
+        "make wallet address with my name",
+        "vanity address generator github"
+      ]
+    },
+    {
+      "identifier": "urn:air:vanity-address.pages.dev:docs:llms",
+      "displayName": "vanity-address llms.txt",
+      "type": "text/markdown",
+      "url": "https://vanity-address.pages.dev/llms.txt",
+      "representativeQueries": [
+        "vanity-address official links",
+        "vanity-address supported chains"
+      ]
+    },
+    {
+      "identifier": "urn:air:github.com:yudizaxay:vanity-address",
+      "displayName": "vanity-address GitHub repository",
+      "type": "text/html",
+      "url": "https://github.com/yudizaxay/vanity-address",
+      "representativeQueries": [
+        "vanity-address github",
+        "open source vanity address generator rust"
+      ]
+    }
+  ]
+}
