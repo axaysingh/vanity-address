@@ -1,0 +1,36 @@
+# https://vanity-address.pages.dev/
+# Allow search engines and AI crawlers to index the site and docs links.
+
+User-agent: *
+Allow: /
+
+# Explicit allow for common AI / search bots (same as * — listed for clarity)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://vanity-address.pages.dev/sitemap.xml
+Agentmap: https://vanity-address.pages.dev/.well-known/ai-catalog.json

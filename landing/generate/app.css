@@ -258,6 +258,18 @@ code {
   border-color: var(--cyan, var(--rim-strong));
 }
 .link-btn { background: none; border: 0; cursor: pointer; padding: 0; }
+.preset-wrap {
+  display: flex; align-items: center; flex: none;
+}
+.preset-wrap select {
+  font: inherit; font-size: 0.78rem; font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--text); background: var(--panel, transparent);
+  border: 1px solid var(--rim); border-radius: 8px;
+  padding: 6px 8px; cursor: pointer;
+}
+.preset-wrap select:focus {
+  outline: none; border-color: var(--rim-strong);
+}
 .theme-toggle {
   display: grid; place-items: center; width: 34px; height: 34px; cursor: pointer;
   background: transparent; color: var(--muted);

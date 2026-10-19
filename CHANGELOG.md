@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- **Grind power presets** (`eco` · `balanced` · `fast` · `extreme`) in `vanity-core`, CLI (`--preset` + interactive Power step), desktop summary picker, and web generator — memory caps still apply; `--threads` wins over preset
+
 ## [0.6.6] - 2026-10-16
 
 ### Added

@@ -856,9 +856,26 @@ $("generate").addEventListener("click", () => {
 
 /* ---------------- worker pool ---------------- */
 
+/** Keep in sync with vanity-core `GrindPreset` (eco / balanced / fast / extreme). */
+const PRESET_IDS = ["eco", "balanced", "fast", "extreme"];
+
+function readPreset() {
+  const raw = readPref("vanity.preset") || "balanced";
+  return PRESET_IDS.includes(raw) ? raw : "balanced";
+}
+
+function writePreset(id) {
+  writePref("vanity.preset", PRESET_IDS.includes(id) ? id : "balanced");
+}
+
 function threadCount() {
-  const cores = navigator.hardwareConcurrency || 4;
-  return Math.max(1, Math.min(16, cores - 1));
+  const cores = Math.max(1, navigator.hardwareConcurrency || 4);
+  const preset = readPreset();
+  let n;
+  if (preset === "eco") n = Math.max(1, Math.floor(cores / 4));
+  else if (preset === "fast" || preset === "extreme") n = cores;
+  else n = Math.max(1, cores - 1); // balanced
+  return Math.min(16, n);
 }
 
 function startPool(job, onFound, onError) {
@@ -1286,6 +1303,11 @@ async function loadEngine() {
     $("composer").hidden = false;
     const savedKind = readPref("vanity.kind") === "contract" ? "contract" : "address";
     setKind(savedKind, { pick: true });
+    const presetEl = $("presetSelect");
+    if (presetEl) {
+      presetEl.value = readPreset();
+      presetEl.addEventListener("change", () => writePreset(presetEl.value));
+    }
     setMode("setup");
   } catch (e) {
     $("loading").classList.add("is-error");

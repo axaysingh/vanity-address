@@ -9,11 +9,24 @@ import {
   type ChainInfo,
   type DonePayload,
   type EstimateResult,
+  type GrindPresetId,
   type UnlistenFn,
 } from "./api";
 
 type ScreenId = "home" | "help" | "chain" | "pattern" | "summary" | "grind" | "result";
 type MatchKind = "suffix" | "prefix" | "both" | "contains";
+
+const PRESET_KEY = "vanity.preset";
+const PRESET_IDS: GrindPresetId[] = ["eco", "balanced", "fast", "extreme"];
+
+function readPreset(): GrindPresetId {
+  const raw = localStorage.getItem(PRESET_KEY) ?? "balanced";
+  return PRESET_IDS.includes(raw as GrindPresetId) ? (raw as GrindPresetId) : "balanced";
+}
+
+function writePreset(id: GrindPresetId) {
+  localStorage.setItem(PRESET_KEY, id);
+}
 
 const screens: Record<ScreenId, HTMLElement> = {
   home: el("#screen-home"),
@@ -225,6 +238,7 @@ async function runEstimate() {
       contains,
       deployer,
       initCodeHash,
+      readPreset(),
     );
     lastEstimate = result;
     el("#pattern-error").hidden = true;
@@ -262,6 +276,18 @@ async function runEstimate() {
   }
 }
 
+async function refreshSummarySystem() {
+  if (!selectedChain) return;
+  const { deployer, initCodeHash } = factoryValues();
+  const preset = readPreset();
+  const sys = await getSystemProfile(selectedChain.id, deployer, initCodeHash, preset);
+  el("#sum-cpu").textContent = sys.cpu_description;
+  el("#sum-workers").textContent = sys.worker_description;
+  el("#sum-ram").textContent = `${sys.total_memory_gb.toFixed(1)} GB total · ${sys.available_memory_gb.toFixed(1)} GB free`;
+  el("#sum-memory").textContent = sys.memory_pressure;
+  el("#sum-speed").textContent = `~${formatSpeed(sys.estimated_keys_per_sec)} keys/sec (estimated, calibrated at grind)`;
+}
+
 async function showSummary() {
   if (!selectedChain || !lastEstimate) return;
   impracticalConfirmShown = false;
@@ -269,7 +295,9 @@ async function showSummary() {
 
   const { prefix, suffix, contains, exact } = currentPatternValues();
   const { deployer, initCodeHash } = factoryValues();
-  const sys = await getSystemProfile(selectedChain.id, deployer, initCodeHash);
+
+  const presetSelect = el<HTMLSelectElement>("#sum-preset");
+  presetSelect.value = readPreset();
 
   el("#sum-chain").textContent = selectedChain.display_name;
   el("#sum-target").textContent = lastEstimate.pattern_description;
@@ -279,11 +307,7 @@ async function showSummary() {
   el("#sum-time").className = riskClass(lastEstimate.risk);
   el("#sum-difficulty").textContent = `${lastEstimate.difficulty_bars} ${lastEstimate.difficulty}`;
 
-  el("#sum-cpu").textContent = sys.cpu_description;
-  el("#sum-workers").textContent = sys.worker_description;
-  el("#sum-ram").textContent = `${sys.total_memory_gb.toFixed(1)} GB total · ${sys.available_memory_gb.toFixed(1)} GB free`;
-  el("#sum-memory").textContent = sys.memory_pressure;
-  el("#sum-speed").textContent = `~${formatSpeed(sys.estimated_keys_per_sec)} keys/sec (estimated, calibrated at grind)`;
+  await refreshSummarySystem();
 
   const warn = el("#sum-warning");
   if (lastEstimate.warning) {
@@ -395,6 +419,7 @@ async function beginGrind() {
       contains,
       deployer,
       initCodeHash,
+      readPreset(),
     );
   } catch (e) {
     grindUnlisten?.();
@@ -571,6 +596,15 @@ function init() {
   el<HTMLInputElement>("#input-init-code-hash").addEventListener("input", scheduleEstimate);
   el<HTMLInputElement>("#input-exact").addEventListener("change", scheduleEstimate);
   el("#btn-continue").addEventListener("click", showSummary);
+  el<HTMLSelectElement>("#sum-preset").addEventListener("change", async () => {
+    const id = el<HTMLSelectElement>("#sum-preset").value as GrindPresetId;
+    writePreset(PRESET_IDS.includes(id) ? id : "balanced");
+    try {
+      await refreshSummarySystem();
+    } catch (e) {
+      toast(String(e));
+    }
+  });
   el("#btn-grind").addEventListener("click", beginGrind);
   el("#btn-stop").addEventListener("click", handleStop);
   el("#btn-save").addEventListener("click", handleSave);

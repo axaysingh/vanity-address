@@ -155,6 +155,17 @@
 
         <div class="summary-block">
           <h2>Your system</h2>
+          <div class="summary-row">
+            <span>Power</span>
+            <label class="preset-select-wrap">
+              <select id="sum-preset" aria-label="Grind power preset">
+                <option value="eco">Eco — cool / battery</option>
+                <option value="balanced" selected>Balanced — default</option>
+                <option value="fast">Fast — all cores</option>
+                <option value="extreme">Extreme — all-out</option>
+              </select>
+            </label>
+          </div>
           <div class="summary-row"><span>CPU</span><span id="sum-cpu"></span></div>
           <div class="summary-row"><span>Workers</span><span id="sum-workers"></span></div>
           <div class="summary-row"><span>RAM</span><span id="sum-ram"></span></div>

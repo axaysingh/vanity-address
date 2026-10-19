@@ -5,8 +5,8 @@ use crate::terminal::{
 use crate::warnings;
 use colored::Colorize;
 use vanity_core::{
-    benchmark, grind_estimate, pattern_guide, Chain, ChainGrinder, GrindEstimate, PatternRisk,
-    SystemProfile, DEPLOY_MODES, MENU_CHAINS,
+    benchmark, grind_estimate, pattern_guide, Chain, ChainGrinder, GrindEstimate, GrindPreset,
+    PatternRisk, SystemProfile, DEPLOY_MODES, MENU_CHAINS,
 };
 
 const SUMMARY_BENCHMARK_SECS: f64 = 1.0;
@@ -17,6 +17,7 @@ enum WizardStep {
     MatchKind,
     Pattern,
     CaseMode,
+    Power,
     Summary,
 }
 
@@ -34,6 +35,7 @@ pub struct InteractiveConfig {
     pub suffix: Option<String>,
     pub contains: Option<String>,
     pub exact: bool,
+    pub preset: GrindPreset,
     /// Speed measured for the summary, so the grind can skip its own warm-up.
     pub measured_keys_per_sec: Option<f64>,
 }
@@ -86,6 +88,7 @@ fn run_wizard() -> Option<InteractiveConfig> {
     let mut suffix: Option<String> = None;
     let mut contains: Option<String> = None;
     let mut exact = false;
+    let mut preset = GrindPreset::Balanced;
     let mut measured: Option<(&'static str, f64)> = None;
 
     loop {
@@ -282,7 +285,7 @@ fn run_wizard() -> Option<InteractiveConfig> {
                         step = WizardStep::CaseMode;
                     } else {
                         exact = false;
-                        step = WizardStep::Summary;
+                        step = WizardStep::Power;
                     }
                 }
             }
@@ -302,10 +305,54 @@ fn run_wizard() -> Option<InteractiveConfig> {
                     MenuChoice::Back => step = WizardStep::Pattern,
                     MenuChoice::Selected(1) => {
                         exact = false;
-                        step = WizardStep::Summary;
+                        step = WizardStep::Power;
                     }
                     MenuChoice::Selected(2) => {
                         exact = true;
+                        step = WizardStep::Power;
+                    }
+                    _ => {}
+                }
+            }
+
+            WizardStep::Power => {
+                banner::print_compact();
+                println!(
+                    "{}",
+                    "── Power · How hard should we grind? ──".bold().cyan()
+                );
+                println!();
+                for (i, p) in GrindPreset::ALL.iter().enumerate() {
+                    let hint = match p {
+                        GrindPreset::Eco => "cool / battery — ~25% cores",
+                        GrindPreset::Balanced => "default — leave one core for the OS",
+                        GrindPreset::Fast => "all cores",
+                        GrindPreset::Extreme => "all cores · denser progress",
+                    };
+                    let mark = if *p == preset { " ←" } else { "" };
+                    println!(
+                        "  {}  {}{}  {}",
+                        format!("[{}]", i + 1).green(),
+                        p.label().bold(),
+                        mark.dimmed(),
+                        hint.dimmed()
+                    );
+                }
+                println!();
+                println!("  {}  Back", "[0] / Esc".dimmed());
+                println!();
+
+                match read_menu_choice("  Press [0-4]: ", 1, 4, true) {
+                    MenuChoice::Back => {
+                        step = if chain.supports_exact_case() {
+                            WizardStep::CaseMode
+                        } else {
+                            WizardStep::Pattern
+                        };
+                    }
+                    MenuChoice::Selected(n) if (1..=4).contains(&n) => {
+                        preset = GrindPreset::ALL[n as usize - 1];
+                        measured = None; // re-measure under new worker count
                         step = WizardStep::Summary;
                     }
                     _ => {}
@@ -327,7 +374,7 @@ fn run_wizard() -> Option<InteractiveConfig> {
                     }
                 };
 
-                let mut profile = SystemProfile::detect();
+                let mut profile = SystemProfile::detect().with_preset(preset);
                 let speed = match measured {
                     Some((id, rate)) if id == chain.id() => Some(rate),
                     _ => {
@@ -349,7 +396,7 @@ fn run_wizard() -> Option<InteractiveConfig> {
                 );
 
                 banner::print_compact();
-                print_summary(&chain, &pattern, &estimate, &profile);
+                print_summary(&chain, &pattern, &estimate, &profile, preset);
 
                 if estimate.risk == PatternRisk::Impractical {
                     println!();
@@ -384,15 +431,12 @@ fn run_wizard() -> Option<InteractiveConfig> {
                         suffix,
                         contains,
                         exact,
+                        preset,
                         measured_keys_per_sec: speed,
                     });
                 }
 
-                step = if chain.supports_exact_case() {
-                    WizardStep::CaseMode
-                } else {
-                    WizardStep::Pattern
-                };
+                step = WizardStep::Power;
             }
         }
     }
@@ -444,6 +488,7 @@ fn print_summary(
     pattern: &vanity_core::Pattern,
     estimate: &GrindEstimate,
     profile: &SystemProfile,
+    preset: GrindPreset,
 ) {
     println!("{}", "── Summary ──".bold().yellow());
     println!();
@@ -451,6 +496,11 @@ fn print_summary(
         "  {:<14} {}",
         "Chain:".dimmed(),
         chain.display_name().bold()
+    );
+    println!(
+        "  {:<14} {}",
+        "Power:".dimmed(),
+        format!("{} ({})", preset.label(), preset.id()).bold()
     );
     println!(
         "  {:<14} {}",
