@@ -12,7 +12,7 @@ All notable changes to this project are documented here.
 - **Bitcoin puzzle mode** (CLI): `--puzzle <bits>` (+ optional `--puzzle-start <hex>`) — restricted secp256k1 keyspace grind on BTC P2PKH
 - **Split-key vanity** (Phase 2): `split-key gen` / `--split-pubkey` (`-P`) / `split-key combine` for Bitcoin-family P2PKH; desktop `split_key_gen` / `split_key_combine`
 - **Security pack**: `docs/SECURITY-MODEL.md` (threat model, not-a-wallet, not formally audited); stronger `--save` / export warnings; Safety UX on landing + `/generate/`
-- **OpenCL GPU** (Phase 3): feature `opencl` on CLI/desktop; `--gpu auto|require|off`; `gpu devices` / `gpu bench`; **EVM + Solana** on-device grind (TweetNaCl-style ed25519) with mandatory CPU re-verify; `docs/BENCHMARKS.md` + `scripts/bench.sh`
+- **OpenCL GPU (experimental, EVM + Solana)** (Phase 3): feature `opencl` on CLI/desktop; `--gpu auto|require|off`; `gpu devices` / `gpu bench`; on-device grind with mandatory CPU re-verify. Throughput is machine-dependent and may match or lose to CPU on Apple Silicon — not advertised as faster. Web/npm WASM remain CPU-only. See `docs/BENCHMARKS.md` + `scripts/bench.sh`
 - **0.7.0 roadmap** in `docs/ROADMAP-0.7.md`
 
 ## [0.6.7] - 2026-10-19

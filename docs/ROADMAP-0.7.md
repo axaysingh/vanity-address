@@ -5,7 +5,7 @@
 
 ## One-line pitch
 
-> More Bitcoin-family coins, split-key, puzzle mode, GPU (Solana + EVM), clearer security story, public benchmarks — still MIT, offline, CLI + desktop + web + npm.
+> More Bitcoin-family coins, split-key, puzzle mode, OpenCL GPU (experimental, Solana + EVM), clearer security story, public benchmarks — still MIT, offline, CLI + desktop + web + npm.
 
 ## Phase 1 — Chains + parity foundations _(done)_
 

@@ -23,7 +23,7 @@ vanity-address gpu bench --chain sol --seconds 2
 | Path | Chains | Notes |
 | ---- | ------ | ----- |
 | **CPU (rayon)** | all menu chains | Default. Presets `eco` / `balanced` / `fast` / `extreme` change worker count. |
-| **OpenCL GPU** | **EVM** + **Solana** full grind | Every GPU candidate is **re-derived on CPU** before export. |
+| **OpenCL GPU (experimental)** | **EVM** + **Solana** full grind | Optional CLI/desktop path. Every candidate is **re-derived on CPU**. Do **not** assume GPU is faster than CPU. |
 
 ## Reference numbers (maintainer laptop)
 

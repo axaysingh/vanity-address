@@ -192,9 +192,9 @@ Works with any registered Bitcoin-family `--chain` (`btc`, `ltc`, `doge`, `dash`
 
 Threat model / safety habits: [SECURITY-MODEL.md](SECURITY-MODEL.md).
 
-### OpenCL GPU (`--gpu`)
+### OpenCL GPU (experimental) (`--gpu`)
 
-Prefer GPU for **EVM** and **Solana** on the **CLI and desktop app** only. The web generator and npm WASM SDK stay CPU-only (no GPU, puzzle, or split-key). Matches are always re-derived on CPU before export.
+**Experimental** path for **EVM** and **Solana** on the **CLI and desktop app** only — not a promised speedup vs CPU (on some Macs GPU ≈ CPU for short prefixes). The web generator and npm WASM SDK stay CPU-only (no GPU, puzzle, or split-key). Matches are always re-derived on CPU before export.
 
 ```bash
 vanity-address gpu devices
@@ -268,7 +268,7 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 | `verify`             | Subcommand: check key derives address                                                    | —                    |
 | `split-key gen`      | Alice half: keep secret, share pubkey                                                    | —                    |
 | `split-key combine`  | Alice secret + Bob part → final key                                                      | —                    |
-| `--gpu <MODE>`       | OpenCL: `off` · `auto` · `require` (EVM + Solana)                                        | `off`                |
+| `--gpu <MODE>`       | OpenCL GPU (experimental): `off` · `auto` · `require` (EVM + Solana)                   | `off`                |
 | `gpu devices`        | List OpenCL GPUs                                                                         | —                    |
 | `gpu bench`          | Short OpenCL throughput probe (`--chain evm\|sol`)                                       | —                    |
 | `-h, --help`         | Show help                                                                                | —                    |

@@ -53,7 +53,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **44 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
 
-> **0.7.0 in tree:** OpenCL GPU for **EVM + Solana** (`--gpu auto`, `gpu devices` / `gpu bench`) with CPU re-verify; Bitcoin-family forks, puzzle mode, split-key, security model. See [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md) · [BENCHMARKS](https://github.com/yudizaxay/vanity-address/blob/main/docs/BENCHMARKS.md).
+> **0.7.0 in tree:** OpenCL GPU (**experimental**, EVM + Solana — CLI/desktop; not a guaranteed speedup vs CPU) via `--gpu auto`, `gpu devices` / `gpu bench`, with CPU re-verify; Bitcoin-family forks, puzzle mode, split-key, security model. Web/npm stay CPU-only (no GPU, puzzle, or split-key). See [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md) · [BENCHMARKS](https://github.com/yudizaxay/vanity-address/blob/main/docs/BENCHMARKS.md).
 
 ---
 

@@ -15,7 +15,7 @@
 - **One engine:** `vanity-core` library (all chain logic lives here)
 - **Patterns:** prefix / suffix / contains + `*` wildcards + comma OR + `--count` + `verify` + CREATE2 lite
 - **Privacy:** 100% offline; keys never leave the device; no telemetry
-- **OpenCL GPU:** EVM + Solana (`--gpu auto`); CPU re-verify of every match
+- **OpenCL GPU (experimental):** EVM + Solana (`--gpu auto`); CLI/desktop only; CPU re-verify; not a guaranteed speedup vs CPU
 
 ---
 
@@ -193,6 +193,7 @@ Solana SDK compile is heavy (3–8 min first time). Documented in `docs/INSTALL.
 ### OpenCL (0.7+)
 
 - Feature `opencl` enabled by default for CLI + desktop; Apple uses `CommandQueue::create` (not `create_with_properties`)
+- Market as **experimental** — do not claim “faster than CPU” in README/landing/release notes
 - GPU candidates always CPU-reverified before export
 - Kernels: `vanity-core/src/gpu/kernels/{evm,solana}.cl`
 
