@@ -588,6 +588,84 @@
   .final .section-title { margin-left: auto; margin-right: auto; }
   .final .section-desc { margin-left: auto; margin-right: auto; }
   .final .hero-ctas { justify-content: center; }
+  .ask-ai {
+    margin: 40px auto 0;
+    max-width: 420px;
+    padding: 20px 24px 18px;
+    background: var(--white);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--ink);
+    text-align: left;
+  }
+  .ask-ai-title {
+    font-family: var(--sans);
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.25;
+  }
+  .ask-ai-title .sparkle {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    color: var(--stamp);
+  }
+  .ask-ai-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .ask-ai-link {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    display: grid;
+    place-items: center;
+    box-shadow: 2px 2px 0 var(--ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    text-decoration: none;
+  }
+  .ask-ai-link:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .ask-ai-link:focus-visible {
+    outline: 3px solid var(--stamp);
+    outline-offset: 3px;
+  }
+  .ask-ai-link img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    object-fit: contain;
+  }
+  /* Monochrome brand marks → white on tinted circles */
+  .ask-ai-link.icon-light img {
+    filter: brightness(0) invert(1);
+  }
+  .ask-ai-link[data-ai="chatgpt"] { background: #fff; }
+  .ask-ai-link[data-ai="claude"] { background: #fff; }
+  .ask-ai-link[data-ai="perplexity"] { background: #fff; }
+  .ask-ai-link[data-ai="gemini"] { background: #fff; }
+  .ask-ai-link[data-ai="grok"] { background: #fff; }
+  /* Colored brand marks (Claude / Perplexity / Gemini) — don't invert */
+  .ask-ai-link[data-ai="gemini"] img,
+  .ask-ai-link[data-ai="claude"] img,
+  .ask-ai-link[data-ai="perplexity"] img { filter: none; }
+  @media (max-width: 640px) {
+    .ask-ai { margin-top: 28px; max-width: 340px; padding: 18px 16px 16px; }
+    .ask-ai-links { gap: 8px; }
+    .ask-ai-link { width: 44px; height: 44px; flex-basis: 44px; }
+    .ask-ai-link img { width: 22px; height: 22px; }
+    .ask-ai-title { justify-content: center; font-size: 0.95rem; }
+  }
   .sponsor {
     margin: 56px auto 0; max-width: 640px;
     display: flex; flex-direction: column; align-items: center; gap: 14px;
@@ -1016,6 +1094,31 @@
           Star on GitHub
         </a>
       </div>
+
+      <section class="ask-ai" aria-label="Ask AI about Vanity Address">
+        <h3 class="ask-ai-title">
+          <svg class="sparkle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.4 6.1L19 9.5l-5.1 2.4L12 18l-1.9-6.1L5 9.5l5.6-1.4L12 2zm7.5 11.2l.7 3.1 3.1.7-3.1.7-.7 3.1-.7-3.1-3.1-.7 3.1-.7.7-3.1zM5.8 14.5l.5 2.2 2.2.5-2.2.5-.5 2.2-.5-2.2-2.2-.5 2.2-.5.5-2.2z"/></svg>
+          Ask AI About Vanity Address
+        </h3>
+        <div class="ask-ai-links" id="askAiLinks">
+          <a class="ask-ai-link" data-ai="chatgpt" data-base="https://chatgpt.com/?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask ChatGPT about Vanity Address" href="#">
+            <img src="assets/ai/openai.svg" alt="" width="24" height="24" decoding="async" />
+          </a>
+          <a class="ask-ai-link" data-ai="claude" data-base="https://claude.ai/new?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Claude about Vanity Address" href="#">
+            <img src="assets/ai/claude.svg" alt="" width="24" height="24" decoding="async" />
+          </a>
+          <a class="ask-ai-link" data-ai="perplexity" data-base="https://www.perplexity.ai/search?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Perplexity about Vanity Address" href="#">
+            <img src="assets/ai/perplexity.svg" alt="" width="24" height="24" decoding="async" />
+          </a>
+          <a class="ask-ai-link" data-ai="gemini" data-base="https://www.google.com/search?udm=50&q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Google AI Mode about Vanity Address" href="#">
+            <img src="assets/ai/gemini.svg" alt="" width="24" height="24" decoding="async" />
+          </a>
+          <a class="ask-ai-link" data-ai="grok" data-base="https://grok.com/?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Grok about Vanity Address" href="#">
+            <img src="assets/ai/grok.svg" alt="" width="24" height="24" decoding="async" />
+          </a>
+        </div>
+      </section>
+
       <div class="sponsor">
         <p class="sponsor-kicker">Free and open source. If it saved you time, you can back it on GitHub.</p>
         <div class="sponsor-frame">
@@ -1045,6 +1148,31 @@
 <script>
 (function () {
   "use strict";
+
+  /* Ask AI — deep-link each provider with the same overview prompt */
+  (function wireAskAi() {
+    var prompt =
+      "I want to understand Vanity Address,\n" +
+      "an open-source, Rust-powered multi-chain vanity\n" +
+      "address generator supporting multiple blockchain\n" +
+      "networks and address formats, including Ethereum/EVM,\n" +
+      "Solana, Bitcoin, TRON, and more.\n\n" +
+      "Explain its key features, supported blockchains,\n" +
+      "how it works, privacy and security considerations,\n" +
+      "benefits, limitations, and how to get started.\n\n" +
+      "Use these official sources:\n" +
+      "https://vanity-address.pages.dev/\n" +
+      "https://github.com/yudizaxay/vanity-address\n\n" +
+      "Distinguish documented claims from verified facts.\n" +
+      "Provide a clear, beginner-friendly overview.";
+    var q = encodeURIComponent(prompt);
+    var root = document.getElementById("askAiLinks");
+    if (!root) return;
+    var links = root.querySelectorAll("a[data-base]");
+    for (var i = 0; i < links.length; i++) {
+      links[i].href = links[i].getAttribute("data-base") + q;
+    }
+  })();
 
   /* nav */
   var toggle = document.getElementById("navToggle");
