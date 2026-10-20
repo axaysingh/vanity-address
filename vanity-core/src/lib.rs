@@ -2,6 +2,8 @@ pub mod chain;
 pub mod chains;
 pub mod estimate;
 #[cfg(feature = "native")]
+pub mod gpu;
+#[cfg(feature = "native")]
 pub mod grinder;
 pub mod pattern;
 #[cfg(feature = "native")]
@@ -11,10 +13,19 @@ pub mod system;
 pub mod verify;
 
 pub use chain::{ChainGrinder, GrindAttempt, KeyExport, KeypairResult};
-pub use chains::{Chain, Create2Grinder, EvmGrinder, SolanaGrinder, DEPLOY_MODES, MENU_CHAINS};
+pub use chains::{
+    combine_split_keys, generate_split_keypair, parse_public_key, parse_secret_key,
+    BitcoinLikeGrinder, Chain, Create2Grinder, EvmGrinder, PuzzleGrinder, SolanaGrinder,
+    SplitKeyGrinder, SplitKeypair, DEPLOY_MODES, MENU_CHAINS,
+};
 pub use estimate::{
     default_keys_per_sec, effective_pattern_chars, format_attempts, format_duration,
     grind_estimate, pattern_guide, GrindEstimate, PatternRisk,
+};
+#[cfg(feature = "native")]
+pub use gpu::{
+    benchmark_gpu, gpu_available, gpu_supports_chain, grind_gpu, list_gpu_devices, GpuDeviceInfo,
+    GpuGrindReport, GpuMode,
 };
 #[cfg(feature = "native")]
 pub use grinder::{benchmark, grind, grind_n, grind_patterns, CancelToken, GrindResult};

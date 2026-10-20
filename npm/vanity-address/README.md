@@ -122,7 +122,7 @@ Example output:
 
 ---
 
-## Supported chains (31)
+## Supported chains (44)
 
 | Chain | `--chain` | Address style | Works with |
 | ----- | --------- | ------------- | ---------- |

@@ -51,9 +51,9 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 | Token mint vanity           | ✅ `sol-mint` | — | — |
 | 100% offline / local        |   ✅   | ✅  |  ✅  |
 
-**31 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
+**44 wallet chains** + **4 deploy modes** (`evm-contract`, `trx-contract`, `sol-mint`, `create2`) · **CLI + desktop + npm SDK** · **web app** (wallets) · **MIT** · keys never leave your machine
 
-> **New in 0.6.7:** Grind power presets (`eco` · `balanced` · `fast` · `extreme`) on CLI, desktop, and web — memory caps still apply; `--threads` wins over preset. See the [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md).
+> **0.7.0 in tree:** OpenCL GPU for **EVM + Solana** (`--gpu auto`, `gpu devices` / `gpu bench`) with CPU re-verify; Bitcoin-family forks, puzzle mode, split-key, security model. See [CHANGELOG](https://github.com/yudizaxay/vanity-address/blob/main/CHANGELOG.md) · [BENCHMARKS](https://github.com/yudizaxay/vanity-address/blob/main/docs/BENCHMARKS.md).
 
 ---
 
@@ -83,7 +83,7 @@ Pick a chain → type your word → generate → save
 
 | | Web app |
 | - | - |
-| All 31 chains, prefix / suffix / contains, `*` wildcards, comma OR | ✅ |
+| All 44 chains, prefix / suffix / contains, `*` wildcards, comma OR | ✅ |
 | Same Rust engine (WebAssembly) on all your CPU cores | ✅ |
 | Difficulty estimate measured on your device | ✅ |
 | Keys blurred until shown · copy · download as text | ✅ |
@@ -111,9 +111,9 @@ Keys exist only in the open tab and are never stored or sent anywhere. The devic
 **Quick start (Linux):**
 
 ```bash
-# Replace 0.6.7 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
-curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.6.7/VanityAddress-0.6.7-Linux-CLI.tar.gz
-tar xzf VanityAddress-0.6.7-Linux-CLI.tar.gz
+# Replace 0.7.0 if a newer release exists: https://github.com/yudizaxay/vanity-address/releases/latest
+curl -LO https://github.com/yudizaxay/vanity-address/releases/download/v0.7.0/VanityAddress-0.7.0-Linux-CLI.tar.gz
+tar xzf VanityAddress-0.7.0-Linux-CLI.tar.gz
 ./vanity-address
 ```
 
@@ -279,7 +279,7 @@ Home → Chain → Pattern → Summary → Grind → Result
 
 | Feature | Desktop |
 | ------- | ------- |
-| 31 wallet chains, live ETA, stop mid-grind | ✅ |
+| 44 wallet chains, live ETA, stop mid-grind | ✅ |
 | Deploy / mint modes (`evm-contract`, `trx-contract`, `sol-mint`, CREATE2) | ✅ |
 | Impractical-pattern warning | ✅ |
 | Masked keys + reveal / copy / save | ✅ |
@@ -292,19 +292,20 @@ Home → Chain → Pattern → Summary → Grind → Result
 
 ## 🔐 Security
 
-> **⚠️ Read before generating keys**
+> **⚠️ Read before generating keys** — this is a **key generator**, not a wallet, and it is **not formally audited**.
 >
 > | Rule         | Detail                                                  |
 > | ------------ | ------------------------------------------------------- |
 > | Local only   | Keys are generated on **your machine**                  |
-> | No network   | This tool **never connects to the internet**            |
+> | No network   | This tool **never connects to the internet** while grinding |
 > | Web app      | Loads once, then generates in the tab — no cookies, no uploads, strict CSP |
 > | Never share  | **Do not** share private keys with anyone               |
+> | Large funds  | Prefer offline CLI/desktop; treat saves/downloads as plaintext secrets |
 > | Verify first | Always double-check the address before sending funds    |
 > | Saved keys   | `--save` files are owner-only (`0600`) on macOS/Linux; secrets are wiped from memory after use |
 > | Open source  | Audit the code — trust, but verify                      |
 
-Full policy: [SECURITY.md](https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md)
+Policy: [SECURITY.md](https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md) · Threat model: [docs/SECURITY-MODEL.md](https://github.com/yudizaxay/vanity-address/blob/main/docs/SECURITY-MODEL.md)
 
 ---
 

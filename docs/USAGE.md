@@ -14,7 +14,7 @@ vanity-address
 
 ```
 ╔══════════════════════════════════════════╗
-║         vanity-address  v0.6.7           ║
+║         vanity-address  v0.7.0           ║
 ╚══════════════════════════════════════════╝
 
   [1]  Start a new grind
@@ -43,6 +43,8 @@ vanity-address --chain evm-contract --prefix cafe
 vanity-address --chain trx-contract --prefix Cafe
 vanity-address --chain sol-mint --suffix pump
 vanity-address --chain hyperliquid --prefix dead
+vanity-address --chain rvn --prefix RLove
+vanity-address --puzzle 6 --prefix 1Love
 ```
 
 ---
@@ -155,9 +157,53 @@ $ vanity-address --chain evm --prefix dead --suffix face
 
 Use `--chain` with any supported ID:
 
-`ada`, `algo`, `aptos`, `btc`, `btc-segwit`, `btc-taproot`, `cosmos`, `dash`, `doge`, `dot`, `dydx`, `erd`, `evm`, `fil`, `hedera`, `icp`, `inj`, `kaspa`, `ksm`, `ltc`, `near`, `osmo`, `sei`, `sol`, `sui`, `tia`, `ton`, `trx`, `xlm`, `xrp`, `xtz`
+Wallet menu (A–Z + Bitcoin-family forks): `ada`, `algo`, `aptos`, `btc`, `btg`, `btc-segwit`, `btc-taproot`, `cdn`, `cosmos`, `dash`, `dgb`, `doge`, `dot`, `dydx`, `emc2`, `erd`, `evm`, `fil`, `hedera`, `icp`, `inj`, `kaspa`, `ksm`, `ltc`, `mona`, `near`, `nvc`, `osmo`, `ppc`, `qtum`, `rvn`, `sei`, `sol`, `sui`, `sys`, `tia`, `ton`, `trx`, `via`, `vtc`, `xlm`, `xpm`, `xrp`, `xtz`
 
 EVM aliases (same math as `evm`): `base`, `arb`, `op`, `polygon`, `robinhood`, `hyperliquid` / `hyperevm`, `sonic`, `monad`, …
+
+Bitcoin-family P2PKH bytes and puzzle mode: [BITCOIN_FORKS.md](BITCOIN_FORKS.md).
+
+### Bitcoin puzzle mode
+
+```bash
+vanity-address --puzzle 6 --prefix 1Love
+vanity-address --puzzle 20 --puzzle-start 0000000000000000000000000000000000000000000000000000000000000000 --prefix 1
+```
+
+`--puzzle N` searches a `2^N`-sized private-key space (high bits fixed, usually zero). BTC P2PKH only for now.
+
+### Split-key (Bitcoin-family P2PKH)
+
+Alice keeps a secret and shares only a public key. Bob grinds a **part**; Alice combines offline into the final spending key.
+
+```bash
+# 1) Alice generates (share only public_key_hex; --json before the subcommand)
+vanity-address split-key gen --chain btc
+vanity-address --json split-key gen --chain btc
+
+# 2) Bob grinds against Alice's pubkey (-P)
+vanity-address --chain btc -P 04… --prefix Love
+
+# 3) Alice combines her secret + Bob's PrivkeyPart
+vanity-address split-key combine --alice <hex-or-wif> --part <hex-or-wif> --chain btc
+```
+
+Works with any registered Bitcoin-family `--chain` (`btc`, `ltc`, `doge`, `dash`, `rvn`, …). Mutually exclusive with `--puzzle` / `--create2`.
+
+Threat model / safety habits: [SECURITY-MODEL.md](SECURITY-MODEL.md).
+
+### OpenCL GPU (`--gpu`)
+
+Prefer GPU for **EVM** and **Solana** on the **CLI and desktop app** only. The web generator and npm WASM SDK stay CPU-only (no GPU, puzzle, or split-key). Matches are always re-derived on CPU before export.
+
+```bash
+vanity-address gpu devices
+vanity-address gpu bench --chain evm --seconds 2
+vanity-address --chain evm --prefix cafe --gpu auto
+vanity-address --chain evm --prefix cafe --gpu require   # error if no OpenCL device
+```
+
+Benchmarks: [BENCHMARKS.md](BENCHMARKS.md).
 
 ---
 
@@ -173,7 +219,7 @@ Example success payload:
 
 ```json
 {
-  "version": "0.6.7",
+  "version": "0.7.0",
   "chain": "sol",
   "chain_name": "Solana",
   "pattern": {
@@ -208,7 +254,10 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 | `--create2`          | EVM CREATE2 salt grind (needs deployer + hash)                                           | off                  |
 | `--deployer <HEX>`   | CREATE2 deployer (20 bytes)                                                              | —                    |
 | `--init-code-hash`   | CREATE2 init code hash (32 bytes)                                                        | —                    |
-| `--save`             | Append match (incl. private keys) to file; `0600` on macOS/Linux                         | off                  |
+| `--puzzle <BITS>`    | Bitcoin puzzle mode (free low bits; BTC P2PKH)                                           | —                    |
+| `--puzzle-start`     | Puzzle high-bit template (32-byte hex)                                                   | zeros                |
+| `-P, --split-pubkey` | Split-key grind against Alice's secp256k1 pubkey hex (Bitcoin-family)                    | —                    |
+| `--save`             | Append match (incl. **plaintext** private keys) to file; `0600` on macOS/Linux           | off                  |
 | `--output <PATH>`    | Custom save file (with `--save` or interactive)                                          | `vanity-results.txt` |
 | `--no-benchmark`     | Skip 2s speed calibration warm-up                                                        | off                  |
 | `--force`            | Allow impractical patterns in CLI mode                                                   | off                  |
@@ -217,6 +266,11 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 | `--threads <N>`      | Override worker threads                                                                  | auto                 |
 | `--preset <ID>`      | Power profile: `eco` · `balanced` · `fast` · `extreme` (aliases: efficient, best, superman). Ignored if `--threads` is set | `balanced` |
 | `verify`             | Subcommand: check key derives address                                                    | —                    |
+| `split-key gen`      | Alice half: keep secret, share pubkey                                                    | —                    |
+| `split-key combine`  | Alice secret + Bob part → final key                                                      | —                    |
+| `--gpu <MODE>`       | OpenCL: `off` · `auto` · `require` (EVM + Solana)                                        | `off`                |
+| `gpu devices`        | List OpenCL GPUs                                                                         | —                    |
+| `gpu bench`          | Short OpenCL throughput probe (`--chain evm\|sol`)                                       | —                    |
 | `-h, --help`         | Show help                                                                                | —                    |
 | `-V, --version`      | Show version                                                                             | —                    |
 

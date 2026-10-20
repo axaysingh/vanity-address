@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>vanity-address — vanity wallets, contracts &amp; token mints</title>
-<meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 31 chains, 100% offline, open source." />
+<meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 44 chains, 100% offline, open source." />
 <meta name="keywords" content="vanity address generator, custom wallet address, name wallet, Solana vanity, EVM vanity, CREATE2, token mint vanity, offline vanity address" />
 <link rel="canonical" href="https://vanity-address.pages.dev/" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://vanity-address.pages.dev/" />
 <meta property="og:title" content="vanity-address — generate vanity wallets &amp; contracts offline" />
-<meta property="og:description" content="Free open-source vanity address generator for 31 chains. Browser, CLI, desktop. Keys never leave your device." />
+<meta property="og:description" content="Free open-source vanity address generator for 44 chains. Browser, CLI, desktop. Keys never leave your device." />
 <meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="vanity-address — vanity wallets &amp; contracts" />
@@ -761,7 +761,7 @@
     <div class="wrap">
       <p class="section-kicker">three presses</p>
       <h2 class="section-title">Pick a chain. Type a word. Press grind.</h2>
-      <p class="section-desc">Same Rust engine behind the CLI, desktop app, web app, and npm SDK — 31 wallet chains, plus vanity <strong>contract</strong> and <strong>token mint</strong> modes. One trust model.</p>
+      <p class="section-desc">Same Rust engine behind the CLI, desktop app, web app, and npm SDK — 44 wallet chains, plus vanity <strong>contract</strong> and <strong>token mint</strong> modes. One trust model.</p>
 
       <div class="steps">
         <article class="step">
@@ -857,7 +857,7 @@
     <div class="wrap">
       <p class="section-kicker">pick up a build</p>
       <h2 class="section-title">Get vanity-address</h2>
-      <span class="version-tag" id="latestVersionTag">v0.6.7</span>
+      <span class="version-tag" id="latestVersionTag">v0.7.0</span>
       <p class="section-desc">No Rust or Node required for pre-built downloads — grab your platform ticket.</p>
 
       <div class="platform-row">
@@ -903,7 +903,7 @@
   <section id="chains">
     <div class="wrap">
       <p class="section-kicker">sticker wall · 31</p>
-      <h2 class="section-title">All 31 wallets, same trust model.</h2>
+      <h2 class="section-title">All 44 wallets, same trust model.</h2>
       <p class="section-desc">Use any id with <code class="inline">--chain</code> — plus deploy modes (<code class="inline">evm-contract</code>, <code class="inline">trx-contract</code>, <code class="inline">sol-mint</code>, CREATE2). CLI, desktop, web, and SDK all match.</p>
       <div class="chains-wall" id="chainsGrid"></div>
     </div>
@@ -982,7 +982,7 @@
     <div class="wrap">
       <p class="section-kicker" style="color:var(--wax)">before you stamp</p>
       <h2 class="section-title">Read this before generating keys.</h2>
-      <p class="section-desc">A vanity wallet is a real wallet. Treat the private key like cash.</p>
+      <p class="section-desc">A vanity address is a real keypair. This tool is a generator — not a wallet — and it is not formally audited. Treat the private key like cash.</p>
       <div class="rules">
         <div class="rule">
           <h3>Local only</h3>
@@ -993,12 +993,12 @@
           <p>This tool never connects to the internet while grinding.</p>
         </div>
         <div class="rule">
-          <h3>Open source</h3>
-          <p>Audit the Rust engine trust, but verify.</p>
+          <h3>Large funds</h3>
+          <p>Prefer offline CLI or desktop on a clean machine. Downloads and <code class="inline">--save</code> are plaintext secrets.</p>
         </div>
         <div class="rule">
           <h3>Verify first</h3>
-          <p>Always double-check the address before sending funds.</p>
+          <p>Always double-check the address before sending funds. Open source — trust, but verify.</p>
         </div>
       </div>
     </div>
@@ -1430,11 +1430,11 @@
       setHref("dlLinuxPrimary", find(/Linux-CLI\.tar\.gz$/i));
       var tag = document.getElementById("latestVersionTag");
       if (tag) {
-        // Prefer live GitHub tag when >= 0.6.7; otherwise keep v0.6.7 (pending publish)
+        // Prefer live GitHub tag when >= 0.7.0; otherwise keep v0.7.0 (pending publish)
         var name = data.tag_name || "";
         var parts = name.replace(/^v/i, "").split(".").map(function (n) { return parseInt(n, 10) || 0; });
         var isNewEnough = parts[0] > 0 || (parts[0] === 0 && (parts[1] > 6 || (parts[1] === 6 && parts[2] >= 7)));
-        tag.textContent = isNewEnough ? name : "v0.6.7";
+        tag.textContent = isNewEnough ? name : "v0.7.0";
       }
     })
     .catch(function () {});

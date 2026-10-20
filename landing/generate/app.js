@@ -53,7 +53,7 @@ if ("serviceWorker" in navigator) {
 /* ---------------- local preferences ---------------- */
 
 // Bump when the notice text changes so everyone sees the new version once.
-const CONSENT_VERSION = "2";
+const CONSENT_VERSION = "3";
 
 function readPref(key) {
   try {
@@ -1267,9 +1267,18 @@ $("download").addEventListener("click", () => {
     ...r.exports.map((e) => `${e.label}: ${e.value}${e.hint ? `\n  (${e.hint})` : ""}`),
     "",
     `Created: ${new Date().toISOString()}`,
-    "Keep this file private. Anyone with the private key controls the funds.",
+    "WARNING: PLAINTEXT PRIVATE KEYS. Anyone with this file can steal funds.",
+    "Encrypt, keep offline, never commit/email/cloud-sync. This is a generator — not a wallet.",
+    "Verify the address in a wallet you trust before sending value.",
     "",
   ];
+  if (
+    !window.confirm(
+      "Download plaintext private keys?\n\nAnyone with this file can steal funds. Encrypt and keep it offline."
+    )
+  ) {
+    return;
+  }
   const blob = new Blob([lines.join("\n")], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

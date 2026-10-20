@@ -123,8 +123,12 @@ pub fn encode_base58_with_alphabet(data: &[u8], alphabet: &str) -> String {
 
 pub fn p2pkh_address(secret: &SecretKey, version: u8) -> String {
     let secp = Secp256k1::new();
-    let pubkey = secret.public_key(&secp).serialize();
-    let hash = hash160(&pubkey);
+    p2pkh_address_from_pubkey(&secret.public_key(&secp), version)
+}
+
+/// P2PKH from an already-known compressed/uncompressed secp256k1 public key.
+pub fn p2pkh_address_from_pubkey(pubkey: &secp256k1::PublicKey, version: u8) -> String {
+    let hash = hash160(&pubkey.serialize());
     base58_check_encode(version, &hash)
 }
 

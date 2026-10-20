@@ -11,11 +11,15 @@ pub fn run() {
         .manage(AppState::default())
         .invoke_handler(tauri::generate_handler![
             commands::list_chains,
+            commands::list_gpus,
+            commands::gpu_is_available,
             commands::get_system_profile,
             commands::estimate,
             commands::start_grind,
             commands::stop_grind,
             commands::save_result,
+            commands::split_key_gen,
+            commands::split_key_combine,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

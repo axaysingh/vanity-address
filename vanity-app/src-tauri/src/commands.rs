@@ -4,9 +4,11 @@ use std::io::Write;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 use vanity_core::{
-    benchmark, expected_attempts_any, grind_estimate, grind_patterns, pattern_guide,
-    patterns_description, CancelToken, Chain, ChainGrinder, GrindPreset, GrindResult, Pattern,
-    PatternRisk, SystemProfile, DEPLOY_MODES, MENU_CHAINS,
+    benchmark, combine_split_keys, expected_attempts_any, generate_split_keypair, gpu_available,
+    grind_estimate, grind_gpu, grind_patterns, list_gpu_devices, parse_secret_key, pattern_guide,
+    patterns_description, BitcoinLikeGrinder, CancelToken, Chain, ChainGrinder, GpuMode,
+    GrindPreset, GrindResult, Pattern, PatternRisk, SplitKeyGrinder, SystemProfile, DEPLOY_MODES,
+    MENU_CHAINS,
 };
 
 fn parse_preset(preset: Option<&str>) -> Result<GrindPreset, String> {
@@ -72,6 +74,34 @@ fn deploy_mode_info(id: &str, menu_label: &str) -> ChainInfo {
     }
 }
 
+#[derive(Serialize)]
+pub struct GpuDeviceDto {
+    index: usize,
+    name: String,
+    vendor: String,
+    compute_units: u32,
+    max_clock_mhz: u32,
+}
+
+#[tauri::command]
+pub fn list_gpus() -> Vec<GpuDeviceDto> {
+    list_gpu_devices()
+        .into_iter()
+        .map(|d| GpuDeviceDto {
+            index: d.index,
+            name: d.name,
+            vendor: d.vendor,
+            compute_units: d.compute_units,
+            max_clock_mhz: d.max_clock_mhz,
+        })
+        .collect()
+}
+
+#[tauri::command]
+pub fn gpu_is_available() -> bool {
+    gpu_available()
+}
+
 #[tauri::command]
 pub fn list_chains() -> Vec<ChainInfo> {
     let mut out: Vec<ChainInfo> = MENU_CHAINS
@@ -91,6 +121,57 @@ fn resolve_app_chain(
     init_code_hash: Option<&str>,
 ) -> Result<Chain, String> {
     Chain::resolve_chain(chain, deployer, init_code_hash)
+}
+
+fn bitcoin_family_coin(id: &str) -> Result<BitcoinLikeGrinder, String> {
+    BitcoinLikeGrinder::by_id(id).ok_or_else(|| {
+        format!("Unknown Bitcoin-family chain '{id}'. Use btc, ltc, doge, dash, rvn, …")
+    })
+}
+
+#[derive(Serialize)]
+pub struct SplitKeypairInfo {
+    chain: String,
+    address: String,
+    private_key_hex: String,
+    private_key_wif: String,
+    public_key_hex: String,
+}
+
+/// Alice half for split-key vanity — keep private keys; share only `public_key_hex`.
+#[tauri::command]
+pub fn split_key_gen(chain: Option<String>) -> Result<SplitKeypairInfo, String> {
+    let id = chain.unwrap_or_else(|| "btc".into());
+    let coin = bitcoin_family_coin(&id)?;
+    let kp = generate_split_keypair(&coin);
+    Ok(SplitKeypairInfo {
+        chain: coin.id.to_string(),
+        address: kp.address,
+        private_key_hex: kp.private_key_hex,
+        private_key_wif: kp.private_key_wif,
+        public_key_hex: kp.public_key_hex,
+    })
+}
+
+/// Combine Alice secret + Bob part into the final spending key.
+#[tauri::command]
+pub fn split_key_combine(
+    alice: String,
+    part: String,
+    chain: Option<String>,
+) -> Result<SplitKeypairInfo, String> {
+    let id = chain.unwrap_or_else(|| "btc".into());
+    let coin = bitcoin_family_coin(&id)?;
+    let alice_sk = parse_secret_key(&alice)?;
+    let part_sk = parse_secret_key(&part)?;
+    let kp = combine_split_keys(&alice_sk, &part_sk, &coin)?;
+    Ok(SplitKeypairInfo {
+        chain: coin.id.to_string(),
+        address: kp.address,
+        private_key_hex: kp.private_key_hex,
+        private_key_wif: kp.private_key_wif,
+        public_key_hex: kp.public_key_hex,
+    })
 }
 
 #[derive(Serialize)]
@@ -316,6 +397,10 @@ pub fn start_grind(
     deployer: Option<String>,
     init_code_hash: Option<String>,
     preset: Option<String>,
+    // Optional Alice secp256k1 pubkey hex — Bitcoin-family split-key grind.
+    split_pubkey: Option<String>,
+    // `off` | `auto` | `require` — OpenCL for sol/evm when available.
+    gpu: Option<String>,
 ) -> Result<(), String> {
     {
         let mut job = state
@@ -325,8 +410,15 @@ pub fn start_grind(
         if job.is_some() {
             return Err("A grind is already running".to_string());
         }
-        let chain_parsed =
-            resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?;
+        let chain_parsed = if let Some(ref pk) = split_pubkey {
+            if deployer.is_some() || init_code_hash.is_some() {
+                return Err("split_pubkey cannot be combined with CREATE2 factory params".into());
+            }
+            let coin = bitcoin_family_coin(&chain)?;
+            Chain::SplitKey(SplitKeyGrinder::new(pk, coin)?)
+        } else {
+            resolve_app_chain(&chain, deployer.as_deref(), init_code_hash.as_deref())?
+        };
         let contains = contains.unwrap_or_default();
         let patterns = build_patterns_checked(&chain_parsed, &prefix, &suffix, &contains, exact)?;
         let expected = expected_attempts_any(
@@ -348,12 +440,17 @@ pub fn start_grind(
             );
         }
 
+        let gpu_mode = match gpu.as_deref() {
+            None | Some("") => GpuMode::Off,
+            Some(s) => GpuMode::parse(s)?,
+        };
+
         let cancel = CancelToken::new();
         *job = Some(cancel.clone());
         drop(job);
 
         std::thread::spawn(move || {
-            run_grind_job(app, chain_parsed, patterns, profile, cancel);
+            run_grind_job(app, chain_parsed, patterns, profile, cancel, gpu_mode);
         });
     }
     Ok(())
@@ -365,6 +462,7 @@ fn run_grind_job(
     patterns: Vec<Pattern>,
     mut profile: SystemProfile,
     cancel: CancelToken,
+    gpu_mode: GpuMode,
 ) {
     let _ = app.emit("grind-calibrating", ());
     let expected = expected_attempts_any(
@@ -403,22 +501,63 @@ fn run_grind_job(
     let pattern_description = patterns_description(&patterns);
     let case_mode = patterns[0].case_mode().to_string();
 
-    let result: Result<GrindResult, String> = grind_patterns(
-        chain.clone(),
-        &patterns,
-        &profile,
-        &cancel,
-        |attempts, rate, eta_min| {
-            let _ = app.emit(
-                "grind-progress",
-                ProgressPayload {
-                    attempts,
-                    rate,
-                    eta_min,
+    let want_gpu = matches!(gpu_mode, GpuMode::Auto | GpuMode::Require)
+        && (chain.id() == "evm" || chain.id() == "sol");
+
+    let result: Result<GrindResult, String> = if want_gpu {
+        match grind_gpu(
+            chain.clone(),
+            &patterns,
+            &profile,
+            &cancel,
+            |attempts, rate, eta_min| {
+                let _ = app.emit(
+                    "grind-progress",
+                    ProgressPayload {
+                        attempts,
+                        rate,
+                        eta_min,
+                    },
+                );
+            },
+        ) {
+            Ok((r, _)) => Ok(r),
+            Err(e) if gpu_mode == GpuMode::Require => Err(e),
+            Err(_) => grind_patterns(
+                chain.clone(),
+                &patterns,
+                &profile,
+                &cancel,
+                |attempts, rate, eta_min| {
+                    let _ = app.emit(
+                        "grind-progress",
+                        ProgressPayload {
+                            attempts,
+                            rate,
+                            eta_min,
+                        },
+                    );
                 },
-            );
-        },
-    );
+            ),
+        }
+    } else {
+        grind_patterns(
+            chain.clone(),
+            &patterns,
+            &profile,
+            &cancel,
+            |attempts, rate, eta_min| {
+                let _ = app.emit(
+                    "grind-progress",
+                    ProgressPayload {
+                        attempts,
+                        rate,
+                        eta_min,
+                    },
+                );
+            },
+        )
+    };
 
     match result {
         Ok(r) => {
@@ -547,7 +686,17 @@ pub async fn save_result(
     writeln!(file).ok();
     writeln!(
         file,
-        "WARNING: This file contains private keys. Never commit or share it."
+        "WARNING: PLAINTEXT PRIVATE KEYS. Anyone with this file can steal funds."
+    )
+    .ok();
+    writeln!(
+        file,
+        "Keep offline, encrypt backups, never commit/email/cloud-sync, shred when done."
+    )
+    .ok();
+    writeln!(
+        file,
+        "This tool is a key generator — not a wallet. Verify the address before sending value."
     )
     .ok();
     writeln!(file).ok();
