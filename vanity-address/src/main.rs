@@ -13,7 +13,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use vanity_core::{
     benchmark, benchmark_gpu, build_pattern_list, combine_split_keys, expected_attempts_any,
-    format_attempts, format_duration, generate_split_keypair, gpu_available, gpu_supports_chain,
+    format_attempts, format_duration, generate_split_keypair, gpu_available, gpu_should_use,
     grind_estimate, grind_gpu, grind_n, grind_patterns, list_gpu_devices, open_private_append,
     parse_secret_key, patterns_description, verify_address, BitcoinLikeGrinder, CancelToken, Chain,
     ChainGrinder, Create2Grinder, GpuMode, GrindPreset, GrindResult, Pattern, PatternRisk,
@@ -559,10 +559,7 @@ fn run_grind(config: RunConfig) {
         Some(bar)
     };
 
-    let want_gpu = match config.gpu {
-        GpuMode::Off => false,
-        GpuMode::Auto | GpuMode::Require => gpu_supports_chain(chain.id()) && (config.count <= 1),
-    };
+    let want_gpu = gpu_should_use(config.gpu, chain.id(), config.count);
     if want_gpu && interactive_out {
         let devices = list_gpu_devices();
         if let Some(d) = devices.first() {

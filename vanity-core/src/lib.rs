@@ -24,8 +24,8 @@ pub use estimate::{
 };
 #[cfg(feature = "native")]
 pub use gpu::{
-    benchmark_gpu, gpu_available, gpu_supports_chain, grind_gpu, list_gpu_devices, GpuDeviceInfo,
-    GpuGrindReport, GpuMode,
+    benchmark_gpu, gpu_auto_chain, gpu_available, gpu_should_use, gpu_supports_chain, grind_gpu,
+    list_gpu_devices, GpuDeviceInfo, GpuGrindReport, GpuMode,
 };
 #[cfg(feature = "native")]
 pub use grinder::{benchmark, grind, grind_n, grind_patterns, CancelToken, GrindResult};

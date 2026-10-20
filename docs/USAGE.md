@@ -192,9 +192,9 @@ Works with any registered Bitcoin-family `--chain` (`btc`, `ltc`, `doge`, `dash`
 
 Threat model / safety habits: [SECURITY-MODEL.md](SECURITY-MODEL.md).
 
-### OpenCL GPU (experimental) (`--gpu`)
+### OpenCL GPU (`--gpu`)
 
-**Experimental** path for **EVM** and **Solana** on the **CLI and desktop app** only — not a promised speedup vs CPU (on some Macs GPU ≈ CPU for short prefixes). The web generator and npm WASM SDK stay CPU-only (no GPU, puzzle, or split-key). Matches are always re-derived on CPU before export.
+**EVM** is GPU-accelerated on the **CLI and desktop app** (~90× the CPU on an Apple M4; other GPUs untested). **Solana** GPU is experimental and currently slower than CPU, so `--gpu auto` only picks the GPU for EVM — use `--gpu require` to force Solana. The web generator and npm WASM SDK stay CPU-only (no GPU, puzzle, or split-key). Matches are always re-derived on CPU before export.
 
 ```bash
 vanity-address gpu devices
@@ -268,7 +268,7 @@ Combine with `--save` / `--output` to persist keys; `saved_to` is included in th
 | `verify`             | Subcommand: check key derives address                                                    | —                    |
 | `split-key gen`      | Alice half: keep secret, share pubkey                                                    | —                    |
 | `split-key combine`  | Alice secret + Bob part → final key                                                      | —                    |
-| `--gpu <MODE>`       | OpenCL GPU (experimental): `off` · `auto` · `require` (EVM + Solana)                   | `off`                |
+| `--gpu <MODE>`       | OpenCL GPU: `off` · `auto` (EVM) · `require` (EVM + Solana, Solana experimental)| `off`                |
 | `gpu devices`        | List OpenCL GPUs                                                                         | —                    |
 | `gpu bench`          | Short OpenCL throughput probe (`--chain evm\|sol`)                                       | —                    |
 | `-h, --help`         | Show help                                                                                | —                    |

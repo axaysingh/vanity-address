@@ -15,7 +15,7 @@
 - **One engine:** `vanity-core` library (all chain logic lives here)
 - **Patterns:** prefix / suffix / contains + `*` wildcards + comma OR + `--count` + `verify` + CREATE2 lite
 - **Privacy:** 100% offline; keys never leave the device; no telemetry
-- **OpenCL GPU (experimental):** EVM + Solana (`--gpu auto`); CLI/desktop only; CPU re-verify; not a guaranteed speedup vs CPU
+- **OpenCL GPU:** EVM (incremental EC + batch inversion, ~46M keys/s ≈ 90× CPU, **measured on Apple M4 only**; NVIDIA/AMD untested); Solana experimental (~5× *slower* than CPU, so `--gpu auto` is EVM-only); CLI/desktop only; CPU re-verify
 
 ---
 
@@ -193,7 +193,7 @@ Solana SDK compile is heavy (3–8 min first time). Documented in `docs/INSTALL.
 ### OpenCL (0.7+)
 
 - Feature `opencl` enabled by default for CLI + desktop; Apple uses `CommandQueue::create` (not `create_with_properties`)
-- Market as **experimental** — do not claim “faster than CPU” in README/landing/release notes
+- EVM speed claims must name the hardware (**Apple M4 only** measured); Solana GPU stays “experimental, slower than CPU”; gate via `gpu_should_use` (CLI + desktop share it)
 - GPU candidates always CPU-reverified before export
 - Kernels: `vanity-core/src/gpu/kernels/{evm,solana}.cl`
 
@@ -232,7 +232,7 @@ make homebrew-formula VER=X.Y.Z
 - [ ] Code signing for macOS Gatekeeper / Windows SmartScreen
 - [ ] Submit to homebrew-core when notability criteria met
 - [ ] Cloudflare Pages: disable Web Analytics (Metrics) so edge stops injecting `beacon.min.js`
-- [ ] Faster EVM GPU (incremental EC / precompute tables)
+- [x] Faster EVM GPU (incremental EC + batch inversion) — Solana GPU still slower than CPU; NVIDIA/AMD untested
 
 ### Recently completed (2026-10-20)
 

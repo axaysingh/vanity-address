@@ -1,6 +1,14 @@
 /* MIT — independent OpenCL EVM vanity (secp256k1 + Keccak-256).
+ *
+ * Incremental search: the host gives every work-item a random start point
+ * B = k0·G (computed once, kept in device memory between launches). The kernel
+ * then walks B + j·G for j = 1..GROUP with ONE shared field inversion per
+ * group (Montgomery batch inversion), so a candidate costs ~6 field mults plus
+ * one Keccak instead of a full 256-bit scalar multiplication.
+ *
  * Candidates are always re-derived on CPU before export.
  * OpenCL 1.2 + cl_khr_global_int32_base_atomics.
+ * Host prepends:  #define GROUP <points per inversion>  /  #define GROUPS <groups per launch>
  */
 
 #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
@@ -52,37 +60,6 @@ void keccak_f(u64 st[25]) {
                 st[j+i] ^= (~bc[(i+1)%5]) & bc[(i+2)%5];
         }
         st[0] ^= RC[round];
-    }
-}
-
-void keccak256(const u8 *data, int len, u8 out[32]) {
-    u64 st[25];
-    for (int i = 0; i < 25; i++) st[i] = 0;
-    const int rate = 136;
-    int off = 0;
-    while (len >= rate) {
-        for (int i = 0; i < rate/8; i++) {
-            u64 v = 0;
-            for (int b = 0; b < 8; b++) v |= ((u64)data[off + i*8 + b]) << (8*b);
-            st[i] ^= v;
-        }
-        keccak_f(st);
-        off += rate; len -= rate;
-    }
-    u8 tmp[200];
-    for (int i = 0; i < 200; i++) tmp[i] = 0;
-    for (int i = 0; i < len; i++) tmp[i] = data[off+i];
-    tmp[len] ^= 0x01;
-    tmp[rate-1] ^= 0x80;
-    for (int i = 0; i < rate/8; i++) {
-        u64 v = 0;
-        for (int b = 0; b < 8; b++) v |= ((u64)tmp[i*8+b]) << (8*b);
-        st[i] ^= v;
-    }
-    keccak_f(st);
-    for (int i = 0; i < 4; i++) {
-        u64 v = st[i];
-        for (int b = 0; b < 8; b++) out[i*8+b] = (u8)(v >> (8*b));
     }
 }
 
@@ -228,68 +205,25 @@ void feinv(fe *r,const fe *a){
     }
 }
 
-void fe_to_be(const fe *a,u8 b[32]){
-    for(int i=0;i<8;i++){
-        int o=28-4*i;
-        b[o]=(u8)(a->d[i]>>24); b[o+1]=(u8)(a->d[i]>>16);
-        b[o+2]=(u8)(a->d[i]>>8); b[o+3]=(u8)a->d[i];
-    }
+
+inline u32 bswap32(u32 v) {
+    return (v >> 24) | ((v >> 8) & 0xff00u) | ((v << 8) & 0xff0000u) | (v << 24);
 }
 
-int sk_ok(const u8 sk[32]){
-    int nz=0; for(int i=0;i<32;i++) if(sk[i]) nz=1;
-    if(!nz) return 0;
-    for(int i=0;i<32;i++){
-        u8 nb=(u8)((N[(31-i)/4] >> (((31-i)%4)*8)) & 0xff);
-        if(sk[i]<nb) return 1;
-        if(sk[i]>nb) return 0;
+/* Keccak-256 of the 64-byte X‖Y public key, built straight from field limbs. */
+void keccak_xy(const fe *x, const fe *y, u8 hash[32]) {
+    u64 st[25];
+    for (int k = 0; k < 4; k++) {
+        st[k]     = (u64)bswap32(x->d[7 - 2*k]) | ((u64)bswap32(x->d[6 - 2*k]) << 32);
+        st[4 + k] = (u64)bswap32(y->d[7 - 2*k]) | ((u64)bswap32(y->d[6 - 2*k]) << 32);
     }
-    return 0;
-}
-
-/* Affine EC (a=0). Jacobian dbl still mismatches random scalars after field
- * fixes; affine matches sk=1/2 and CPU re-verify. Feinv each op is slower. */
-void ge_dbl(ge *r, const ge *p) {
-    if (p->inf) { *r = *p; return; }
-    fe xx, t, num, den, inv, lam, x3, y3;
-    fesqr(&xx, &p->x);
-    feadd(&t, &xx, &xx); feadd(&num, &t, &xx); /* 3x^2 */
-    feadd(&den, &p->y, &p->y);                  /* 2y */
-    feinv(&inv, &den);
-    femul(&lam, &num, &inv);
-    fesqr(&x3, &lam); fesub(&x3, &x3, &p->x); fesub(&x3, &x3, &p->x);
-    fesub(&t, &p->x, &x3); femul(&y3, &lam, &t); fesub(&y3, &y3, &p->y);
-    fecpy(&r->x, &x3); fecpy(&r->y, &y3); r->inf = 0;
-}
-
-void ge_add(ge *r, const ge *p, const ge *q) {
-    if (p->inf) { *r = *q; return; }
-    if (q->inf) { *r = *p; return; }
-    fe dx, dy, inv, lam, x3, y3, t;
-    fesub(&dx, &q->x, &p->x);
-    fesub(&dy, &q->y, &p->y);
-    if (fe_is0(&dx)) {
-        if (fe_is0(&dy)) { ge_dbl(r, p); return; }
-        r->inf = 1; fe0(&r->x); fe0(&r->y); return;
-    }
-    feinv(&inv, &dx);
-    femul(&lam, &dy, &inv);
-    fesqr(&x3, &lam); fesub(&x3, &x3, &p->x); fesub(&x3, &x3, &q->x);
-    fesub(&t, &p->x, &x3); femul(&y3, &lam, &t); fesub(&y3, &y3, &p->y);
-    fecpy(&r->x, &x3); fecpy(&r->y, &y3); r->inf = 0;
-}
-
-void pubkey(ge *out, const u8 sk[32]) {
-    ge g;
-    for (int i = 0; i < 8; i++) { g.x.d[i] = GX[i]; g.y.d[i] = GY[i]; }
-    g.inf = 0;
-    ge r; r.inf = 1; fe0(&r.x); fe0(&r.y);
-    for (int i = 0; i < 256; i++) {
-        ge t; ge_dbl(&t, &r); r = t;
-        int bit = (sk[i / 8] >> (7 - (i % 8))) & 1;
-        if (bit) { ge_add(&t, &r, &g); r = t; }
-    }
-    *out = r;
+    st[8] = 0x01UL;
+    for (int i = 9; i < 16; i++) st[i] = 0;
+    st[16] = 0x8000000000000000UL;
+    for (int i = 17; i < 25; i++) st[i] = 0;
+    keccak_f(st);
+    for (int i = 0; i < 4; i++)
+        for (int b = 0; b < 8; b++) hash[i*8 + b] = (u8)(st[i] >> (8*b));
 }
 
 /* Wire layout = GpuPattern repr(C): kind@0 plen@4 slen@8 clen@12 ic@16
@@ -297,120 +231,94 @@ void pubkey(ge *out, const u8 sk[32]) {
  * Apple OpenCL miscompiles a helper that takes __global const u8 *pat. */
 
 __kernel void evm_grind(
-    __global const u8 *seed,
-    ulong batch_base,
     __global const u8 *pat,
     __global volatile int *found,
-    __global u8 *out_sk
+    __global uint *out_off,
+    __global uint *bx,
+    __global uint *by,
+    __global const uint *tabx,
+    __global const uint *taby
 ){
-    size_t gid=get_global_id(0);
-    if(*found >= 0) return;
+    size_t gid = get_global_id(0);
+    if (*found >= 0) return;
 
-#ifdef VANITY_DUMP_PAT
-    /* Debug: copy first 32 bytes of pattern wire to out_sk from gid 0. */
-    if (gid == 0 && atom_cmpxchg(found, -1, 0) == -1) {
-        for (int i = 0; i < 32; i++) out_sk[i] = pat[i];
-    }
-    return;
-#endif
+    fe Bx, By;
+    for (int i = 0; i < 8; i++) { Bx.d[i] = bx[gid*8 + i]; By.d[i] = by[gid*8 + i]; }
 
-#ifdef VANITY_VECTOR_SK
-    /* seed[31]: 1/2 → address; 0xFE → dump GX; 0xFF → dump Gx². */
-    if (gid == 0 && atom_cmpxchg(found, -1, 0) == -1) {
-        u8 tmp[32];
-        if (seed[31] == 0xFE) {
-            fe gx;
-            for (int i = 0; i < 8; i++) gx.d[i] = GX[i];
-            fe_to_be(&gx, tmp);
-            for (int i = 0; i < 32; i++) out_sk[i] = tmp[i];
-        } else if (seed[31] == 0xFF) {
-            fe gx, sq;
-            for (int i = 0; i < 8; i++) gx.d[i] = GX[i];
-            fesqr(&sq, &gx);
-            fe_to_be(&sq, tmp);
-            for (int i = 0; i < 32; i++) out_sk[i] = tmp[i];
-        } else if (seed[31] == 0xFD) {
-            /* dump inv(2*Gy) */
-            fe gy, den, inv;
-            for (int i = 0; i < 8; i++) gy.d[i] = GY[i];
-            feadd(&den, &gy, &gy);
-            feinv(&inv, &den);
-            fe_to_be(&inv, tmp);
-            for (int i = 0; i < 32; i++) out_sk[i] = tmp[i];
-        } else if (seed[31] == 0xFC) {
-            /* dump 2G.x via ge_dbl */
-            ge g, g2;
-            for (int i = 0; i < 8; i++) { g.x.d[i] = GX[i]; g.y.d[i] = GY[i]; }
-            g.inf = 0;
-            ge_dbl(&g2, &g);
-            fe_to_be(&g2.x, tmp);
-            for (int i = 0; i < 32; i++) out_sk[i] = tmp[i];
-        } else if (batch_base == 0xC0FFEEULL) {
-            /* seed[0..31] is the secret; write address bytes to out_sk */
-            u8 sk[32];
-            for (int i = 0; i < 32; i++) sk[i] = seed[i];
-            ge pub; pubkey(&pub, sk);
-            u8 xy[64]; fe_to_be(&pub.x, xy); fe_to_be(&pub.y, xy + 32);
-            u8 hash[32]; keccak256(xy, 64, hash);
-            for (int i = 0; i < 20; i++) out_sk[i] = hash[12 + i];
-            for (int i = 20; i < 32; i++) out_sk[i] = 0;
-        } else {
-            u8 sk[32];
-            for (int i = 0; i < 32; i++) sk[i] = 0;
-            sk[31] = seed[31] ? seed[31] : 1;
-            ge pub; pubkey(&pub, sk);
-            u8 xy[64]; fe_to_be(&pub.x, xy); fe_to_be(&pub.y, xy + 32);
-            u8 hash[32]; keccak256(xy, 64, hash);
-            for (int i = 0; i < 20; i++) out_sk[i] = hash[12 + i];
-            for (int i = 20; i < 32; i++) out_sk[i] = 0;
+    uint plen = (uint)pat[4] | ((uint)pat[5] << 8) | ((uint)pat[6] << 16) | ((uint)pat[7] << 24);
+    uint slen = (uint)pat[8] | ((uint)pat[9] << 8) | ((uint)pat[10] << 16) | ((uint)pat[11] << 24);
+    uint clen = (uint)pat[12] | ((uint)pat[13] << 8) | ((uint)pat[14] << 16) | ((uint)pat[15] << 24);
+
+    fe pre[GROUP];
+
+    for (int g = 0; g < GROUPS; g++) {
+        if (*found >= 0) return;
+
+        /* prefix products of dx_j = T_j.x - B.x */
+        fe acc;
+        for (int j = 0; j < GROUP; j++) {
+            fe tx, dx;
+            for (int i = 0; i < 8; i++) tx.d[i] = tabx[j*8 + i];
+            fesub(&dx, &tx, &Bx);
+            if (fe_is0(&dx)) fe1(&dx);   /* degenerate: keep the batch product usable */
+            if (j == 0) acc = dx; else femul(&acc, &acc, &dx);
+            pre[j] = acc;
         }
-    }
-    return;
-#endif
+        fe inv;
+        feinv(&inv, &acc);
 
-    u8 buf[40];
-    for(int i=0;i<32;i++) buf[i]=seed[i];
-    ulong ctr=batch_base+(ulong)gid;
-    buf[32]=(u8)(ctr>>56); buf[33]=(u8)(ctr>>48); buf[34]=(u8)(ctr>>40); buf[35]=(u8)(ctr>>32);
-    buf[36]=(u8)(ctr>>24); buf[37]=(u8)(ctr>>16); buf[38]=(u8)(ctr>>8);  buf[39]=(u8)ctr;
+        fe nx, ny;
+        fe0(&nx); fe0(&ny);
+        for (int j = GROUP - 1; j >= 0; j--) {
+            fe tx, ty, dx, dy, invdx, lam, x3, y3, t;
+            for (int i = 0; i < 8; i++) { tx.d[i] = tabx[j*8 + i]; ty.d[i] = taby[j*8 + i]; }
+            fesub(&dx, &tx, &Bx);
+            if (fe_is0(&dx)) {
+                /* B == ±j·G: affine add is undefined. Tell the host to reseed. */
+                out_off[1] = 1u;
+                continue;
+            }
+            if (j > 0) femul(&invdx, &inv, &pre[j - 1]); else invdx = inv;
+            femul(&inv, &inv, &dx);
 
-    u8 sk[32];
-    keccak256(buf,40,sk);
-    if(!sk_ok(sk)) return;
+            fesub(&dy, &ty, &By);
+            femul(&lam, &dy, &invdx);
+            fesqr(&x3, &lam); fesub(&x3, &x3, &Bx); fesub(&x3, &x3, &tx);
+            fesub(&t, &Bx, &x3); femul(&y3, &lam, &t); fesub(&y3, &y3, &By);
 
-    ge pub; pubkey(&pub,sk);
-    if(pub.inf) return;
+            if (j == GROUP - 1) { nx = x3; ny = y3; }
 
-    u8 xy[64]; fe_to_be(&pub.x,xy); fe_to_be(&pub.y,xy+32);
-    u8 hash[32]; keccak256(xy,64,hash);
+            u8 hash[32];
+            keccak_xy(&x3, &y3, hash);
 
-    /* Inline match — Apple OpenCL has miscompiled match_hex() pointer reads. */
-    {
-        u8 h[40];
-        uint plen = (uint)pat[4] | ((uint)pat[5] << 8) | ((uint)pat[6] << 16) | ((uint)pat[7] << 24);
-        uint slen = (uint)pat[8] | ((uint)pat[9] << 8) | ((uint)pat[10] << 16) | ((uint)pat[11] << 24);
-        uint clen = (uint)pat[12] | ((uint)pat[13] << 8) | ((uint)pat[14] << 16) | ((uint)pat[15] << 24);
-        for (int i = 0; i < 20; i++) {
-            u8 v = hash[12 + i];
-            int hi = v >> 4, lo = v & 15;
-            h[i * 2] = (u8)(hi < 10 ? '0' + hi : 'a' + hi - 10);
-            h[i * 2 + 1] = (u8)(lo < 10 ? '0' + lo : 'a' + lo - 10);
-        }
-        int ok = 1;
-        for (uint i = 0; i < plen; i++) if ((h[i] | 32) != (pat[20 + i] | 32)) { ok = 0; break; }
-        for (uint i = 0; i < slen && ok; i++) if ((h[40 - slen + i] | 32) != (pat[52 + i] | 32)) { ok = 0; break; }
-        if (ok && clen) {
-            ok = 0;
-            for (uint s = 0; s + clen <= 40; s++) {
-                int m = 1;
-                for (uint j = 0; j < clen; j++) if ((h[s + j] | 32) != (pat[84 + j] | 32)) { m = 0; break; }
-                if (m) { ok = 1; break; }
+            /* Inline match — Apple OpenCL has miscompiled match_hex() pointer reads. */
+            u8 h[40];
+            for (int i = 0; i < 20; i++) {
+                u8 v = hash[12 + i];
+                int hi = v >> 4, lo = v & 15;
+                h[i * 2] = (u8)(hi < 10 ? '0' + hi : 'a' + hi - 10);
+                h[i * 2 + 1] = (u8)(lo < 10 ? '0' + lo : 'a' + lo - 10);
+            }
+            int ok = 1;
+            for (uint i = 0; i < plen; i++) if ((h[i] | 32) != (pat[20 + i] | 32)) { ok = 0; break; }
+            for (uint i = 0; i < slen && ok; i++) if ((h[40 - slen + i] | 32) != (pat[52 + i] | 32)) { ok = 0; break; }
+            if (ok && clen) {
+                ok = 0;
+                for (uint s = 0; s + clen <= 40; s++) {
+                    int m = 1;
+                    for (uint k = 0; k < clen; k++) if ((h[s + k] | 32) != (pat[84 + k] | 32)) { m = 0; break; }
+                    if (m) { ok = 1; break; }
+                }
+            }
+            if (ok) {
+                if (atom_cmpxchg(found, -1, (int)gid) == -1) {
+                    /* scalar of this point = k0 + launch_start + g*GROUP + (j+1) */
+                    out_off[0] = (uint)(g * GROUP + j + 1);
+                }
             }
         }
-        if (!ok) return;
+        Bx = nx; By = ny;
     }
 
-    if(atom_cmpxchg(found,-1,(int)gid)==-1){
-        for(int i=0;i<32;i++) out_sk[i]=sk[i];
-    }
+    for (int i = 0; i < 8; i++) { bx[gid*8 + i] = Bx.d[i]; by[gid*8 + i] = By.d[i]; }
 }

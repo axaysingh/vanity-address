@@ -23,7 +23,7 @@ vanity-address gpu bench --chain sol --seconds 2
 | Path | Chains | Notes |
 | ---- | ------ | ----- |
 | **CPU (rayon)** | all menu chains | Default. Presets `eco` / `balanced` / `fast` / `extreme` change worker count. |
-| **OpenCL GPU (experimental)** | **EVM** + **Solana** full grind | Optional CLI/desktop path. Every candidate is **re-derived on CPU**. Do **not** assume GPU is faster than CPU. |
+| **OpenCL GPU** | **EVM** (incremental EC + batch inversion) · **Solana** (experimental) | Optional CLI/desktop path. Every candidate is **re-derived on CPU**. `--gpu auto` uses the GPU for EVM only; Solana needs `--gpu require` and is currently slower than CPU. |
 
 ## Reference numbers (maintainer laptop)
 
@@ -31,11 +31,12 @@ vanity-address gpu bench --chain sol --seconds 2
 
 | Mode | Chain | Pattern | ~keys/s | Notes |
 | ---- | ----- | ------- | ------- | ----- |
-| OpenCL GPU | EVM | short prefix | **re-bench after 0.7.0** | Correct affine secp256k1 + Keccak; slower than early broken builds that falsely “matched”. Not incremental EC. |
+| OpenCL GPU | EVM | `gpu bench` (never-matching pattern) | **~46M** | Each work-item keeps a start point on the device and steps `+G` with one shared field inversion per 64 points. Measured: `0xabcdef1` prefix (~268M expected) in ~3 s. |
 | OpenCL GPU | Solana | prefix `A` | **~35K** (M4 probe) | Full ed25519 + Base58 on device; CPU re-verify. **May be slower than CPU** on this silicon — do not treat as a speedup without your own CPU baseline. |
-| CPU (fast) | EVM / Solana | short prefix | machine-dependent | Use HUD after calibration |
+| CPU (fast) | EVM | 6–7 char prefix | **~0.5M** | `0xabcdef` (~17M expected) took 6–35 s; `0xabcdef1` did not finish in 200 s. GPU is roughly **90×** faster on this machine. |
+| CPU (fast) | Solana | exact `abcd` | **~0.17M** | 11.3M expected in 68 s. The Solana GPU kernel (~35K) is ~5× slower, so it is not used by `--gpu auto`. |
 
-Treat these as order-of-magnitude only. Faster EVM GPU (Jacobian / incremental EC) is future work once vectors stay green.
+Treat these as order-of-magnitude only; only Apple M4 was tested. NVIDIA / AMD results are untested — please share numbers. Solana GPU needs an on-device ed25519 fixed-base speedup before it beats CPU.
 
 ## Reproducing
 

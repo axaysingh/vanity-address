@@ -5,10 +5,10 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 use vanity_core::{
     benchmark, combine_split_keys, expected_attempts_any, generate_split_keypair, gpu_available,
-    grind_estimate, grind_gpu, grind_patterns, list_gpu_devices, parse_secret_key, pattern_guide,
-    patterns_description, BitcoinLikeGrinder, CancelToken, Chain, ChainGrinder, GpuMode,
-    GrindPreset, GrindResult, Pattern, PatternRisk, SplitKeyGrinder, SystemProfile, DEPLOY_MODES,
-    MENU_CHAINS,
+    gpu_should_use, grind_estimate, grind_gpu, grind_patterns, list_gpu_devices, parse_secret_key,
+    pattern_guide, patterns_description, BitcoinLikeGrinder, CancelToken, Chain, ChainGrinder,
+    GpuMode, GrindPreset, GrindResult, Pattern, PatternRisk, SplitKeyGrinder, SystemProfile,
+    DEPLOY_MODES, MENU_CHAINS,
 };
 
 fn parse_preset(preset: Option<&str>) -> Result<GrindPreset, String> {
@@ -501,8 +501,8 @@ fn run_grind_job(
     let pattern_description = patterns_description(&patterns);
     let case_mode = patterns[0].case_mode().to_string();
 
-    let want_gpu = matches!(gpu_mode, GpuMode::Auto | GpuMode::Require)
-        && (chain.id() == "evm" || chain.id() == "sol");
+    // The desktop grinds a single match, so the count gate is always 1.
+    let want_gpu = gpu_should_use(gpu_mode, chain.id(), 1);
 
     let result: Result<GrindResult, String> = if want_gpu {
         match grind_gpu(
