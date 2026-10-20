@@ -8,6 +8,9 @@ works the same on macOS/Linux/Windows and in bundlers/browsers.
 Use this when your own app needs to grind a vanity address and get the private
 key back as data, instead of shelling out to the CLI.
 
+**Surface limits:** the WASM SDK and web generator are CPU-only. OpenCL GPU,
+Bitcoin puzzle mode, and split-key live on the **CLI** and **desktop app** only.
+
 ---
 
 ## Install
@@ -168,7 +171,7 @@ await generateAddress({
 
 ## Supported chains
 
-All **31** chains — same ids as the CLI `--chain` flag:
+All **44** chains — same ids as the CLI `--chain` flag:
 
 | id | chain | id | chain |
 |---|---|---|---|

@@ -16,8 +16,10 @@ mod kusama;
 mod multiversx;
 mod near;
 mod polkadot;
+mod puzzle;
 mod ripple;
 mod solana;
+mod split_key;
 mod stellar;
 mod sui;
 mod tezos;
@@ -43,8 +45,13 @@ pub use kusama::KusamaGrinder;
 pub use multiversx::MultiversXGrinder;
 pub use near::NearGrinder;
 pub use polkadot::PolkadotGrinder;
+pub use puzzle::PuzzleGrinder;
 pub use ripple::RippleGrinder;
 pub use solana::{SolanaGrinder, SolanaMintGrinder};
+pub use split_key::{
+    combine_split_keys, generate_split_keypair, parse_public_key, parse_secret_key,
+    SplitKeyGrinder, SplitKeypair,
+};
 pub use stellar::StellarGrinder;
 pub use sui::SuiGrinder;
 pub use tezos::TezosGrinder;
@@ -65,6 +72,12 @@ pub enum Chain {
     Litecoin(BitcoinLikeGrinder),
     Dogecoin(BitcoinLikeGrinder),
     Dash(BitcoinLikeGrinder),
+    /// Extra Bitcoin-family P2PKH coins (btg, rvn, mona, …) — same grinder, distinct ids.
+    BitcoinFamily(BitcoinLikeGrinder),
+    /// Restricted secp keyspace (Bitcoin puzzle style).
+    Puzzle(PuzzleGrinder),
+    /// Split-key grind: base pubkey + part secret → vanity P2PKH (Bitcoin-family).
+    SplitKey(SplitKeyGrinder),
     Tron(TronGrinder),
     Cosmos(CosmosGrinder),
     Osmosis(CosmosGrinder),
@@ -108,18 +121,22 @@ pub const DEPLOY_MODES: [(&str, &str); 4] = [
 
 /// Menu label for interactive chain picker (index 0-based).
 /// Ordered A–Z by display name for easier selection.
-pub const MENU_CHAINS: [(&str, &str); 31] = [
+pub const MENU_CHAINS: &[(&str, &str)] = &[
     ("algo", "Algorand (base32)"),
     ("aptos", "Aptos (0x hex)"),
     ("btc", "Bitcoin (base58 · P2PKH)"),
+    ("btg", "Bitcoin Gold (base58 · P2PKH)"),
     ("btc-segwit", "Bitcoin SegWit (bc1q · P2WPKH)"),
     ("btc-taproot", "Bitcoin Taproot (bc1p)"),
+    ("cdn", "Canada eCoin (base58 · P2PKH)"),
     ("ada", "Cardano (enterprise addr1)"),
     ("tia", "Celestia (bech32 · TIA)"),
     ("cosmos", "Cosmos (bech32 · ATOM)"),
     ("dash", "Dash (base58 · P2PKH)"),
+    ("dgb", "DigiByte (base58 · P2PKH)"),
     ("doge", "Dogecoin (base58)"),
     ("dydx", "dYdX (bech32)"),
+    ("emc2", "Einsteinium (base58 · P2PKH)"),
     ("evm", "EVM (0x hex · MetaMask / Base / Robinhood…)"),
     ("fil", "Filecoin (f1 · secp256k1)"),
     ("hedera", "Hedera (ed25519 pubkey hex)"),
@@ -128,18 +145,27 @@ pub const MENU_CHAINS: [(&str, &str); 31] = [
     ("kaspa", "Kaspa (bech32)"),
     ("ksm", "Kusama (SS58 · ed25519)"),
     ("ltc", "Litecoin (base58 · P2PKH)"),
+    ("mona", "Monacoin (base58 · P2PKH)"),
     ("erd", "MultiversX (bech32 · erd1)"),
     ("near", "NEAR (hex implicit account)"),
+    ("nvc", "Novacoin (base58 · P2PKH)"),
     ("osmo", "Osmosis (bech32 · OSMO)"),
+    ("ppc", "Peercoin (base58 · P2PKH)"),
     ("dot", "Polkadot (SS58 · ed25519)"),
+    ("xpm", "Primecoin (base58 · P2PKH)"),
+    ("qtum", "Qtum (base58 · P2PKH)"),
+    ("rvn", "Ravencoin (base58 · P2PKH)"),
     ("xrp", "Ripple (base58 · r…)"),
     ("sei", "Sei (bech32 · SEI)"),
     ("sol", "Solana (base58 · Phantom, Solflare)"),
     ("xlm", "Stellar (strkey · G…)"),
     ("sui", "Sui (0x hex)"),
+    ("sys", "Syscoin (base58 · P2PKH)"),
     ("xtz", "Tezos (tz1 · ed25519)"),
     ("ton", "TON (Wallet V4R2 · UQ…)"),
     ("trx", "Tron (base58 · T…)"),
+    ("vtc", "Vertcoin (base58 · P2PKH)"),
+    ("via", "Viacoin (base58 · P2PKH)"),
 ];
 
 impl Chain {
@@ -151,7 +177,8 @@ impl Chain {
             "ton" if ignore_case => 37.0,
             "ton" => 64.0,
             "sol" | "sol-mint" | "btc" | "ltc" | "doge" | "dash" | "trx" | "trx-contract"
-            | "xrp" | "dot" | "ksm" | "xtz" => {
+            | "xrp" | "dot" | "ksm" | "xtz" | "btg" | "rvn" | "mona" | "vtc" | "dgb" | "ppc"
+            | "qtum" | "via" | "xpm" | "emc2" | "sys" | "nvc" | "cdn" => {
                 // Typical letter: both cases in base58 → 58/2. (i/o/L are one-case; digits stay 58.)
                 if ignore_case {
                     29.0
@@ -164,40 +191,8 @@ impl Chain {
     }
 
     pub fn from_menu_index(index: usize) -> Option<Self> {
-        match index {
-            0 => Some(Chain::Algorand(AlgorandGrinder)),
-            1 => Some(Chain::Aptos(AptosGrinder)),
-            2 => Some(Chain::Bitcoin(BitcoinLikeGrinder::bitcoin())),
-            3 => Some(Chain::BitcoinSegwit(BitcoinSegwitGrinder::segwit())),
-            4 => Some(Chain::BitcoinTaproot(BitcoinSegwitGrinder::taproot())),
-            5 => Some(Chain::Cardano(CardanoGrinder)),
-            6 => Some(Chain::Celestia(CosmosGrinder::celestia())),
-            7 => Some(Chain::Cosmos(CosmosGrinder::cosmos())),
-            8 => Some(Chain::Dash(BitcoinLikeGrinder::dash())),
-            9 => Some(Chain::Dogecoin(BitcoinLikeGrinder::dogecoin())),
-            10 => Some(Chain::Dydx(CosmosGrinder::dydx())),
-            11 => Some(Chain::Evm(EvmGrinder)),
-            12 => Some(Chain::Filecoin(FilecoinGrinder)),
-            13 => Some(Chain::Hedera(HederaGrinder)),
-            14 => Some(Chain::Injective(CosmosGrinder::injective())),
-            15 => Some(Chain::Icp(IcpGrinder)),
-            16 => Some(Chain::Kaspa(KaspaGrinder)),
-            17 => Some(Chain::Kusama(KusamaGrinder)),
-            18 => Some(Chain::Litecoin(BitcoinLikeGrinder::litecoin())),
-            19 => Some(Chain::MultiversX(MultiversXGrinder)),
-            20 => Some(Chain::Near(NearGrinder)),
-            21 => Some(Chain::Osmosis(CosmosGrinder::osmosis())),
-            22 => Some(Chain::Polkadot(PolkadotGrinder)),
-            23 => Some(Chain::Ripple(RippleGrinder)),
-            24 => Some(Chain::Sei(CosmosGrinder::sei())),
-            25 => Some(Chain::Solana(SolanaGrinder)),
-            26 => Some(Chain::Stellar(StellarGrinder)),
-            27 => Some(Chain::Sui(SuiGrinder)),
-            28 => Some(Chain::Tezos(TezosGrinder)),
-            29 => Some(Chain::Ton(TonGrinder)),
-            30 => Some(Chain::Tron(TronGrinder)),
-            _ => None,
-        }
+        let (id, _) = MENU_CHAINS.get(index)?;
+        Self::from_id(id).ok()
     }
 
     pub fn from_id(id: &str) -> Result<Self, String> {
@@ -225,6 +220,13 @@ impl Chain {
             "ltc" | "litecoin" => Ok(Chain::Litecoin(BitcoinLikeGrinder::litecoin())),
             "doge" | "dogecoin" => Ok(Chain::Dogecoin(BitcoinLikeGrinder::dogecoin())),
             "dash" => Ok(Chain::Dash(BitcoinLikeGrinder::dash())),
+            // Extended Bitcoin-family P2PKH (Phase 1 fork table)
+            "btg" | "rvn" | "mona" | "vtc" | "dgb" | "ppc" | "qtum" | "via" | "xpm" | "emc2"
+            | "sys" | "nvc" | "cdn" => {
+                let g = BitcoinLikeGrinder::by_id(&id)
+                    .ok_or_else(|| format!("Unknown Bitcoin-family id '{id}'"))?;
+                Ok(Chain::BitcoinFamily(g))
+            }
             "trx" | "tron" => Ok(Chain::Tron(TronGrinder)),
             "cosmos" | "atom" => Ok(Chain::Cosmos(CosmosGrinder::cosmos())),
             "osmo" | "osmosis" => Ok(Chain::Osmosis(CosmosGrinder::osmosis())),
@@ -286,45 +288,17 @@ impl Chain {
         Self::from_id(&id)
     }
 
-    /// Chain IDs in the same A–Z menu order.
-    pub fn all_ids() -> &'static [&'static str] {
-        &[
-            "algo",
-            "aptos",
-            "btc",
-            "btc-segwit",
-            "btc-taproot",
-            "ada",
-            "tia",
-            "cosmos",
-            "dash",
-            "doge",
-            "dydx",
-            "evm",
-            "fil",
-            "hedera",
-            "inj",
-            "icp",
-            "kaspa",
-            "ksm",
-            "ltc",
-            "erd",
-            "near",
-            "osmo",
-            "dot",
-            "xrp",
-            "sei",
-            "sol",
-            "xlm",
-            "sui",
-            "xtz",
-            "ton",
-            "trx",
-        ]
+    /// Chain IDs in the same A–Z menu order as [`MENU_CHAINS`].
+    pub fn all_ids() -> Vec<&'static str> {
+        MENU_CHAINS.iter().map(|(id, _)| *id).collect()
     }
 
     fn supported_ids_display() -> String {
-        Self::all_ids().join(", ")
+        MENU_CHAINS
+            .iter()
+            .map(|(id, _)| *id)
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 }
 
@@ -339,6 +313,9 @@ macro_rules! dispatch {
             Chain::Litecoin(g) => g.$method($($arg),*),
             Chain::Dogecoin(g) => g.$method($($arg),*),
             Chain::Dash(g) => g.$method($($arg),*),
+            Chain::BitcoinFamily(g) => g.$method($($arg),*),
+            Chain::Puzzle(g) => g.$method($($arg),*),
+            Chain::SplitKey(g) => g.$method($($arg),*),
             Chain::Tron(g) => g.$method($($arg),*),
             Chain::Cosmos(g) => g.$method($($arg),*),
             Chain::Osmosis(g) => g.$method($($arg),*),
@@ -421,8 +398,8 @@ mod tests {
 
     #[test]
     fn all_menu_chains_resolve_and_grind() {
-        assert_eq!(super::MENU_CHAINS.len(), 31);
-        assert_eq!(Chain::all_ids().len(), 31);
+        assert_eq!(super::MENU_CHAINS.len(), Chain::all_ids().len());
+        assert!(super::MENU_CHAINS.len() >= 31);
         for (i, (id, _)) in super::MENU_CHAINS.iter().enumerate() {
             let chain = Chain::from_menu_index(i).expect("menu index");
             assert_eq!(chain.id(), *id);

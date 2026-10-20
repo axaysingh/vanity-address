@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-20
+
+### Added
+
+- **Bitcoin-family P2PKH forks** (Phase 1): `btg`, `rvn`, `mona`, `vtc`, `dgb`, `ppc`, `qtum`, `via`, `xpm`, `emc2`, `sys`, `nvc`, `cdn` — verified version + WIF bytes; see `docs/BITCOIN_FORKS.md`
+- **Bitcoin puzzle mode** (CLI): `--puzzle <bits>` (+ optional `--puzzle-start <hex>`) — restricted secp256k1 keyspace grind on BTC P2PKH
+- **Split-key vanity** (Phase 2): `split-key gen` / `--split-pubkey` (`-P`) / `split-key combine` for Bitcoin-family P2PKH; desktop `split_key_gen` / `split_key_combine`
+- **Security pack**: `docs/SECURITY-MODEL.md` (threat model, not-a-wallet, not formally audited); stronger `--save` / export warnings; Safety UX on landing + `/generate/`
+- **OpenCL GPU** (Phase 3): feature `opencl` on CLI/desktop; `--gpu auto|require|off`; `gpu devices` / `gpu bench`; mandatory CPU re-verify. **EVM** uses incremental EC with batch inversion (~46M keys/s, ~90× CPU on Apple M4; other GPUs untested). **Solana** is experimental and slower than CPU, so `--gpu auto` leaves it on CPU. Web/npm WASM remain CPU-only. See `docs/BENCHMARKS.md` + `scripts/bench.sh`
+- **0.7.0 roadmap** in `docs/ROADMAP-0.7.md`
+
 ## [0.6.7] - 2026-10-19
 
 ### Added

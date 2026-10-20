@@ -2,13 +2,17 @@
 
 **vanity-address** generates cryptocurrency private keys on your machine. Treat this tool and its output with the same care as any wallet software.
 
+> **Not a wallet. Not formally audited.** This is a local key generator. There is no hired third-party security audit; read the code or engage your own auditor. Full threat model: [docs/SECURITY-MODEL.md](docs/SECURITY-MODEL.md).
+
 ## Supported versions
 
 | Version | Supported |
 | ------- | --------- |
+| 0.7.x   | ✅        |
+| 0.6.x   | ✅        |
+| 0.5.x   | ✅        |
 | 0.4.x   | ✅        |
-| 0.3.x   | ✅        |
-| < 0.3   | ❌        |
+| < 0.4   | ❌        |
 
 ## Reporting a vulnerability
 
@@ -33,7 +37,7 @@ We will coordinate disclosure and credit reporters who wish to be named.
 
 - **Never commit** `vanity-results.txt`, `*.keys.txt`, or any file containing private keys.
 - These paths are listed in `.gitignore` — do not remove them.
-- The `--save` / `--output` flags and the desktop **Save** dialog write **plaintext** private keys to disk. On macOS/Linux the file is created (or tightened) to owner-only `0600`; on Windows, keep it in a folder only you can read. Encrypt backups.
+- The `--save` / `--output` flags, desktop **Save**, and web **Download** write **plaintext** private keys. On macOS/Linux CLI/desktop files are created (or tightened) to owner-only `0600`; on Windows, keep them in a folder only you can read. Encrypt backups; never commit, email, or cloud-sync key files.
 - Per-attempt secret buffers and exported key strings are zeroized in memory when dropped (best effort — copies made by the OS, terminal, or clipboard are outside the tool's control).
 - Use `--json` only in trusted environments; stdout may contain private key material.
 

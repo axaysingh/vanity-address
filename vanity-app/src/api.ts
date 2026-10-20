@@ -129,6 +129,10 @@ export function startGrind(
   deployer?: string,
   initCodeHash?: string,
   preset?: GrindPresetId | string,
+  /** Alice secp256k1 pubkey hex — Bitcoin-family split-key grind. */
+  splitPubkey?: string,
+  /** `off` | `auto` | `require` */
+  gpu?: string,
 ): Promise<void> {
   return invoke("start_grind", {
     chain,
@@ -140,7 +144,43 @@ export function startGrind(
     deployer: deployer || null,
     initCodeHash: initCodeHash || null,
     preset: preset || null,
+    splitPubkey: splitPubkey || null,
+    gpu: gpu || null,
   });
+}
+
+export function listGpus(): Promise<
+  { index: number; name: string; vendor: string; compute_units: number; max_clock_mhz: number }[]
+> {
+  return invoke("list_gpus");
+}
+
+export function gpuIsAvailable(): Promise<boolean> {
+  return invoke("gpu_is_available");
+}
+
+export function splitKeyGen(chain = "btc"): Promise<{
+  chain: string;
+  address: string;
+  private_key_hex: string;
+  private_key_wif: string;
+  public_key_hex: string;
+}> {
+  return invoke("split_key_gen", { chain });
+}
+
+export function splitKeyCombine(
+  alice: string,
+  part: string,
+  chain = "btc",
+): Promise<{
+  chain: string;
+  address: string;
+  private_key_hex: string;
+  private_key_wif: string;
+  public_key_hex: string;
+}> {
+  return invoke("split_key_combine", { alice, part, chain });
 }
 
 export function stopGrind(): Promise<void> {

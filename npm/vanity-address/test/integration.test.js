@@ -55,8 +55,11 @@ test("estimateDifficulty / listChains / validatePattern helpers", () => {
   const chains = listChains();
   assert.ok(chains.length >= 25, `expected >= 25 chains, got ${chains.length}`);
   const ids = new Set(chains.map((c) => c.id));
-  // Fresh 0.6.0 wasm includes trending chains; stale local artifacts may still be 25.
-  if (ids.has("sei")) {
+  // 0.7.0 wasm: original menu + Bitcoin-family P2PKH forks (44). Stale artifacts may be smaller.
+  if (ids.has("rvn")) {
+    assert.equal(chains.length, 44);
+    assert.ok(ids.has("btc-segwit") && ids.has("btc-taproot") && ids.has("inj") && ids.has("sei"));
+  } else if (ids.has("sei")) {
     assert.equal(chains.length, 31);
     assert.ok(ids.has("btc-segwit") && ids.has("btc-taproot") && ids.has("inj"));
   }

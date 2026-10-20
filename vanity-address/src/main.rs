@@ -12,10 +12,12 @@ use menu::run as run_interactive;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use vanity_core::{
-    benchmark, build_pattern_list, expected_attempts_any, format_attempts, format_duration,
-    grind_estimate, grind_n, grind_patterns, open_private_append, patterns_description,
-    verify_address, CancelToken, Chain, ChainGrinder, Create2Grinder, GrindPreset, GrindResult,
-    Pattern, PatternRisk, SystemProfile,
+    benchmark, benchmark_gpu, build_pattern_list, combine_split_keys, expected_attempts_any,
+    format_attempts, format_duration, generate_split_keypair, gpu_available, gpu_should_use,
+    grind_estimate, grind_gpu, grind_n, grind_patterns, list_gpu_devices, open_private_append,
+    parse_secret_key, patterns_description, verify_address, BitcoinLikeGrinder, CancelToken, Chain,
+    ChainGrinder, Create2Grinder, GpuMode, GrindPreset, GrindResult, Pattern, PatternRisk,
+    PuzzleGrinder, SplitKeyGrinder, SystemProfile,
 };
 
 const BENCHMARK_SECS: f64 = 2.0;
@@ -97,6 +99,23 @@ struct Cli {
     /// CREATE2 init code hash (32-byte hex)
     #[arg(long, value_name = "HEX")]
     init_code_hash: Option<String>,
+
+    /// Bitcoin puzzle mode: free low bits of the private key (1..=256). Implies --chain btc.
+    #[arg(long, value_name = "BITS")]
+    puzzle: Option<u32>,
+
+    /// Puzzle key high-bit template (32-byte hex). Default: all zeros. Requires --puzzle.
+    #[arg(long, value_name = "HEX")]
+    puzzle_start: Option<String>,
+
+    /// Split-key grind: Alice's uncompressed/compressed secp256k1 pubkey hex (Bitcoin-family P2PKH).
+    /// You only search a key *part* — the owner combines offline with `split-key combine`.
+    #[arg(short = 'P', long = "split-pubkey", value_name = "HEX")]
+    split_pubkey: Option<String>,
+
+    /// OpenCL GPU grind: `auto` (prefer GPU for sol/evm, CPU fallback), `require`, or `off`
+    #[arg(long, value_name = "MODE", default_value = "off")]
+    gpu: String,
 }
 
 #[derive(Subcommand)]
@@ -109,6 +128,52 @@ enum Commands {
         address: String,
         #[arg(long)]
         key: String,
+    },
+    /// Split-key vanity (Bitcoin-family P2PKH): gen → grind -P → combine
+    #[command(name = "split-key")]
+    SplitKey {
+        #[command(subcommand)]
+        cmd: SplitKeyCmd,
+    },
+    /// List OpenCL devices / run a short GPU benchmark
+    Gpu {
+        #[command(subcommand)]
+        cmd: GpuCmd,
+    },
+}
+
+#[derive(Subcommand)]
+enum GpuCmd {
+    /// List OpenCL GPU devices
+    Devices,
+    /// Short OpenCL throughput probe (`sol` or `evm`)
+    Bench {
+        #[arg(long, default_value = "evm")]
+        chain: String,
+        #[arg(long, default_value_t = 2.0)]
+        seconds: f64,
+    },
+}
+
+#[derive(Subcommand)]
+enum SplitKeyCmd {
+    /// Generate Alice's half — keep the private key; share only the public key
+    Gen {
+        /// Bitcoin-family coin id (btc, ltc, doge, dash, rvn, …)
+        #[arg(long, default_value = "btc")]
+        chain: String,
+    },
+    /// Combine Alice's secret + Bob's part into the final spending key
+    Combine {
+        /// Alice private key (hex or WIF)
+        #[arg(long)]
+        alice: String,
+        /// Bob's PrivkeyPart (hex or WIF) from the grind
+        #[arg(long)]
+        part: String,
+        /// Bitcoin-family coin id (must match the grind)
+        #[arg(long, default_value = "btc")]
+        chain: String,
     },
 }
 
@@ -135,6 +200,7 @@ struct RunConfig {
     measured_keys_per_sec: Option<f64>,
     force: bool,
     json: bool,
+    gpu: GpuMode,
 }
 
 impl Clone for RunConfig {
@@ -157,6 +223,7 @@ impl Clone for RunConfig {
             measured_keys_per_sec: self.measured_keys_per_sec,
             force: self.force,
             json: self.json,
+            gpu: self.gpu,
         }
     }
 }
@@ -179,11 +246,30 @@ impl Cli {
             || self.force
             || self.json
             || self.create2
+            || self.puzzle.is_some()
+            || self.puzzle_start.is_some()
+            || self.split_pubkey.is_some()
+            || self.gpu != "off"
     }
 
     fn into_run_config(self) -> Result<RunConfig, String> {
         if self.json && self.prefix.is_none() && self.suffix.is_none() && self.contains.is_none() {
             return Err("--json requires --prefix, --suffix, and/or --contains".into());
+        }
+        if self.puzzle_start.is_some() && self.puzzle.is_none() {
+            return Err("--puzzle-start requires --puzzle".into());
+        }
+
+        let modes = [
+            self.create2,
+            self.puzzle.is_some(),
+            self.split_pubkey.is_some(),
+        ]
+        .into_iter()
+        .filter(|m| *m)
+        .count();
+        if modes > 1 {
+            return Err("--create2, --puzzle, and --split-pubkey are mutually exclusive".into());
         }
 
         let chain = if self.create2 {
@@ -196,6 +282,30 @@ impl Cli {
                 .as_deref()
                 .ok_or("--create2 requires --init-code-hash")?;
             Chain::Create2(Create2Grinder::parse(deployer, init_hash)?)
+        } else if let Some(bits) = self.puzzle {
+            if let Some(ref id) = self.chain {
+                let id = id.to_ascii_lowercase();
+                if id != "btc" && id != "bitcoin" {
+                    return Err("--puzzle currently supports --chain btc only".into());
+                }
+            }
+            let start = match self.puzzle_start.as_deref() {
+                Some(h) => PuzzleGrinder::parse_start(h)?,
+                None => [0u8; 32],
+            };
+            Chain::Puzzle(PuzzleGrinder::new(
+                bits,
+                start,
+                BitcoinLikeGrinder::bitcoin(),
+            )?)
+        } else if let Some(ref pk) = self.split_pubkey {
+            let coin_id = self.chain.as_deref().unwrap_or("btc");
+            let coin = BitcoinLikeGrinder::by_id(coin_id).ok_or_else(|| {
+                format!(
+                    "--split-pubkey needs a Bitcoin-family --chain (btc, ltc, doge, dash, rvn, …); got '{coin_id}'"
+                )
+            })?;
+            Chain::SplitKey(SplitKeyGrinder::new(pk, coin)?)
         } else {
             match self.chain {
                 Some(id) => Chain::from_id(&id)?,
@@ -207,6 +317,7 @@ impl Cli {
             Some(s) => Some(GrindPreset::parse(s)?),
             None => None,
         };
+        let gpu = GpuMode::parse(&self.gpu)?;
 
         Ok(RunConfig {
             chain,
@@ -226,6 +337,7 @@ impl Cli {
             measured_keys_per_sec: None,
             force: self.force,
             json: self.json,
+            gpu,
         })
     }
 }
@@ -447,7 +559,78 @@ fn run_grind(config: RunConfig) {
         Some(bar)
     };
 
-    let results = if config.count <= 1 {
+    let want_gpu = gpu_should_use(config.gpu, chain.id(), config.count);
+    if want_gpu && interactive_out {
+        let devices = list_gpu_devices();
+        if let Some(d) = devices.first() {
+            println!(
+                "  {}  {} ({})",
+                "GPU".dimmed(),
+                d.name.cyan(),
+                match config.gpu {
+                    GpuMode::Require => "required",
+                    _ => "auto",
+                }
+            );
+        } else if config.gpu == GpuMode::Require {
+            exit_error(
+                "No OpenCL GPU found (--gpu require). Install drivers or use --gpu off.",
+                ErrorCode::GrindFailed,
+                json,
+            );
+        }
+    }
+
+    let results = if want_gpu {
+        match grind_gpu(
+            chain.clone(),
+            &patterns,
+            &profile,
+            &CancelToken::new(),
+            |attempts, rate, _eta_min| {
+                if let Some(ref bar) = pb {
+                    bar.set_message(format!("gpu · {}", progress_line(attempts, rate, expected)));
+                }
+            },
+        ) {
+            Ok((r, report)) => {
+                if interactive_out {
+                    println!(
+                        "  {}  {} · ~{} keys/s",
+                        "OpenCL".dimmed(),
+                        report.device_name.cyan(),
+                        format_speed(report.attempts as f64 / report.elapsed_secs.max(0.001))
+                    );
+                }
+                vec![r]
+            }
+            Err(e) if config.gpu == GpuMode::Require => {
+                exit_error(&e, ErrorCode::GrindFailed, json)
+            }
+            Err(e) => {
+                if interactive_out {
+                    println!(
+                        "  {}  GPU unavailable ({e}) — falling back to CPU",
+                        "warn:".yellow().bold()
+                    );
+                }
+                match grind_patterns(
+                    chain.clone(),
+                    &patterns,
+                    &profile,
+                    &CancelToken::new(),
+                    |attempts, rate, _eta_min| {
+                        if let Some(ref bar) = pb {
+                            bar.set_message(progress_line(attempts, rate, expected));
+                        }
+                    },
+                ) {
+                    Ok(r) => vec![r],
+                    Err(e) => exit_error(&e, ErrorCode::GrindFailed, json),
+                }
+            }
+        }
+    } else if config.count <= 1 {
         match grind_patterns(
             chain.clone(),
             &patterns,
@@ -543,9 +726,23 @@ fn run_grind(config: RunConfig) {
         let save_prompt = format!("  Save keys to {}? [y/N]: ", output_path.display());
 
         let should_save = if config.save {
+            if !config.quiet && !json && idx == 0 {
+                println!();
+                println!(
+                    "  {}",
+                    "--save writes PLAINTEXT private keys to disk. Encrypt, keep offline, never commit."
+                        .red()
+                        .bold()
+                );
+            }
             true
         } else if config.prompt_save && !config.quiet && idx == results.len() - 1 {
             println!();
+            println!(
+                "  {}",
+                "Saved files are plaintext keys — anyone with the file can drain the wallet."
+                    .yellow()
+            );
             terminal::read_yes_no_key(&save_prompt, false, false).unwrap_or(false)
         } else {
             false
@@ -558,9 +755,9 @@ fn run_grind(config: RunConfig) {
                         println!("  {}  {}", "Saved →".green().bold(), path.cyan());
                         println!(
                             "  {}",
-                            "This file contains private keys — do not commit or share it."
+                            "PLAINTEXT private keys — do not commit, email, or cloud-sync this file."
                                 .red()
-                                .dimmed()
+                                .bold()
                         );
                     }
                 }
@@ -769,7 +966,15 @@ fn save_result(
     writeln!(file)?;
     writeln!(
         file,
-        "WARNING: This file contains private keys. Never commit or share it."
+        "WARNING: PLAINTEXT PRIVATE KEYS. Anyone with this file can steal funds."
+    )?;
+    writeln!(
+        file,
+        "Keep offline, encrypt backups, never commit/email/cloud-sync, shred when done."
+    )?;
+    writeln!(
+        file,
+        "This tool is a key generator — not a wallet. Verify the address before sending value."
     )?;
     writeln!(file)?;
 
@@ -801,6 +1006,91 @@ fn chrono_timestamp() -> String {
     format!("{y:04}-{m:02}-{d:02} {h:02}:{min:02}:{s:02} UTC")
 }
 
+fn bitcoin_family_coin(id: &str) -> Result<BitcoinLikeGrinder, String> {
+    BitcoinLikeGrinder::by_id(id).ok_or_else(|| {
+        format!("Unknown Bitcoin-family chain '{id}'. Use btc, ltc, doge, dash, rvn, …")
+    })
+}
+
+fn run_split_key(cmd: SplitKeyCmd, json: bool) {
+    match cmd {
+        SplitKeyCmd::Gen { chain } => match bitcoin_family_coin(&chain) {
+            Ok(coin) => {
+                let kp = generate_split_keypair(&coin);
+                if json {
+                    println!(
+                        "{{\"ok\":true,\"chain\":\"{}\",\"address\":\"{}\",\"private_key_hex\":\"{}\",\"private_key_wif\":\"{}\",\"public_key_hex\":\"{}\"}}",
+                        coin.id, kp.address, kp.private_key_hex, kp.private_key_wif, kp.public_key_hex
+                    );
+                } else {
+                    println!();
+                    println!(
+                        "  {}  {}",
+                        "Split-key (Alice)".green().bold(),
+                        coin.display_name
+                    );
+                    println!();
+                    println!("  {}", "KEEP SECRET — never share these:".red().bold());
+                    println!("  Private (hex): {}", kp.private_key_hex);
+                    println!("  Private (WIF): {}", kp.private_key_wif);
+                    println!();
+                    println!(
+                        "  {}",
+                        "SHARE with the grinder (safe to send):".yellow().bold()
+                    );
+                    println!("  Public key:    {}", kp.public_key_hex);
+                    println!();
+                    println!(
+                        "  Next: vanity-address --chain {} -P <pubkey> --prefix …",
+                        coin.id
+                    );
+                    println!(
+                        "  Then: vanity-address split-key combine --alice <secret> --part <part>"
+                    );
+                    println!();
+                }
+            }
+            Err(e) => exit_error(&e, ErrorCode::InvalidChain, json),
+        },
+        SplitKeyCmd::Combine { alice, part, chain } => match (|| -> Result<_, String> {
+            let coin = bitcoin_family_coin(&chain)?;
+            let alice_sk = parse_secret_key(&alice)?;
+            let part_sk = parse_secret_key(&part)?;
+            let kp = combine_split_keys(&alice_sk, &part_sk, &coin)?;
+            Ok((coin, kp))
+        })() {
+            Ok((coin, kp)) => {
+                if json {
+                    println!(
+                        "{{\"ok\":true,\"chain\":\"{}\",\"address\":\"{}\",\"private_key_hex\":\"{}\",\"private_key_wif\":\"{}\"}}",
+                        coin.id, kp.address, kp.private_key_hex, kp.private_key_wif
+                    );
+                } else {
+                    println!();
+                    println!(
+                        "  {}  {}",
+                        "Split-key combined".green().bold(),
+                        coin.display_name
+                    );
+                    println!();
+                    println!("  Address:       {}", kp.address.cyan().bold());
+                    println!("  Private (hex): {}", kp.private_key_hex);
+                    println!("  Private (WIF): {}", kp.private_key_wif);
+                    println!();
+                    println!(
+                        "  {}",
+                        "FINAL spending key — store offline. This tool is not a wallet."
+                            .red()
+                            .bold()
+                    );
+                    println!();
+                }
+            }
+            Err(e) => exit_error(&e, ErrorCode::InvalidArgs, json),
+        },
+    }
+}
+
 fn main() {
     terminal::install_ctrlc_handler();
 
@@ -825,6 +1115,76 @@ fn main() {
                 }
             }
             Err(e) => exit_error(&e, ErrorCode::InvalidArgs, json),
+        }
+        return;
+    }
+
+    if let Some(Commands::SplitKey { cmd }) = cli.command {
+        run_split_key(cmd, json);
+        return;
+    }
+
+    if let Some(Commands::Gpu { cmd }) = cli.command {
+        match cmd {
+            GpuCmd::Devices => {
+                let devices = list_gpu_devices();
+                if devices.is_empty() {
+                    if json {
+                        println!("{{\"ok\":true,\"devices\":[],\"available\":false}}");
+                    } else {
+                        println!(
+                            "  {}  no OpenCL GPUs (built with opencl={})",
+                            "GPU".yellow().bold(),
+                            gpu_available()
+                        );
+                    }
+                } else if json {
+                    let list: Vec<_> = devices
+                        .iter()
+                        .map(|d| {
+                            format!(
+                                "{{\"index\":{},\"name\":\"{}\",\"vendor\":\"{}\",\"compute_units\":{},\"max_clock_mhz\":{}}}",
+                                d.index,
+                                d.name.replace('"', "\\\""),
+                                d.vendor.replace('"', "\\\""),
+                                d.compute_units,
+                                d.max_clock_mhz
+                            )
+                        })
+                        .collect();
+                    println!(
+                        "{{\"ok\":true,\"devices\":[{}],\"available\":true}}",
+                        list.join(",")
+                    );
+                } else {
+                    println!();
+                    println!("  {}", "OpenCL devices".green().bold());
+                    for d in &devices {
+                        println!(
+                            "  [{}] {} — {} · {} CU · {} MHz",
+                            d.index, d.name, d.vendor, d.compute_units, d.max_clock_mhz
+                        );
+                    }
+                    println!();
+                }
+            }
+            GpuCmd::Bench { chain, seconds } => match benchmark_gpu(&chain, seconds) {
+                Ok((rate, name)) => {
+                    if json {
+                        println!(
+                            "{{\"ok\":true,\"chain\":\"{}\",\"device\":\"{}\",\"keys_per_sec\":{}}}",
+                            chain, name, rate
+                        );
+                    } else {
+                        println!();
+                        println!("  {}  {}", "GPU bench".green().bold(), name);
+                        println!("  chain:  {chain}");
+                        println!("  speed:  ~{} keys/sec", format_speed(rate));
+                        println!();
+                    }
+                }
+                Err(e) => exit_error(&e, ErrorCode::GrindFailed, json),
+            },
         }
         return;
     }
@@ -868,6 +1228,7 @@ fn main() {
             measured_keys_per_sec: config.measured_keys_per_sec,
             force: false,
             json: false,
+            gpu: GpuMode::Off,
         };
 
         loop {

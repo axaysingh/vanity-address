@@ -205,7 +205,7 @@
 
     <section class="panel done" id="donePanel" aria-label="Your keys" hidden>
       <p class="meta" id="foundMeta"></p>
-      <p class="warn-line"><strong>Save the private key now.</strong> It only exists in this tab; we never had a copy.</p>
+      <p class="warn-line"><strong>Save the private key now.</strong> It only exists in this tab. Downloads are plaintext — encrypt and keep offline. This is a generator, not a wallet.</p>
       <div class="secrets" id="secrets"></div>
       <div class="row actions">
         <button class="btn danger" type="button" id="wipe">Erase</button>
@@ -235,7 +235,7 @@
   <form method="dialog" id="consentForm">
     <img class="consent-logo" src="../assets/logo.svg" alt="" width="64" height="64" />
     <h2 id="consentTitle">Before you generate</h2>
-    <p class="consent-lede">This page makes real wallet keys. Here is how it keeps them safe.</p>
+    <p class="consent-lede">This page makes real keys. It is a generator — not a wallet — and it is not formally audited.</p>
 
     <label class="pledge">
       <input type="checkbox" required />
@@ -247,10 +247,14 @@
     </label>
     <label class="pledge">
       <input type="checkbox" required />
-      <span><strong>You keep the key.</strong> We can't recover it for you. Save it somewhere safe before leaving.</span>
+      <span><strong>You keep the key.</strong> We can't recover it. Downloads are plaintext secrets — encrypt, keep offline, never commit or email them.</span>
+    </label>
+    <label class="pledge">
+      <input type="checkbox" required />
+      <span><strong>Large funds.</strong> Prefer the offline CLI or desktop app on a clean machine. Always verify the address in a wallet you trust before sending value.</span>
     </label>
 
-    <p class="consent-tip">For extra safety, turn off Wi-Fi once this page has loaded — the generator keeps working offline.</p>
+    <p class="consent-tip">This page is CPU-only in the browser. OpenCL GPU, puzzle mode, and split-key are on the offline CLI and desktop app. For extra safety, turn off Wi-Fi once this page has loaded — the generator keeps working offline.</p>
 
     <div class="consent-actions">
       <a class="btn ghost" href="../">Not now</a>
