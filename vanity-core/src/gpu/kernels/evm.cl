@@ -274,9 +274,10 @@ __kernel void evm_grind(
             for (int i = 0; i < 8; i++) { tx.d[i] = tabx[j*8 + i]; ty.d[i] = taby[j*8 + i]; }
             fesub(&dx, &tx, &Bx);
             if (fe_is0(&dx)) {
-                /* B == ±j·G: affine add is undefined. Tell the host to reseed. */
+                /* B == ±j·G: affine add is undefined. Do not keep walking with a
+                 * broken Montgomery inv chain — flag the host and abort this WI. */
                 out_off[1] = 1u;
-                continue;
+                return;
             }
             if (j > 0) femul(&invdx, &inv, &pre[j - 1]); else invdx = inv;
             femul(&inv, &inv, &dx);

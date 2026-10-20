@@ -582,20 +582,41 @@ mod tests {
     use crate::chain::ChainGrinder;
     use crate::grinder::CancelToken;
 
+    /// Linux CI / headless hosts often have OpenCL headers but no usable device.
+    /// Skip rather than fail so `cargo test -p vanity-address` stays green there.
+    fn require_gpu() -> bool {
+        match first_gpu() {
+            Ok(_) => true,
+            Err(e) => {
+                eprintln!("skipping OpenCL GPU test: {e}");
+                false
+            }
+        }
+    }
+
     #[test]
     fn builds_evm_kernel() {
+        if !require_gpu() {
+            return;
+        }
         let (device, context, _q) = first_gpu().expect("gpu");
         build_program(&context, &device, &evm_source()).expect("evm build");
     }
 
     #[test]
     fn builds_sol_kernel() {
+        if !require_gpu() {
+            return;
+        }
         let (device, context, _q) = first_gpu().expect("gpu");
         build_program(&context, &device, SOL_SRC).expect("sol build");
     }
 
     #[test]
     fn evm_finds_short_prefix() {
+        if !require_gpu() {
+            return;
+        }
         use crate::chains::EvmGrinder;
         let g = EvmGrinder;
         let pat = g.build_pattern(Some("a"), None, None, false).unwrap();
@@ -619,6 +640,9 @@ mod tests {
 
     #[test]
     fn evm_finds_three_char_prefix() {
+        if !require_gpu() {
+            return;
+        }
         use crate::chains::EvmGrinder;
         let g = EvmGrinder;
         let pat = g.build_pattern(Some("abc"), None, None, false).unwrap();
@@ -644,6 +668,9 @@ mod tests {
 
     #[test]
     fn evm_hit_after_many_launches_reconstructs_key() {
+        if !require_gpu() {
+            return;
+        }
         use crate::chains::EvmGrinder;
         let g = EvmGrinder;
         // ~268M expected candidates = dozens of launches, so the launch offset math is exercised.
@@ -663,12 +690,18 @@ mod tests {
 
     #[test]
     fn evm_benchmark_reports_real_throughput() {
+        if !require_gpu() {
+            return;
+        }
         let (rate, _) = benchmark("evm", 1.0).expect("bench");
         assert!(rate > 1_000_000.0, "implausibly slow: {rate}");
     }
 
     #[test]
     fn sol_finds_short_prefix() {
+        if !require_gpu() {
+            return;
+        }
         use crate::chains::SolanaGrinder;
         let g = SolanaGrinder;
         let pat = g.build_pattern(Some("A"), None, None, true).unwrap();
