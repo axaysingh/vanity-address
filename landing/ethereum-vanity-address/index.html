@@ -83,7 +83,7 @@
           "name": "Which characters can an Ethereum vanity address use?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Only hexadecimal digits: 0–9 and a–f. Words like dead, beef, cafe and face are valid; most English words are not."
+            "text": "Only hexadecimal digits: 0–9 and a–f. Words like dead, cafe, face and fade are valid; most English words are not."
           }
         },
         {
@@ -161,7 +161,7 @@
         <li>Set hex-friendly <strong>prefix</strong> / <strong>suffix</strong> (e.g. <code>dead</code>, <code>cafe</code>).</li>
         <li>Import the private key into MetaMask / Rabby.</li>
       </ol>
-      <pre>npx vanity-address --chain evm --prefix dead --suffix beef</pre>
+      <pre>npx vanity-address --chain evm --prefix dead --suffix cafe</pre>
 
       <h2>First-deploy contract vanity</h2>
       <p>Want the <em>contract</em> address to be vanity without a factory? Use <code>evm-contract</code> — grinds a deployer key whose CREATE at nonce 0 matches your pattern.</p>
@@ -189,7 +189,7 @@
 
       <h2>Frequently asked questions</h2>
       <h3>Which characters can an Ethereum vanity address use?</h3>
-      <p>Only hexadecimal digits: 0–9 and a–f. Words like dead, beef, cafe and face are valid; most English words are not.</p>
+      <p>Only hexadecimal digits: 0–9 and a–f. Words like dead, cafe, face and fade are valid; most English words are not.</p>
       <h3>Does the same address work on Base, Arbitrum and Optimism?</h3>
       <p>Yes. EVM chains share the same address format, so one vanity key controls the same address across all of them.</p>
       <h3>How fast is the GPU path?</h3>

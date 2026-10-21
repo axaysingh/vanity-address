@@ -82,7 +82,7 @@ CHAINS = [
          desc="Make a custom Sui address starting or ending with your own hex pattern. Offline, free, open source.",
          about=["A Sui address is <code>0x</code> followed by 64 hex characters, derived by hashing the Ed25519 public key with a signature-scheme flag using Blake2b.",
                 "Hex has only 16 symbols per position, so Sui patterns are much cheaper than Base58 ones of the same length. Only <code>0–9</code> and <code>a–f</code> are valid."],
-         tips=["Words made from a–f work: <code>dead</code>, <code>beef</code>, <code>cafe</code>, <code>face</code>, <code>decade</code>.",
+         tips=["Words made from a–f work: <code>dead</code>, <code>cafe</code>, <code>face</code>, <code>fade</code>, <code>decade</code>.",
                "Digits can stand in for letters (<code>5</code> for S, <code>1</code> for I) to extend your vocabulary.",
                "Export the key and import it into a Sui wallet; the address should match."],
          faq=[("Which letters can a Sui vanity pattern use?", "Only hex digits: 0-9 and a-f."),
