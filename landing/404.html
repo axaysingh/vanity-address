@@ -88,7 +88,7 @@
 
   /* Slot-machine grind — each visit puts 404 at prefix, middle, or suffix */
   var HEX = "0123456789abcdef";
-  var FILL = "deaddeafcafefacefeeddeedbabebeadc0def00d";
+  var FILL = "deadbeefcafefacefeeddeedbabebeadc0def00d";
   var VARIANTS = [
     { where: "prefix", label: "prefix ‘404’", target: "0x404" + FILL.slice(0, 37) },
     { where: "middle", label: "contains ‘404’", target: "0x" + FILL.slice(0, 12) + "404" + FILL.slice(12, 37) },
