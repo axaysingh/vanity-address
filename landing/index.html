@@ -243,6 +243,7 @@
         background: var(--paper-deep);
         padding: 0.12em 0.4em;
         border-radius: 4px;
+        white-space: nowrap;
       }
       button.copy-cmd {
         font-family: var(--mono);
@@ -1104,12 +1105,14 @@
         flex: 0 0 48px;
         border-radius: 50%;
         border: 2px solid var(--ink);
+        background: #fff;
         display: grid;
         place-items: center;
         box-shadow: 2px 2px 0 var(--ink);
         transition:
           transform 0.12s ease,
-          box-shadow 0.12s ease;
+          box-shadow 0.12s ease,
+          background 0.15s ease;
         text-decoration: none;
       }
       .ask-ai-link:hover {
@@ -1125,31 +1128,30 @@
         height: 24px;
         display: block;
         object-fit: contain;
+        transition: filter 0.15s ease;
       }
-      /* Monochrome brand marks → white on tinted circles */
-      .ask-ai-link.icon-light img {
+      /* Hover: brand fill + white mark so the circle pops */
+      .ask-ai-link[data-ai="chatgpt"]:hover {
+        background: #10a37f;
+      }
+      .ask-ai-link[data-ai="claude"]:hover {
+        background: #d97757;
+      }
+      .ask-ai-link[data-ai="perplexity"]:hover {
+        background: #20808d;
+      }
+      .ask-ai-link[data-ai="gemini"]:hover {
+        background: linear-gradient(135deg, #4a90f8 0%, #9b72f0 55%, #e86aa8 100%);
+      }
+      .ask-ai-link[data-ai="grok"]:hover {
+        background: #000;
+      }
+      .ask-ai-link[data-ai="chatgpt"]:hover img,
+      .ask-ai-link[data-ai="claude"]:hover img,
+      .ask-ai-link[data-ai="perplexity"]:hover img,
+      .ask-ai-link[data-ai="gemini"]:hover img,
+      .ask-ai-link[data-ai="grok"]:hover img {
         filter: brightness(0) invert(1);
-      }
-      .ask-ai-link[data-ai="chatgpt"] {
-        background: #fff;
-      }
-      .ask-ai-link[data-ai="claude"] {
-        background: #fff;
-      }
-      .ask-ai-link[data-ai="perplexity"] {
-        background: #fff;
-      }
-      .ask-ai-link[data-ai="gemini"] {
-        background: #fff;
-      }
-      .ask-ai-link[data-ai="grok"] {
-        background: #fff;
-      }
-      /* Colored brand marks (Claude / Perplexity / Gemini) — don't invert */
-      .ask-ai-link[data-ai="gemini"] img,
-      .ask-ai-link[data-ai="claude"] img,
-      .ask-ai-link[data-ai="perplexity"] img {
-        filter: none;
       }
       @media (max-width: 640px) {
         .ask-ai {
@@ -2103,6 +2105,7 @@
               <h3>Large funds</h3>
               <p>
                 Prefer offline CLI or desktop on a clean machine. Downloads and
+                <br />
                 <code class="inline">--save</code> are plaintext secrets.
               </p>
             </div>

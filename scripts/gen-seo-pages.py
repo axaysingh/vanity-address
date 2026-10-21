@@ -82,7 +82,7 @@ CHAINS = [
          desc="Make a custom Sui address starting or ending with your own hex pattern. Offline, free, open source.",
          about=["A Sui address is <code>0x</code> followed by 64 hex characters, derived by hashing the Ed25519 public key with a signature-scheme flag using Blake2b.",
                 "Hex has only 16 symbols per position, so Sui patterns are much cheaper than Base58 ones of the same length. Only <code>0–9</code> and <code>a–f</code> are valid."],
-         tips=["Words made from a–f work: <code>dead</code>, <code>beef</code>, <code>cafe</code>, <code>face</code>, <code>decade</code>.",
+         tips=["Words made from a–f work: <code>dead</code>, <code>deaf</code>, <code>cafe</code>, <code>face</code>, <code>decade</code>.",
                "Digits can stand in for letters (<code>5</code> for S, <code>1</code> for I) to extend your vocabulary.",
                "Export the key and import it into a Sui wallet; the address should match."],
          faq=[("Which letters can a Sui vanity pattern use?", "Only hex digits: 0-9 and a-f."),
@@ -237,7 +237,8 @@ NAV_SCRIPT = '''<script>
 </script>
 '''
 
-GH_STAR = """<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>"""
+# Same Octocat mark as landing/index.html nav CTA
+GH_ICON = """<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>"""
 
 
 def site_nav(root="../"):
@@ -253,13 +254,14 @@ def site_nav(root="../"):
       <a href="{r}#deploy">Contracts</a>
       <a href="{r}#demo">Demo</a>
       <a href="{r}chains/">Chains</a>
+      <a href="{r}vanity-address-difficulty/">Difficulty</a>
       <a href="{r}#install">Install</a>
       <a href="{r}#faq">FAQ</a>
       <a href="{r}#security">Security</a>
     </nav>
     <div class="nav-actions">
       <a class="nav-cta" href="{GH}" target="_blank" rel="noopener" aria-label="Star on GitHub">
-        {GH_STAR}
+        {GH_ICON}
         <span class="cta-text">Star on GitHub</span>
       </a>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
