@@ -399,7 +399,7 @@ mod tests {
     #[test]
     fn all_menu_chains_resolve_and_grind() {
         assert_eq!(super::MENU_CHAINS.len(), Chain::all_ids().len());
-        assert!(super::MENU_CHAINS.len() >= 31);
+        assert!(super::MENU_CHAINS.len() >= 44);
         for (i, (id, _)) in super::MENU_CHAINS.iter().enumerate() {
             let chain = Chain::from_menu_index(i).expect("menu index");
             assert_eq!(chain.id(), *id);

@@ -4,7 +4,7 @@
 
 # vanity-address
 
-**Generate custom crypto wallet addresses that start, end, or contain YOUR word — Solana, Ethereum, Bitcoin SegWit/Taproot + 28 more chains. Plus vanity contract addresses and Solana token mints.**
+**Generate custom crypto wallet addresses that start, end, or contain YOUR word — 44 wallet chains including Solana, Ethereum, Bitcoin SegWit/Taproot. Plus vanity contract addresses and Solana token mints.**
 
 [![npm](https://img.shields.io/npm/v/vanity-address?style=flat-square&logo=npm&color=cb3837)](https://www.npmjs.com/package/vanity-address)
 [![downloads](https://img.shields.io/npm/dm/vanity-address?style=flat-square&color=blue)](https://www.npmjs.com/package/vanity-address)
@@ -131,14 +131,18 @@ Example output:
 | Algorand | `algo` | base32 | Pera, Defly |
 | Aptos | `aptos` | `0x` hex | Petra |
 | Bitcoin | `btc` | base58 (P2PKH) | Electrum, Sparrow |
+| Bitcoin Gold | `btg` | base58 (P2PKH `G…`) | — |
 | Bitcoin SegWit | `btc-segwit` | `bc1q…` | Sparrow, Electrum |
 | Bitcoin Taproot | `btc-taproot` | `bc1p…` | Sparrow |
+| Canada eCoin | `cdn` | base58 (P2PKH `C…`) | — |
 | Cardano | `ada` | `addr1…` enterprise | — |
 | Celestia | `tia` | bech32 (`celestia1…`) | Keplr |
 | Cosmos | `cosmos` | bech32 (`cosmos1…`) | Keplr |
 | Dash | `dash` | base58 (P2PKH `X…`) | Dash Core |
+| DigiByte | `dgb` | base58 (P2PKH `D…`) | — |
 | Dogecoin | `doge` | base58 | — |
 | dYdX | `dydx` | bech32 | — |
+| Einsteinium | `emc2` | base58 (P2PKH `E…`) | — |
 | Ethereum + all EVM | `evm` | `0x` hex | MetaMask, Rabby, Base, Hyperliquid, Sonic, Robinhood… |
 | Filecoin | `fil` | `f1…` | Lotus, Glif |
 | Hedera | `hedera` | ed25519 pubkey hex | HashPack (0.0.N on-chain) |
@@ -147,18 +151,27 @@ Example output:
 | Kaspa | `kaspa` | `kaspa:…` | Kaspium |
 | Kusama | `ksm` | SS58 ed25519 | Polkadot.js |
 | Litecoin | `ltc` | base58 | — |
+| Monacoin | `mona` | base58 (P2PKH `M…`) | — |
 | MultiversX | `erd` | bech32 (`erd1…`) | xPortal |
 | NEAR | `near` | hex implicit | — |
+| Novacoin | `nvc` | base58 (P2PKH `4…`) | — |
 | Osmosis | `osmo` | bech32 (`osmo1…`) | Keplr |
+| Peercoin | `ppc` | base58 (P2PKH `P…`) | — |
 | Polkadot | `dot` | SS58 ed25519 | Polkadot.js |
+| Primecoin | `xpm` | base58 (P2PKH `A…`) | — |
+| Qtum | `qtum` | base58 (P2PKH `Q…`) | — |
+| Ravencoin | `rvn` | base58 (P2PKH `R…`) | — |
 | Ripple | `xrp` | base58 (`r…`) | — |
 | Sei | `sei` | bech32 (`sei1…`) | Compass |
 | Solana | `sol` | base58 | Phantom, Solflare |
 | Stellar | `xlm` | strkey (`G…`) | — |
 | Sui | `sui` | `0x` hex | Sui Wallet |
+| Syscoin | `sys` | base58 (P2PKH `S…`) | — |
 | Tezos | `xtz` | `tz1…` | Temple, Kukai |
 | TON | `ton` | `UQ…` V4R2 | Tonkeeper |
 | Tron | `trx` | base58 (`T…`) | TronLink |
+| Vertcoin | `vtc` | base58 (P2PKH `V…`) | — |
+| Viacoin | `via` | base58 (P2PKH `V…`) | — |
 
 ### Deploy modes
 

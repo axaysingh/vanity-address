@@ -300,7 +300,7 @@ def related(current):
         <ul>
 {lis}
           <li><a href="../vanity-address-difficulty/">Vanity address difficulty calculator</a></li>
-          <li><a href="../chains/">All 40+ supported chains</a></li>
+          <li><a href="../chains/">All 44 supported chains</a></li>
         </ul>
       </aside>'''
 
@@ -364,7 +364,7 @@ def chain_page(c):
 
 def hub_page():
     path = "chains/"
-    title = "Vanity address generator for 40+ chains — all supported"
+    title = "Vanity address generator for 44 chains — all supported"
     desc = "Every blockchain vanity-address can grind: Solana, EVM, Bitcoin, Tron, TON, Sui, NEAR, XRP, Stellar, Cardano, Kaspa and more. Offline, free, open source."
     items = [(f"../{s}/", n, "In-depth guide") for s, n in GUIDES] + [
         (f"../{c['slug']}/", f"{c['name']} ({c['tick']})", f"{c['alpha'][0]} · {c['alpha'][1]} symbols") for c in CHAINS]
@@ -375,7 +375,7 @@ def hub_page():
         breadcrumb([("Home", f"{SITE}/"), ("All chains", f"{SITE}/{path}")])]}
     main = f'''      <p class="kicker">Directory</p>
       <h1>Vanity address generator for every chain</h1>
-      <p class="lede">One offline engine, 40+ blockchains. Pick a network to see its address format, valid characters, difficulty table and a ready-to-run command.</p>
+      <p class="lede">One offline engine, 44 blockchains. Pick a network to see its address format, valid characters, difficulty table and a ready-to-run command.</p>
       <h2>Guides</h2>
       <ul>
 {lis}
