@@ -1,4 +1,4 @@
-# https://vanity-address.pages.dev/
+# https://vanity-address.online/
 # Standard robots.txt only — AI catalog is advertised via Link headers / HTML, not Agentmap
 # (Agentmap is not a classic robots directive and fails Lighthouse validation).
 
@@ -32,4 +32,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://vanity-address.pages.dev/sitemap.xml
+Sitemap: https://vanity-address.online/sitemap.xml

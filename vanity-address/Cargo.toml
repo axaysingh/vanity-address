@@ -6,7 +6,7 @@ description = "Fast, offline, multi-chain vanity address generator, no telemetry
 license = "MIT"
 readme = "../README.md"
 repository = "https://github.com/yudizaxay/vanity-address"
-homepage = "https://github.com/yudizaxay/vanity-address"
+homepage = "https://vanity-address.online/"
 documentation = "https://github.com/yudizaxay/vanity-address#readme"
 # crates.io allows at most 5 keywords
 keywords = ["vanity", "solana", "ethereum", "bitcoin", "cli"]

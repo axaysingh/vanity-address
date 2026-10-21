@@ -24,7 +24,7 @@
 **Primary CTA (pick one per post — don’t dump five links)**
 
 1. Try in 10s: `npx vanity-address`
-2. Site: https://vanity-address.pages.dev/
+2. Site: https://vanity-address.online/
 3. Source / stars: https://github.com/yudizaxay/vanity-address
 4. Installers: https://github.com/yudizaxay/vanity-address/releases/latest
 
@@ -85,7 +85,7 @@ Do **fewer places, better posts**. Spam = dead trust for a key tool.
 
 ### Before Day 1 (30–60 min)
 
-- [ ] Landing live with Download working ([vanity-address.pages.dev](https://vanity-address.pages.dev/))
+- [ ] Landing live with Download working ([vanity-address.online](https://vanity-address.online/))
 - [ ] Record **one** 20–30s silent demo: open terminal → `npx vanity-address` or short grind → match highlight
 - [ ] Pin GitHub repo description to the one-liner + homepage URL
 - [ ] Have accounts ready: HN, Reddit, LinkedIn, Dev.to
@@ -139,7 +139,7 @@ keys stay on your machine. MIT, Rust core.
 - Honest ETA before long grinds
 - npx vanity-address · cargo install vanity-address · GitHub Releases
 
-Site: https://vanity-address.pages.dev/
+Site: https://vanity-address.online/
 Repo: https://github.com/yudizaxay/vanity-address
 
 Happy to answer questions about the grinder, pattern engine, or chain coverage.
@@ -230,7 +230,7 @@ This one grinds on your CPU. Keys never leave the device. Open source (MIT).
 • CLI, desktop app, npm
 
 Try: npx vanity-address
-Site: https://vanity-address.pages.dev/
+Site: https://vanity-address.online/
 GitHub: https://github.com/yudizaxay/vanity-address
 
 If you work in crypto infra or wallets, I’d love a critical eye on the security

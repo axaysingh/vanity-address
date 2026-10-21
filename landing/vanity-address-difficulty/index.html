@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vanity address difficulty calculator — time estimate</title>
+<meta name="description" content="Estimate how many attempts and how much time a vanity address pattern needs on Base58, hex, bech32 or base64 chains. Free, runs in your browser." />
+<link rel="canonical" href="https://vanity-address.online/vanity-address-difficulty/" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="vanity-address" />
+<meta property="og:url" content="https://vanity-address.online/vanity-address-difficulty/" />
+<meta property="og:title" content="Vanity address difficulty calculator — time estimate" />
+<meta property="og:description" content="Estimate how many attempts and how much time a vanity address pattern needs on Base58, hex, bech32 or base64 chains. Free, runs in your browser." />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Vanity address difficulty calculator — time estimate" />
+<meta name="twitter:description" content="Estimate how many attempts and how much time a vanity address pattern needs on Base58, hex, bech32 or base64 chains. Free, runs in your browser." />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/guide.css" />
+<style>
+.calc { display: grid; gap: 14px; margin: 20px 0; }
+.calc label { display: grid; gap: 6px; font-weight: 600; color: var(--ink); }
+.calc select, .calc input { font: inherit; padding: 10px 12px; border: 2px solid var(--ink); background: #fff; color: var(--ink); }
+.result { padding: 16px 18px; border: 2px solid var(--ink); background: #fff; margin-bottom: 20px; }
+.result p { margin-bottom: 6px; }
+table.diff { width: 100%; border-collapse: collapse; margin: 10px 0 22px; font-size: 0.92rem; }
+table.diff th, table.diff td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+table.diff th { color: var(--ink); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Vanity address difficulty calculator",
+      "url": "https://vanity-address.online/vanity-address-difficulty/",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vanity-address.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Difficulty calculator",
+          "item": "https://vanity-address.online/vanity-address-difficulty/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How is vanity address difficulty calculated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Each position in the pattern must match one specific symbol, so the expected number of attempts is the alphabet size raised to the pattern length."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does one extra character make it so much slower?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every additional character multiplies the expected work by the alphabet size: 16× for hex, 32× for bech32 or Base32, 58× for Base58, 64× for base64."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ignoring case make it faster?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes for letters, because both upper and lower case forms match. Digits have no case variant, so patterns made of digits do not get faster."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the time shown exact?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Finding a match is random; the average time is attempts divided by speed, and there is a 63% chance of finishing within that time and about 90% within 2.3× that time."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="34" height="34" /><span>vanity-address</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Site">
+      <a href="../generate/">Web app</a>
+      <a href="../#download">Download</a>
+      <a href="../#how">How it works</a>
+      <a href="../#deploy">Contracts</a>
+      <a href="../#demo">Demo</a>
+      <a href="../chains/">Chains</a>
+      <a href="../#install">Install</a>
+      <a href="../#faq">FAQ</a>
+      <a href="../#security">Security</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+        <span class="cta-text">Star on GitHub</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+  <div class="wrap">
+    <main>
+      <p class="kicker">Tool</p>
+      <h1>Vanity address difficulty calculator</h1>
+      <p class="lede">Find out how many attempts and how long your custom address pattern will take, before you start grinding.</p>
+      <form class="calc" onsubmit="return false">
+        <label>Alphabet
+          <select id="alpha">
+          <option value="16">Hex — EVM, Sui, NEAR (16)</option>
+          <option value="32">Bech32 / Base32 — Cardano, Kaspa, Stellar, SegWit (32)</option>
+          <option value="58">Base58 — Bitcoin, Solana, Tron, Dogecoin, XRP (58)</option>
+          <option value="64">Base64url — TON (64)</option>
+          </select>
+        </label>
+        <label>Pattern length (characters you choose)
+          <input id="len" type="number" min="1" max="20" value="5" />
+        </label>
+        <label>Your speed (keys per second)
+          <input id="speed" type="number" min="1" value="1000000" />
+        </label>
+      </form>
+      <div class="result" aria-live="polite">
+        <p>Expected attempts: <strong id="att">—</strong></p>
+        <p>Average time: <strong id="avg">—</strong></p>
+        <p>90% chance within: <strong id="p90">—</strong></p>
+      </div>
+      <p>Don't know your speed? The CLI and desktop app run a 2-second benchmark when a grind starts and then show keys per second with a live ETA. Case-insensitive matching lowers the cost for letters.</p>
+      <div class="ctas"><a class="btn btn-primary" href="../generate/">Start grinding</a></div>
+
+      <h2>Reference tables</h2>
+      <p>Average time at one million keys per second. Real speed varies by chain, CPU and whether OpenCL GPU is used (EVM only).</p>
+      <h3>Hex alphabet (16 symbols)</h3>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>16</td><td>under a second</td></tr>
+<tr><td>2</td><td>256</td><td>under a second</td></tr>
+<tr><td>3</td><td>4,096</td><td>under a second</td></tr>
+<tr><td>4</td><td>65,536</td><td>under a second</td></tr>
+<tr><td>5</td><td>1.0 million</td><td>1 second</td></tr>
+<tr><td>6</td><td>16.8 million</td><td>17 seconds</td></tr>
+<tr><td>7</td><td>268 million</td><td>4.5 minutes</td></tr>
+<tr><td>8</td><td>4.3 billion</td><td>1.2 hours</td></tr>
+</tbody></table>
+      <h3>Base32 / bech32 alphabet (32 symbols)</h3>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>32</td><td>under a second</td></tr>
+<tr><td>2</td><td>1,024</td><td>under a second</td></tr>
+<tr><td>3</td><td>32,768</td><td>under a second</td></tr>
+<tr><td>4</td><td>1.0 million</td><td>1 second</td></tr>
+<tr><td>5</td><td>33.6 million</td><td>34 seconds</td></tr>
+<tr><td>6</td><td>1.1 billion</td><td>18 minutes</td></tr>
+<tr><td>7</td><td>34.4 billion</td><td>9.5 hours</td></tr>
+<tr><td>8</td><td>1.1 trillion</td><td>13 days</td></tr>
+</tbody></table>
+      <h3>Base58 alphabet (58 symbols)</h3>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>58</td><td>under a second</td></tr>
+<tr><td>2</td><td>3,364</td><td>under a second</td></tr>
+<tr><td>3</td><td>195,112</td><td>under a second</td></tr>
+<tr><td>4</td><td>11.3 million</td><td>11 seconds</td></tr>
+<tr><td>5</td><td>656 million</td><td>11 minutes</td></tr>
+<tr><td>6</td><td>38.1 billion</td><td>11 hours</td></tr>
+<tr><td>7</td><td>2.2 trillion</td><td>26 days</td></tr>
+<tr><td>8</td><td>128 trillion</td><td>4.1 years</td></tr>
+</tbody></table>
+      <h3>Base64url alphabet (64 symbols)</h3>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>64</td><td>under a second</td></tr>
+<tr><td>2</td><td>4,096</td><td>under a second</td></tr>
+<tr><td>3</td><td>262,144</td><td>under a second</td></tr>
+<tr><td>4</td><td>16.8 million</td><td>17 seconds</td></tr>
+<tr><td>5</td><td>1.1 billion</td><td>18 minutes</td></tr>
+<tr><td>6</td><td>68.7 billion</td><td>19 hours</td></tr>
+<tr><td>7</td><td>4.4 trillion</td><td>51 days</td></tr>
+<tr><td>8</td><td>281 trillion</td><td>8.9 years</td></tr>
+</tbody></table>
+
+      <h2>Frequently asked questions</h2>
+      <h3>How is vanity address difficulty calculated?</h3>
+      <p>Each position in the pattern must match one specific symbol, so the expected number of attempts is the alphabet size raised to the pattern length.</p>
+      <h3>Why does one extra character make it so much slower?</h3>
+      <p>Every additional character multiplies the expected work by the alphabet size: 16× for hex, 32× for bech32 or Base32, 58× for Base58, 64× for base64.</p>
+      <h3>Does ignoring case make it faster?</h3>
+      <p>Yes for letters, because both upper and lower case forms match. Digits have no case variant, so patterns made of digits do not get faster.</p>
+      <h3>Is the time shown exact?</h3>
+      <p>No. Finding a match is random; the average time is attempts divided by speed, and there is a 63% chance of finishing within that time and about 90% within 2.3× that time.</p>
+      <aside class="related">
+        <h2>More vanity address guides</h2>
+        <ul>
+          <li><a href="../solana-vanity-address/">Solana vanity address</a></li>
+          <li><a href="../ethereum-vanity-address/">Ethereum / EVM vanity address</a></li>
+          <li><a href="../bitcoin-vanity-address/">Bitcoin vanity address</a></li>
+          <li><a href="../create2-vanity-address/">CREATE2 vanity contract</a></li>
+          <li><a href="../tron-vanity-address/">Tron vanity address</a></li>
+          <li><a href="../dogecoin-vanity-address/">Dogecoin vanity address</a></li>
+          <li><a href="../litecoin-vanity-address/">Litecoin vanity address</a></li>
+          <li><a href="../dash-vanity-address/">Dash vanity address</a></li>
+          <li><a href="../ton-vanity-address/">TON vanity address</a></li>
+          <li><a href="../sui-vanity-address/">Sui vanity address</a></li>
+          <li><a href="../near-vanity-address/">NEAR vanity address</a></li>
+          <li><a href="../xrp-vanity-address/">XRP Ledger vanity address</a></li>
+          <li><a href="../stellar-vanity-address/">Stellar vanity address</a></li>
+          <li><a href="../cardano-vanity-address/">Cardano vanity address</a></li>
+          <li><a href="../kaspa-vanity-address/">Kaspa vanity address</a></li>
+          <li><a href="../vanity-address-difficulty/">Vanity address difficulty calculator</a></li>
+          <li><a href="../chains/">All 40+ supported chains</a></li>
+        </ul>
+      </aside>
+    </main>
+    <footer class="foot">
+      <p><a href="../">← vanity-address home</a> · <a href="../chains/">All supported chains</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a> · Updated 2026-10-21</p>
+    </footer>
+  </div>
+<script>
+(function () {
+  var t = document.getElementById("navToggle");
+  var l = document.getElementById("navLinks");
+  if (!t || !l) return;
+  t.addEventListener("click", function () {
+    var open = l.classList.toggle("open");
+    t.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function fmtTime(s) {
+    if (s < 1) return "under a second";
+    var u = [["year", 31557600], ["day", 86400], ["hour", 3600], ["minute", 60], ["second", 1]];
+    for (var i = 0; i < u.length; i++) {
+      if (s >= u[i][1]) { var v = s / u[i][1]; v = v < 10 ? Math.round(v * 10) / 10 : Math.round(v); return v.toLocaleString("en-US") + " " + u[i][0] + (v === 1 ? "" : "s"); }
+    }
+  }
+  function run() {
+    var a = +$("alpha").value, n = Math.max(1, Math.min(20, +$("len").value || 1)), r = Math.max(1, +$("speed").value || 1);
+    var att = Math.pow(a, n);
+    $("att").textContent = att.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    $("avg").textContent = fmtTime(att / r);
+    $("p90").textContent = fmtTime(2.3026 * att / r);
+  }
+  ["alpha", "len", "speed"].forEach(function (id) { $(id).addEventListener("input", run); });
+  run();
+})();
+</script>
+</body>
+</html>

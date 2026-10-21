@@ -5,13 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Bitcoin vanity address generator (offline) — vanity-address</title>
 <meta name="description" content="Generate a custom Bitcoin P2PKH, SegWit (bc1q), or Taproot (bc1p) vanity address offline. Also Bitcoin-family forks. Keys never leave your device." />
-<link rel="canonical" href="https://vanity-address.pages.dev/bitcoin-vanity-address/" />
+<link rel="canonical" href="https://vanity-address.online/bitcoin-vanity-address/" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://vanity-address.pages.dev/bitcoin-vanity-address/" />
+<meta property="og:url" content="https://vanity-address.online/bitcoin-vanity-address/" />
 <meta property="og:title" content="Bitcoin vanity address generator (offline)" />
 <meta property="og:description" content="Custom BTC P2PKH, SegWit, and Taproot addresses. Free, open source, 100% local." />
-<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="vanity-address" />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Bitcoin vanity address generator (offline)" />
 <meta name="twitter:description" content="Custom Bitcoin addresses offline — P2PKH, SegWit, Taproot." />
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
@@ -22,26 +26,124 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "TechArticle",
-  "headline": "Bitcoin vanity address generator (offline)",
-  "description": "How to generate a custom Bitcoin vanity address locally with vanity-address.",
-  "url": "https://vanity-address.pages.dev/bitcoin-vanity-address/",
-  "author": { "@type": "Person", "name": "yudizaxay", "url": "https://github.com/yudizaxay" }
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Bitcoin vanity address generator (offline)",
+      "description": "How to generate a custom Bitcoin vanity address locally with vanity-address.",
+      "url": "https://vanity-address.online/bitcoin-vanity-address/",
+      "author": {
+        "@type": "Person",
+        "name": "yudizaxay",
+        "url": "https://github.com/yudizaxay"
+      },
+      "image": "https://vanity-address.online/assets/og.png",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "en",
+      "publisher": {
+        "@type": "Organization",
+        "name": "vanity-address",
+        "url": "https://vanity-address.online/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://vanity-address.online/assets/logo-512.png"
+        }
+      },
+      "mainEntityOfPage": "https://vanity-address.online/bitcoin-vanity-address/"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vanity-address.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "All chains",
+          "item": "https://vanity-address.online/chains/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Bitcoin vanity address generator (offline)",
+          "item": "https://vanity-address.online/bitcoin-vanity-address/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Which Bitcoin address types can I customise?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Legacy P2PKH (starts with 1), native SegWit (bc1q…) and Taproot (bc1p…). Each has its own alphabet and fixed leading characters."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is a SegWit pattern easier or harder than a legacy one?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SegWit and Taproot use bech32 (32 symbols per position, no 1 b i o), while legacy uses Base58 (58 symbols), so each character costs 32× versus 58×."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a vanity Bitcoin address safe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes if the key is generated from a secure random source locally. Avoid online generators that see your key, and verify the address before funding."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use the key in a hardware wallet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can import a raw private key into software wallets that support it; most hardware wallets generate their own keys and do not import vanity keys."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 </head>
 <body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="34" height="34" /><span>vanity-address</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Site">
+      <a href="../generate/">Web app</a>
+      <a href="../#download">Download</a>
+      <a href="../#how">How it works</a>
+      <a href="../#deploy">Contracts</a>
+      <a href="../#demo">Demo</a>
+      <a href="../chains/">Chains</a>
+      <a href="../#install">Install</a>
+      <a href="../#faq">FAQ</a>
+      <a href="../#security">Security</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+        <span class="cta-text">Star on GitHub</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
   <div class="wrap">
-    <header class="top">
-      <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="32" height="32" /><span>vanity-address</span></a>
-      <nav class="top-links" aria-label="Site">
-        <a href="../generate/">Web app</a>
-        <a href="../">Home</a>
-        <a href="https://github.com/yudizaxay/vanity-address">GitHub</a>
-      </nav>
-    </header>
-
-    <main>
+<main>
       <p class="kicker">Bitcoin · offline</p>
       <h1>Bitcoin vanity address generator</h1>
       <p class="lede">Grind a Bitcoin address that includes your word — classic P2PKH (<code>1…</code>), SegWit (<code>bc1q…</code>), or Taproot (<code>bc1p…</code>). Runs locally in the browser, CLI, or desktop app.</p>
@@ -70,19 +172,55 @@
       <h2>Bitcoin-family forks &amp; advanced modes</h2>
       <p>Same engine covers many P2PKH forks (see project docs). CLI also supports <strong>puzzle mode</strong> and <strong>split-key</strong> vanity for Bitcoin-family P2PKH — useful for collaborative grinds without sharing a full private key mid-search.</p>
 
+      <h2>Alphabet and difficulty by address type</h2>
+      <p>Legacy addresses use Base58 (58 symbols), while SegWit and Taproot use bech32 (32 symbols, excluding <code>1 b i o</code>). Bech32 patterns therefore cost less per character, but the leading <code>bc1q</code> or <code>bc1p</code> is fixed. The table below uses Base58; for bech32 divide each row's growth factor accordingly or use the <a href="../vanity-address-difficulty/">difficulty calculator</a>.</p>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>58</td><td>under a second</td></tr>
+<tr><td>2</td><td>3,364</td><td>under a second</td></tr>
+<tr><td>3</td><td>195,112</td><td>under a second</td></tr>
+<tr><td>4</td><td>11.3 million</td><td>11 seconds</td></tr>
+<tr><td>5</td><td>656 million</td><td>11 minutes</td></tr>
+<tr><td>6</td><td>38.1 billion</td><td>11 hours</td></tr>
+<tr><td>7</td><td>2.2 trillion</td><td>26 days</td></tr>
+<tr><td>8</td><td>128 trillion</td><td>4.1 years</td></tr>
+</tbody></table>
+      <p class="note">Times assume one million keys per second and are illustrative.</p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Which Bitcoin address types can I customise?</h3>
+      <p>Legacy P2PKH (starts with 1), native SegWit (bc1q…) and Taproot (bc1p…). Each has its own alphabet and fixed leading characters.</p>
+      <h3>Why is a SegWit pattern easier or harder than a legacy one?</h3>
+      <p>SegWit and Taproot use bech32 (32 symbols per position, no 1 b i o), while legacy uses Base58 (58 symbols), so each character costs 32× versus 58×.</p>
+      <h3>Is a vanity Bitcoin address safe?</h3>
+      <p>Yes if the key is generated from a secure random source locally. Avoid online generators that see your key, and verify the address before funding.</p>
+      <h3>Can I use the key in a hardware wallet?</h3>
+      <p>You can import a raw private key into software wallets that support it; most hardware wallets generate their own keys and do not import vanity keys.</p>
+
       <aside class="related">
-        <h2>Related guides</h2>
+        <h2>More vanity address guides</h2>
         <ul>
           <li><a href="../solana-vanity-address/">Solana vanity address</a></li>
           <li><a href="../ethereum-vanity-address/">Ethereum / EVM vanity address</a></li>
           <li><a href="../create2-vanity-address/">CREATE2 vanity contract</a></li>
-          <li><a href="../how-to-generate-vanity-address.md">Full how-to FAQ</a></li>
+          <li><a href="../tron-vanity-address/">Tron vanity address</a></li>
+          <li><a href="../dogecoin-vanity-address/">Dogecoin vanity address</a></li>
+          <li><a href="../litecoin-vanity-address/">Litecoin vanity address</a></li>
+          <li><a href="../dash-vanity-address/">Dash vanity address</a></li>
+          <li><a href="../ton-vanity-address/">TON vanity address</a></li>
+          <li><a href="../sui-vanity-address/">Sui vanity address</a></li>
+          <li><a href="../near-vanity-address/">NEAR vanity address</a></li>
+          <li><a href="../xrp-vanity-address/">XRP Ledger vanity address</a></li>
+          <li><a href="../stellar-vanity-address/">Stellar vanity address</a></li>
+          <li><a href="../cardano-vanity-address/">Cardano vanity address</a></li>
+          <li><a href="../kaspa-vanity-address/">Kaspa vanity address</a></li>
+          <li><a href="../vanity-address-difficulty/">Difficulty calculator</a></li>
+          <li><a href="../chains/">All supported chains</a></li>
         </ul>
       </aside>
     </main>
 
     <footer class="foot">
-      <p><a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
+      <p>Updated 2026-10-21 · <a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
     </footer>
   </div>
 </body>

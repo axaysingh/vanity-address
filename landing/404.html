@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>404 — vanity address not on this site</title>
+<meta name="description" content="This page does not exist. We found a vanity address with 404 in it instead — generate a real one offline." />
+<meta name="robots" content="noindex, follow" />
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/guide.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/"><img src="/assets/logo.svg" alt="" width="34" height="34" /><span>vanity-address</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Site">
+      <a href="/generate/">Web app</a>
+      <a href="/#download">Download</a>
+      <a href="/#how">How it works</a>
+      <a href="/#deploy">Contracts</a>
+      <a href="/#demo">Demo</a>
+      <a href="/chains/">Chains</a>
+      <a href="/#install">Install</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/#security">Security</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+        <span class="cta-text">Star on GitHub</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+  <div class="wrap">
+    <main>
+      <p class="kicker">Grinding · demo only</p>
+      <h1>Page not found</h1>
+      <p class="lede">This URL is not on vanity-address.online — watch us grind a vanity address with <strong>404</strong> at the start, middle, or end.</p>
+
+      <div class="match-card" role="status" aria-live="polite" aria-label="Demo vanity address containing 404">
+        <p class="match-ok" id="matchOk">Grinding…</p>
+        <p class="addr" id="matchAddr" aria-hidden="true"></p>
+        <p class="meta" id="matchMeta">Chain · EVM · contains ‘404’ · keys stay on your device</p>
+      </div>
+
+      <p>Decorative demo only — not a funded wallet. Generate a real one offline:</p>
+
+      <div class="ctas">
+        <a class="btn btn-primary" href="/generate/">Generate in browser</a>
+        <a class="btn btn-ghost" href="/">Home</a>
+        <a class="btn btn-ghost" href="/chains/">All chains</a>
+      </div>
+
+      <h2>Popular guides</h2>
+      <ul>
+        <li><a href="/solana-vanity-address/">Solana vanity address</a></li>
+        <li><a href="/ethereum-vanity-address/">Ethereum / EVM vanity address</a></li>
+        <li><a href="/bitcoin-vanity-address/">Bitcoin vanity address</a></li>
+        <li><a href="/vanity-address-difficulty/">Difficulty calculator</a></li>
+      </ul>
+    </main>
+
+    <footer class="foot">
+      <p><a href="/">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
+    </footer>
+  </div>
+<script>
+(function () {
+  "use strict";
+
+  var t = document.getElementById("navToggle");
+  var l = document.getElementById("navLinks");
+  if (t && l) {
+    t.addEventListener("click", function () {
+      var open = l.classList.toggle("open");
+      t.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+
+  /* Slot-machine grind — each visit puts 404 at prefix, middle, or suffix */
+  var HEX = "0123456789abcdef";
+  var FILL = "deadbeefcafefacefeeddeedbabebeadc0def00d";
+  var VARIANTS = [
+    { where: "prefix", label: "prefix ‘404’", target: "0x404" + FILL.slice(0, 37) },
+    { where: "middle", label: "contains ‘404’", target: "0x" + FILL.slice(0, 12) + "404" + FILL.slice(12, 37) },
+    { where: "suffix", label: "suffix ‘404’", target: "0x" + FILL.slice(0, 37) + "404" }
+  ];
+  var pick = VARIANTS[(Math.random() * VARIANTS.length) | 0];
+  var TARGET = pick.target;
+  var HIT_START = TARGET.indexOf("404");
+  var HIT_END = HIT_START + 3;
+  var addrEl = document.getElementById("matchAddr");
+  var okEl = document.getElementById("matchOk");
+  var metaEl = document.getElementById("matchMeta");
+  var kicker = document.querySelector(".kicker");
+  if (!addrEl || !okEl) return;
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var spans = [];
+  var locked = 0;
+  var reelId = 0;
+
+  function randHex() {
+    return HEX.charAt((Math.random() * 16) | 0);
+  }
+
+  function build() {
+    addrEl.textContent = "";
+    spans = [];
+    for (var i = 0; i < TARGET.length; i++) {
+      var s = document.createElement("span");
+      if (i < 2) {
+        s.className = "ch lock";
+        s.textContent = TARGET.charAt(i);
+      } else {
+        s.className = "ch spin";
+        s.textContent = randHex();
+      }
+      addrEl.appendChild(s);
+      spans.push(s);
+    }
+    locked = 2; /* keep 0x fixed */
+  }
+
+  function paintSpin() {
+    for (var i = locked; i < spans.length; i++) {
+      spans[i].textContent = randHex();
+    }
+  }
+
+  function lockNext() {
+    if (locked >= TARGET.length) {
+      finish();
+      return;
+    }
+    var i = locked;
+    var s = spans[i];
+    s.textContent = TARGET.charAt(i);
+    s.classList.remove("spin");
+    s.classList.add("lock");
+    if (i >= HIT_START && i < HIT_END) s.classList.add("hit");
+    locked++;
+    var delay = i >= HIT_START && i < HIT_END ? 120 : 36;
+    window.setTimeout(lockNext, delay);
+  }
+
+  function finish() {
+    window.clearInterval(reelId);
+    okEl.textContent = "✓ Match found";
+    okEl.classList.add("is-on");
+    if (kicker) kicker.textContent = "Grind complete · demo only";
+    if (metaEl) {
+      metaEl.textContent =
+        "Chain · EVM · " + pick.label + " · ~16³ attempts · keys stay on your device";
+    }
+    addrEl.setAttribute("aria-hidden", "false");
+  }
+
+  function showStatic() {
+    build();
+    for (var i = 0; i < spans.length; i++) {
+      spans[i].textContent = TARGET.charAt(i);
+      spans[i].className = "ch lock" + (i >= HIT_START && i < HIT_END ? " hit" : "");
+    }
+    locked = TARGET.length;
+    finish();
+  }
+
+  if (reduce) {
+    showStatic();
+    return;
+  }
+
+  build();
+  okEl.textContent = "Grinding…";
+  okEl.classList.add("is-on");
+  if (metaEl) metaEl.textContent = "Chain · EVM · searching for ‘404’ (" + pick.where + ")…";
+  reelId = window.setInterval(paintSpin, 55);
+  window.setTimeout(lockNext, 280);
+})();
+</script>
+</body>
+</html>

@@ -5,17 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'" />
 <meta name="referrer" content="no-referrer" />
-<title>Generate a vanity address offline in your browser — Solana, Ethereum, Bitcoin</title>
+<title>Vanity Address Generator (Browser) — Solana, Ethereum, Bitcoin</title>
 <meta name="description" content="Free offline vanity address generator in your browser. Custom Solana, Ethereum/EVM, Bitcoin, Tron wallets, CREATE2 contracts, and Solana token mints. Keys never leave your device." />
-<link rel="canonical" href="https://vanity-address.pages.dev/generate/" />
+<link rel="canonical" href="https://vanity-address.online/generate/" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://vanity-address.pages.dev/generate/" />
+<meta property="og:url" content="https://vanity-address.online/generate/" />
 <meta property="og:title" content="Generate a vanity address offline in your browser" />
 <meta property="og:description" content="Custom Solana, Ethereum, Bitcoin &amp; 40+ chains. Keys stay on your device — no accounts, no telemetry." />
-<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="vanity-address" />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Generate a vanity address offline in your browser" />
 <meta name="twitter:description" content="Solana, Ethereum, Bitcoin vanity addresses — free, local, open source." />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "vanity-address web generator",
+      "url": "https://vanity-address.online/generate/",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Any (modern browser)",
+      "browserRequirements": "Requires WebAssembly",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Generate custom Solana, Ethereum, Bitcoin and 40+ chain vanity addresses in your browser using WebAssembly. Keys never leave your device."
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vanity-address.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Web generator",
+          "item": "https://vanity-address.online/generate/"
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="app-icons/apple-touch-180.png" />
@@ -223,6 +265,7 @@
       </div>
     </section>
   </div>
+  <noscript><p style="padding:24px;max-width:640px;margin:auto">The vanity address generator needs JavaScript and WebAssembly. Read the guides instead: <a href="../solana-vanity-address/">Solana</a>, <a href="../ethereum-vanity-address/">Ethereum</a>, <a href="../bitcoin-vanity-address/">Bitcoin</a>, <a href="../chains/">all chains</a>.</p></noscript>
 </main>
 
 <dialog class="sheet" id="chainSheet" aria-labelledby="sheetTitle">

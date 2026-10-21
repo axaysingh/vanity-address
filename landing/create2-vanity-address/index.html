@@ -5,13 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CREATE2 vanity contract address (offline) — vanity-address</title>
 <meta name="description" content="Grind a CREATE2 salt so your factory deploys to a vanity contract address. Offline EVM tool — browser, CLI, and npm SDK. Keys and salts stay on your device." />
-<link rel="canonical" href="https://vanity-address.pages.dev/create2-vanity-address/" />
+<link rel="canonical" href="https://vanity-address.online/create2-vanity-address/" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://vanity-address.pages.dev/create2-vanity-address/" />
+<meta property="og:url" content="https://vanity-address.online/create2-vanity-address/" />
 <meta property="og:title" content="CREATE2 vanity contract address (offline)" />
 <meta property="og:description" content="Salt grind for vanity CREATE2 deployments. Free, open source, 100% local." />
-<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="vanity-address" />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="CREATE2 vanity contract address (offline)" />
 <meta name="twitter:description" content="Offline CREATE2 salt grind for vanity contract addresses." />
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
@@ -22,26 +26,124 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "TechArticle",
-  "headline": "CREATE2 vanity contract address (offline)",
-  "description": "How to grind a CREATE2 salt for a vanity contract address with vanity-address.",
-  "url": "https://vanity-address.pages.dev/create2-vanity-address/",
-  "author": { "@type": "Person", "name": "yudizaxay", "url": "https://github.com/yudizaxay" }
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "CREATE2 vanity contract address (offline)",
+      "description": "How to grind a CREATE2 salt for a vanity contract address with vanity-address.",
+      "url": "https://vanity-address.online/create2-vanity-address/",
+      "author": {
+        "@type": "Person",
+        "name": "yudizaxay",
+        "url": "https://github.com/yudizaxay"
+      },
+      "image": "https://vanity-address.online/assets/og.png",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "en",
+      "publisher": {
+        "@type": "Organization",
+        "name": "vanity-address",
+        "url": "https://vanity-address.online/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://vanity-address.online/assets/logo-512.png"
+        }
+      },
+      "mainEntityOfPage": "https://vanity-address.online/create2-vanity-address/"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vanity-address.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "All chains",
+          "item": "https://vanity-address.online/chains/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "CREATE2 vanity contract address (offline)",
+          "item": "https://vanity-address.online/create2-vanity-address/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What exactly is ground in CREATE2 vanity?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The salt. The contract address is the last 20 bytes of keccak256(0xff ++ deployer ++ salt ++ init_code_hash), so you search salts until the address matches."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I change the contract code afterwards?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Changing the init code changes init_code_hash and therefore the address, so finalise the bytecode and constructor arguments before grinding."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a CREATE2 vanity address the same on every chain?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It can be, provided the same deployer, salt and init code are used on each chain."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How hard is a 6-hex-character prefix?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "16⁶ ≈ 16.8 million salts on average."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 </head>
 <body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="34" height="34" /><span>vanity-address</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Site">
+      <a href="../generate/">Web app</a>
+      <a href="../#download">Download</a>
+      <a href="../#how">How it works</a>
+      <a href="../#deploy">Contracts</a>
+      <a href="../#demo">Demo</a>
+      <a href="../chains/">Chains</a>
+      <a href="../#install">Install</a>
+      <a href="../#faq">FAQ</a>
+      <a href="../#security">Security</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+        <span class="cta-text">Star on GitHub</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
   <div class="wrap">
-    <header class="top">
-      <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="32" height="32" /><span>vanity-address</span></a>
-      <nav class="top-links" aria-label="Site">
-        <a href="../generate/">Web app</a>
-        <a href="../">Home</a>
-        <a href="https://github.com/yudizaxay/vanity-address">GitHub</a>
-      </nav>
-    </header>
-
-    <main>
+<main>
       <p class="kicker">CREATE2 · EVM · offline</p>
       <h1>CREATE2 vanity contract address</h1>
       <p class="lede">When you deploy through a factory with <code>CREATE2</code>, the contract address is determined by deployer, salt, and init-code hash. vanity-address grinds salts until the predicted address matches your pattern — locally.</p>
@@ -73,19 +175,55 @@
       <h2>CREATE (nonce 0) vs CREATE2</h2>
       <p>If you do <em>not</em> have a factory and only care about the first contract from a fresh deployer, use <a href="../ethereum-vanity-address/">EVM contract mode</a> (<code>evm-contract</code>) instead — it grinds the deployer key, not a salt.</p>
 
+      <h2>Hex difficulty for contract addresses</h2>
+      <p>CREATE2 addresses are 20-byte values shown as 40 hex characters, so each fixed character multiplies the expected number of salts by 16. The tool re-computes the address from the exact inputs before showing a result.</p>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>16</td><td>under a second</td></tr>
+<tr><td>2</td><td>256</td><td>under a second</td></tr>
+<tr><td>3</td><td>4,096</td><td>under a second</td></tr>
+<tr><td>4</td><td>65,536</td><td>under a second</td></tr>
+<tr><td>5</td><td>1.0 million</td><td>1 second</td></tr>
+<tr><td>6</td><td>16.8 million</td><td>17 seconds</td></tr>
+<tr><td>7</td><td>268 million</td><td>4.5 minutes</td></tr>
+<tr><td>8</td><td>4.3 billion</td><td>1.2 hours</td></tr>
+</tbody></table>
+      <p class="note">Times assume one million keys per second and are illustrative.</p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>What exactly is ground in CREATE2 vanity?</h3>
+      <p>The salt. The contract address is the last 20 bytes of keccak256(0xff ++ deployer ++ salt ++ init_code_hash), so you search salts until the address matches.</p>
+      <h3>Can I change the contract code afterwards?</h3>
+      <p>No. Changing the init code changes init_code_hash and therefore the address, so finalise the bytecode and constructor arguments before grinding.</p>
+      <h3>Is a CREATE2 vanity address the same on every chain?</h3>
+      <p>It can be, provided the same deployer, salt and init code are used on each chain.</p>
+      <h3>How hard is a 6-hex-character prefix?</h3>
+      <p>16⁶ ≈ 16.8 million salts on average.</p>
+
       <aside class="related">
-        <h2>Related guides</h2>
+        <h2>More vanity address guides</h2>
         <ul>
-          <li><a href="../ethereum-vanity-address/">Ethereum / EVM vanity address</a></li>
           <li><a href="../solana-vanity-address/">Solana vanity address</a></li>
+          <li><a href="../ethereum-vanity-address/">Ethereum / EVM vanity address</a></li>
           <li><a href="../bitcoin-vanity-address/">Bitcoin vanity address</a></li>
-          <li><a href="../how-to-generate-vanity-address.md">Full how-to FAQ</a></li>
+          <li><a href="../tron-vanity-address/">Tron vanity address</a></li>
+          <li><a href="../dogecoin-vanity-address/">Dogecoin vanity address</a></li>
+          <li><a href="../litecoin-vanity-address/">Litecoin vanity address</a></li>
+          <li><a href="../dash-vanity-address/">Dash vanity address</a></li>
+          <li><a href="../ton-vanity-address/">TON vanity address</a></li>
+          <li><a href="../sui-vanity-address/">Sui vanity address</a></li>
+          <li><a href="../near-vanity-address/">NEAR vanity address</a></li>
+          <li><a href="../xrp-vanity-address/">XRP Ledger vanity address</a></li>
+          <li><a href="../stellar-vanity-address/">Stellar vanity address</a></li>
+          <li><a href="../cardano-vanity-address/">Cardano vanity address</a></li>
+          <li><a href="../kaspa-vanity-address/">Kaspa vanity address</a></li>
+          <li><a href="../vanity-address-difficulty/">Difficulty calculator</a></li>
+          <li><a href="../chains/">All supported chains</a></li>
         </ul>
       </aside>
     </main>
 
     <footer class="foot">
-      <p><a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
+      <p>Updated 2026-10-21 · <a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
     </footer>
   </div>
 </body>

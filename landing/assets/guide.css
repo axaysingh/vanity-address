@@ -1,11 +1,13 @@
-/* Shared styles for long-tail SEO guide pages (match landing brand tokens). */
+/* Shared styles for SEO guide pages — nav matches landing light sticky header. */
 :root {
   --paper: #e8edf2;
+  --paper-deep: #d5dce6;
   --ink: #0d1b2a;
   --ink-soft: #3a4a5c;
   --forest: #1b4332;
   --forest-mid: #2d6a4f;
   --stamp: #ff6b35;
+  --white: #fbfcfd;
   --line: rgba(13, 27, 42, 0.12);
   --display: "Fraunces", Georgia, serif;
   --sans: "Source Sans 3", system-ui, sans-serif;
@@ -26,30 +28,107 @@ body {
 }
 a { color: var(--forest-mid); text-decoration: underline; text-underline-offset: 2px; }
 a:hover { color: var(--stamp); }
-.wrap { max-width: 720px; margin: 0 auto; padding: 0 22px; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 28px 22px 0; }
 
-.top {
+/* ---- site nav (same chrome as landing light sticky header) ---- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(232, 237, 242, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ink);
+}
+.nav-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 36px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 22px;
 }
-.brand {
+.nav .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--ink);
   text-decoration: none;
+  font-family: var(--display);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
 }
-.brand img { width: 32px; height: 32px; }
-.top-links { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.92rem; }
-.top-links a { text-decoration: none; color: var(--ink-soft); }
-.top-links a:hover { color: var(--forest); }
+.nav .brand img { width: 34px; height: 34px; display: block; }
+.nav-links {
+  display: flex;
+  gap: 22px;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.nav-links a {
+  text-decoration: none;
+  color: inherit;
+}
+.nav-links a:hover { color: var(--forest); }
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--forest);
+  color: var(--white);
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.nav-cta:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--white);
+}
+.nav-cta svg { width: 15px; height: 15px; }
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--ink);
+}
+@media (max-width: 800px) {
+  .nav { position: relative; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--paper);
+    border-bottom: 2px solid var(--ink);
+    padding: 8px 22px 14px;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-toggle { display: flex; }
+  .nav-cta .cta-text { display: none; }
+}
 
 .kicker {
   font-family: var(--mono);
@@ -100,8 +179,9 @@ h2 {
   font-size: 1.35rem;
   margin: 32px 0 12px;
 }
+h3 { font-family: var(--display); font-size: 1.05rem; margin: 20px 0 6px; color: var(--ink); }
 p, li { color: var(--ink-soft); margin-bottom: 12px; }
-ul { padding-left: 1.2rem; margin-bottom: 16px; }
+ul, ol { padding-left: 1.2rem; margin-bottom: 16px; }
 li { margin-bottom: 8px; }
 code, .mono {
   font-family: var(--mono);
@@ -138,6 +218,90 @@ pre {
 }
 .foot a { color: var(--ink-soft); }
 
-@media (max-width: 560px) {
-  .top { flex-direction: column; align-items: flex-start; }
+table.diff { width: 100%; border-collapse: collapse; margin: 10px 0 8px; font-size: 0.92rem; }
+table.diff th, table.diff td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+table.diff th { color: var(--ink); }
+.note { font-size: 0.85rem; }
+
+/* ---- 404 vanity “match” + reel animation ---- */
+.match-card {
+  margin: 8px 0 28px;
+  padding: 20px 18px;
+  border: 2px solid var(--ink);
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+.match-card .match-ok {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--forest-mid);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  min-height: 1.2em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.match-card .match-ok.is-on {
+  opacity: 1;
+  transform: none;
+}
+.match-card .addr {
+  font-family: var(--mono);
+  font-size: clamp(0.95rem, 2.8vw, 1.15rem);
+  line-height: 1.55;
+  word-break: break-all;
+  color: var(--ink);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+.match-card .addr .ch {
+  display: inline-block;
+  min-width: 0.62em;
+  text-align: center;
+}
+.match-card .addr .ch.spin {
+  color: var(--ink-soft);
+  opacity: 0.72;
+  animation: match-char-flicker 0.11s steps(2) infinite;
+}
+.match-card .addr .ch.lock {
+  color: var(--ink);
+  opacity: 1;
+  animation: none;
+}
+.match-card .addr .ch.hit {
+  background: var(--stamp);
+  color: #fff;
+  font-size: 1.45em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.08em 0.1em;
+  margin: 0 0.02em;
+  border-radius: 3px;
+  vertical-align: -0.08em;
+  box-shadow: 2px 2px 0 var(--ink);
+  animation: match-hit-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes match-char-flicker {
+  0%, 100% { transform: translateY(0); filter: none; }
+  50% { transform: translateY(-1px); filter: brightness(1.15); }
+}
+@keyframes match-hit-pop {
+  0% { transform: scale(0.55); opacity: 0.4; }
+  70% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.match-card .meta {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .match-card .match-ok { opacity: 1; transform: none; }
+  .match-card .addr .ch.spin { animation: none; }
+  .match-card .addr .ch.hit { animation: none; }
 }

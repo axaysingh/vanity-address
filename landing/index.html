@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Offline vanity address generator — Solana, Ethereum, Bitcoin &amp; 44 chains</title>
+<title>Vanity Address Generator (Offline) — Solana, Ethereum, Bitcoin</title>
 <meta name="description" content="Free offline vanity address generator: custom Solana, Ethereum/EVM, Bitcoin, Tron &amp; 40+ wallet addresses, CREATE2 contracts, and Solana token mints. Browser, CLI, desktop — keys never leave your device." />
-<meta name="keywords" content="offline vanity address generator, Solana vanity address generator, Ethereum vanity address, Bitcoin vanity address, custom wallet address with name, CREATE2 vanity contract, Solana token mint vanity, Tron vanity address, multi-chain vanity address, open source vanity wallet" />
-<link rel="canonical" href="https://vanity-address.pages.dev/" />
-<!-- Phase 1 GSC: after Search Console → HTML tag verify, paste token and uncomment:
-<meta name="google-site-verification" content="PASTE_TOKEN_HERE" />
--->
+<link rel="canonical" href="https://vanity-address.online/" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://vanity-address.pages.dev/" />
-<meta property="og:title" content="Offline vanity address generator — Solana, Ethereum, Bitcoin" />
+<meta property="og:url" content="https://vanity-address.online/" />
+<meta property="og:title" content="Vanity Address Generator (Offline) — Solana, Ethereum, Bitcoin" />
 <meta property="og:description" content="Generate a custom crypto wallet or contract address with your word. 44 chains. Free, open source, 100% local — no telemetry." />
-<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Offline vanity address generator — Solana, Ethereum, Bitcoin" />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="vanity-address" />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Vanity Address Generator (Offline) — Solana, Ethereum, Bitcoin" />
 <meta name="twitter:description" content="Custom Solana / EVM / Bitcoin addresses offline. Browser, CLI, desktop. Open source." />
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
 <link rel="alternate" type="text/markdown" href="/how-to-generate-vanity-address.md" title="How to generate a vanity address" />
@@ -27,11 +27,27 @@
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "WebSite",
+      "@id": "https://vanity-address.online/#website",
+      "name": "vanity-address",
+      "url": "https://vanity-address.online/",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://vanity-address.online/#org",
+      "name": "vanity-address",
+      "url": "https://vanity-address.online/",
+      "logo": "https://vanity-address.online/assets/logo-512.png",
+      "sameAs": ["https://github.com/yudizaxay/vanity-address", "https://www.npmjs.com/package/vanity-address", "https://crates.io/crates/vanity-address"]
+    },
+    {
       "@type": "SoftwareApplication",
       "name": "vanity-address",
       "applicationCategory": "DeveloperApplication",
+      "image": "https://vanity-address.online/assets/og.png",
       "operatingSystem": "Windows, macOS, Linux, Web",
-      "url": "https://vanity-address.pages.dev/",
+      "url": "https://vanity-address.online/",
       "downloadUrl": "https://github.com/yudizaxay/vanity-address/releases/latest",
       "codeRepository": "https://github.com/yudizaxay/vanity-address",
       "license": "https://opensource.org/licenses/MIT",
@@ -46,7 +62,7 @@
           "name": "How do I generate a vanity crypto address offline?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Use vanity-address at https://vanity-address.pages.dev/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally — keys never leave your device."
+            "text": "Use vanity-address at https://vanity-address.online/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally — keys never leave your device."
           }
         },
         {
@@ -820,7 +836,7 @@
 
 <header class="nav on-dark">
   <div class="nav-inner">
-    <a class="brand" href="#">
+    <a class="brand" href="/">
       <img src="assets/logo.svg" alt="" width="34" height="34" />
       <span>vanity-address</span>
     </a>
@@ -830,7 +846,7 @@
       <a href="#how">How it works</a>
       <a href="#deploy">Contracts</a>
       <a href="#demo">Demo</a>
-      <a href="#chains">Chains</a>
+      <a href="chains/">Chains</a>
       <a href="#install">Install</a>
       <a href="#faq">FAQ</a>
       <a href="#security">Security</a>
@@ -1063,11 +1079,11 @@
     <div class="wrap">
       <p class="section-kicker">FAQ</p>
       <h2 class="section-title">How do I generate a vanity address?</h2>
-      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Guides: <a href="solana-vanity-address/">Solana</a> · <a href="ethereum-vanity-address/">Ethereum</a> · <a href="bitcoin-vanity-address/">Bitcoin</a> · <a href="create2-vanity-address/">CREATE2</a> · <a href="how-to-generate-vanity-address.md">FAQ</a> · <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">GitHub</a>.</p>
+      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Guides: <a href="solana-vanity-address/">Solana</a> · <a href="ethereum-vanity-address/">Ethereum</a> · <a href="bitcoin-vanity-address/">Bitcoin</a> · <a href="create2-vanity-address/">CREATE2</a> · <a href="chains/">All chains</a> · <a href="vanity-address-difficulty/">Difficulty calculator</a> · <a href="how-to-generate-vanity-address.md">FAQ</a> · <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">GitHub</a>.</p>
       <div class="rules">
         <div class="rule">
           <h3>Browser (no install)</h3>
-          <p>Open <a href="generate/">vanity-address.pages.dev/generate</a>, pick Address or Contract, type your word, grind. Keys stay in the tab.</p>
+          <p>Open <a href="generate/">vanity-address.online/generate</a>, pick Address or Contract, type your word, grind. Keys stay in the tab.</p>
         </div>
         <div class="rule">
           <h3>Name / brand wallet</h3>
@@ -1167,6 +1183,11 @@
       <a href="ethereum-vanity-address/">Ethereum guide</a>
       <a href="bitcoin-vanity-address/">Bitcoin guide</a>
       <a href="create2-vanity-address/">CREATE2 guide</a>
+      <a href="chains/">All chains</a>
+      <a href="vanity-address-difficulty/">Difficulty calculator</a>
+      <a href="tron-vanity-address/">Tron</a>
+      <a href="ton-vanity-address/">TON</a>
+      <a href="dogecoin-vanity-address/">Dogecoin</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md" target="_blank" rel="noopener">Usage guide</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md" target="_blank" rel="noopener">SDK docs</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md" target="_blank" rel="noopener">Security policy</a>
@@ -1195,7 +1216,7 @@
       "how it works, privacy and security considerations,\n" +
       "benefits, limitations, and how to get started.\n\n" +
       "Use these official sources:\n" +
-      "https://vanity-address.pages.dev/\n" +
+      "https://vanity-address.online/\n" +
       "https://github.com/yudizaxay/vanity-address\n\n" +
       "Distinguish documented claims from verified facts.\n" +
       "Provide a clear, beginner-friendly overview.";

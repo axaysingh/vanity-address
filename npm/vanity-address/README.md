@@ -13,7 +13,9 @@
 
 **100% offline · keys never leave your machine · no telemetry · open source**
 
-No terminal handy? [Try it in your browser](https://vanity-address.pages.dev/generate/) — same engine, nothing to install.
+No terminal handy? [Try it in your browser](https://vanity-address.online/generate/) — same engine, nothing to install.
+
+Guides: [all supported chains](https://vanity-address.online/chains/) · [difficulty calculator](https://vanity-address.online/vanity-address-difficulty/) · [Solana](https://vanity-address.online/solana-vanity-address/) · [Ethereum](https://vanity-address.online/ethereum-vanity-address/) · [Bitcoin](https://vanity-address.online/bitcoin-vanity-address/)
 
 </div>
 

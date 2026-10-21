@@ -9,6 +9,8 @@ npm install -g vanity-address
 
 This is a **binary wrapper** (not a JS library). It does not compile Rust. Platform packages ship the same CLI binaries as [GitHub Releases](https://github.com/yudizaxay/vanity-address/releases).
 
+Guides: [vanity-address.online/chains](https://vanity-address.online/chains/). No install? Same engine in the browser: [vanity-address.online/generate](https://vanity-address.online/generate/). Package `homepage` is `https://vanity-address.online/`.
+
 `vanity-app/` stays `private` — desktop app is **not** published to npm.
 
 ---

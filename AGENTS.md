@@ -46,15 +46,16 @@ vanity-address/ (workspace root)
 | vanity-address (CLI) | **0.7.0** | ⏳ in tree — publish after tag |
 | vanity-app (desktop) | **0.7.0** | ⏳ in tree — GitHub Release after tag |
 | vanity-wasm / npm SDK | **0.7.0** | ⏳ in tree — npm after Release assets |
-| Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.pages.dev/generate/ |
+| Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.online/generate/ |
 
 **Git tags on GitHub:** `v0.3.0` … `v0.6.6` (next: `v0.7.0`)  
 **Latest GitHub Release:** [v0.6.6](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.6) — bump Formula/sha after `v0.7.0` exists
 
 **Website deploy (Cloudflare Pages — GitHub `main` auto-deploys `landing/`):**
 
-- Live: https://vanity-address.pages.dev/ (generator: [/generate/](https://vanity-address.pages.dev/generate/))
+- Live: https://vanity-address.online/ (generator: [/generate/](https://vanity-address.online/generate/))
 - Build settings: Framework `None`, build command empty, **output directory `landing`**, root directory empty, branch `main`
+- SEO pages (per-chain guides, `/chains/`, difficulty calculator, `sitemap.xml`) are generated: edit `scripts/gen-seo-pages.py`, run `python3 scripts/gen-seo-pages.py`, commit output. `landing/_worker.js` 301s `www` → apex and serves `404.html` for missing paths
 - Headers/CSP: `landing/_headers` (Cloudflare). `landing/netlify.toml` is legacy/optional only
 - After `vanity-core` / `vanity-wasm` changes: `./scripts/build-web.sh`, commit `landing/generate/wasm/`, push — Pages serves Git as-is (no Rust build on CF)
 
@@ -77,7 +78,7 @@ cargo publish -p vanity-address
 | **Homebrew tap** | ✅ v0.6.6 (⏳ v0.7.0 pending) | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | **Homebrew local** | ✅ Works | `brew install --build-from-source ./Formula/vanity-address.rb` |
 | **npm** | ✅ v0.6.6 (⏳ v0.7.0 pending) | `npx vanity-address` / `npm i vanity-address` |
-| **Web app** | ✅ Live | https://vanity-address.pages.dev/generate/ |
+| **Web app** | ✅ Live | https://vanity-address.online/generate/ |
 | **Winget / Scoop / AUR** | ❌ Not yet | Future optional channels |
 
 ### Homebrew user install (Homebrew 6+)
