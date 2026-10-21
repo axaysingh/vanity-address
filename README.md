@@ -10,7 +10,7 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 **Privacy-first:** keys are generated on your device only. No accounts. No telemetry. Audit the source before you trust any vanity tool.
 
-**No install?** [Generate in your browser →](https://vanity-address.pages.dev/generate/) — same engine, runs entirely in the tab.
+**No install?** [Generate in your browser →](https://vanity-address.online/generate/) — same engine, runs entirely in the tab.
 
 <br />
 
@@ -75,11 +75,14 @@ Generate multi-chain keypairs whose public address matches your desired prefix, 
 
 ## 🌐 Web App
 
-**[vanity-address.pages.dev/generate](https://vanity-address.pages.dev/generate/)** — nothing to install. Works in recent Chrome, Firefox, Safari, and Edge.
+**[vanity-address.online/generate](https://vanity-address.online/generate/)** — nothing to install. Works in recent Chrome, Firefox, Safari, and Edge.
 
 ```text
 Pick a chain → type your word → generate → save
 ```
+
+**Guides & tools** (how addresses work, valid characters, time estimates):
+[Solana](https://vanity-address.online/solana-vanity-address/) · [Ethereum](https://vanity-address.online/ethereum-vanity-address/) · [Bitcoin](https://vanity-address.online/bitcoin-vanity-address/) · [CREATE2](https://vanity-address.online/create2-vanity-address/) · [Tron](https://vanity-address.online/tron-vanity-address/) · [TON](https://vanity-address.online/ton-vanity-address/) · [all chains](https://vanity-address.online/chains/) · [difficulty calculator](https://vanity-address.online/vanity-address-difficulty/)
 
 | | Web app |
 | - | - |
@@ -100,7 +103,7 @@ Keys exist only in the open tab and are never stored or sent anywhere. The devic
 
 | I want… | My computer | File |
 | ------- | ----------- | ---- |
-| **No install** | Any modern browser | [Web app](https://vanity-address.pages.dev/generate/) |
+| **No install** | Any modern browser | [Web app](https://vanity-address.online/generate/) |
 | **Desktop app** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-Desktop.dmg` |
 | **Desktop app** | Windows 10/11 | `VanityAddress-*-Windows-Desktop.exe` |
 | **CLI** | Mac M1–M4 | `VanityAddress-*-Mac-AppleSilicon-CLI.tar.gz` |

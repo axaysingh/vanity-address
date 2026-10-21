@@ -53,16 +53,12 @@ test("supports cancellation via AbortSignal", async () => {
 test("estimateDifficulty / listChains / validatePattern helpers", () => {
   const { estimateDifficulty, listChains, validatePattern, isValidChain } = require("../src/index.js");
   const chains = listChains();
-  assert.ok(chains.length >= 25, `expected >= 25 chains, got ${chains.length}`);
+  assert.ok(chains.length >= 44, `expected >= 44 chains, got ${chains.length}`);
   const ids = new Set(chains.map((c) => c.id));
-  // 0.7.0 wasm: original menu + Bitcoin-family P2PKH forks (44). Stale artifacts may be smaller.
-  if (ids.has("rvn")) {
-    assert.equal(chains.length, 44);
-    assert.ok(ids.has("btc-segwit") && ids.has("btc-taproot") && ids.has("inj") && ids.has("sei"));
-  } else if (ids.has("sei")) {
-    assert.equal(chains.length, 31);
-    assert.ok(ids.has("btc-segwit") && ids.has("btc-taproot") && ids.has("inj"));
-  }
+  // 0.7.0 wasm: original menu + Bitcoin-family P2PKH forks (44).
+  assert.equal(chains.length, 44);
+  assert.ok(ids.has("rvn") && ids.has("btg") && ids.has("mona"));
+  assert.ok(ids.has("btc-segwit") && ids.has("btc-taproot") && ids.has("inj") && ids.has("sei"));
   assert.equal(isValidChain("eth"), true);
   assert.equal(isValidChain("nope"), false);
   const est = estimateDifficulty({ chain: "evm", prefix: "ab" });

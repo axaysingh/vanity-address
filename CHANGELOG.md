@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- **Canonical website** is now [vanity-address.online](https://vanity-address.online/) (Cloudflare Pages custom domain). `landing/_worker.js` 301s `www` to the apex. Docs, npm `homepage`, and landing canonical/OG/schema URLs updated.
+- Crate `homepage` (`vanity-core`, `vanity-address`) and the Homebrew formula now point to the website; README, npm README, `docs/INSTALL.md`, `docs/USAGE.md`, `docs/NPM.md` link the new guides and difficulty calculator.
+- SEO cluster: per-chain guides, `/chains/` hub, difficulty calculator, `404.html`, PNG Open Graph image, sitemap with `lastmod` (see `scripts/gen-seo-pages.py` + `docs/GSC.md`)
+
 ## [0.7.0] - 2026-10-20
 
 ### Added
@@ -45,7 +51,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Landing site hosts on **Cloudflare Pages** (`vanity-address.pages.dev`); CSP via `landing/_headers`. Docs and package homepages point at the new URL
+- Landing site hosts on **Cloudflare Pages**; CSP via `landing/_headers`. Docs and package homepages point at the site URL
 
 ## [0.6.4] - 2026-10-12
 

@@ -1,1655 +1,3019 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>vanity-address — vanity wallets, contracts &amp; token mints</title>
-<meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 44 chains, 100% offline, open source." />
-<meta name="keywords" content="vanity address generator, custom wallet address, name wallet, Solana vanity, EVM vanity, CREATE2, token mint vanity, offline vanity address" />
-<link rel="canonical" href="https://vanity-address.pages.dev/" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://vanity-address.pages.dev/" />
-<meta property="og:title" content="vanity-address — generate vanity wallets &amp; contracts offline" />
-<meta property="og:description" content="Free open-source vanity address generator for 44 chains. Browser, CLI, desktop. Keys never leave your device." />
-<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="vanity-address — vanity wallets &amp; contracts" />
-<meta name="twitter:description" content="Generate a custom crypto address with your word — free, offline, open source." />
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-<link rel="alternate" type="text/markdown" href="/how-to-generate-vanity-address.md" title="How to generate a vanity address" />
-<link rel="describedby" href="/llms.txt" type="text/markdown" title="LLM-friendly site overview" />
-<link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/ai-catalog+json" title="AI Catalog" />
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "SoftwareApplication",
-      "name": "vanity-address",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Windows, macOS, Linux, Web",
-      "url": "https://vanity-address.pages.dev/",
-      "downloadUrl": "https://github.com/yudizaxay/vanity-address/releases/latest",
-      "codeRepository": "https://github.com/yudizaxay/vanity-address",
-      "license": "https://opensource.org/licenses/MIT",
-      "description": "Fast, local, multi-chain vanity cryptocurrency address generator for wallets, contracts, and Solana token mints.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How do I generate a vanity crypto address?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Use vanity-address at https://vanity-address.pages.dev/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally — keys never leave your device."
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Vanity Address Generator (Offline) Solana, Ethereum, Bitcoin
+    </title>
+    <meta
+      name="description"
+      content="Free offline vanity address generator: custom Solana, Ethereum/EVM, Bitcoin, Tron &amp; 44 wallet chains, CREATE2 contracts, and Solana token mints. Browser, CLI, desktop keys never leave your device."
+    />
+    <link rel="canonical" href="https://vanity-address.online/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vanity-address.online/" />
+    <meta
+      property="og:title"
+      content="Vanity Address Generator (Offline) Solana, Ethereum, Bitcoin"
+    />
+    <meta
+      property="og:description"
+      content="Generate a custom crypto wallet or contract address with your word. 44 chains. Free, open source, 100% local no telemetry."
+    />
+    <meta
+      property="og:image"
+      content="https://vanity-address.online/assets/og.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="vanity-address" />
+    <meta
+      name="twitter:image"
+      content="https://vanity-address.online/assets/og.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Vanity Address Generator (Offline) Solana, Ethereum, Bitcoin"
+    />
+    <meta
+      name="twitter:description"
+      content="Custom Solana / EVM / Bitcoin addresses offline. Browser, CLI, desktop. Open source."
+    />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <link
+      rel="alternate"
+      type="text/markdown"
+      href="/how-to-generate-vanity-address.md"
+      title="How to generate a vanity address"
+    />
+    <link
+      rel="describedby"
+      href="/llms.txt"
+      type="text/markdown"
+      title="LLM-friendly site overview"
+    />
+    <link
+      rel="ai-catalog"
+      href="/.well-known/ai-catalog.json"
+      type="application/ai-catalog+json"
+      title="AI Catalog"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://vanity-address.online/#website",
+            "name": "vanity-address",
+            "url": "https://vanity-address.online/",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://vanity-address.online/#org",
+            "name": "vanity-address",
+            "url": "https://vanity-address.online/",
+            "logo": "https://vanity-address.online/assets/logo-512.png",
+            "sameAs": [
+              "https://github.com/yudizaxay/vanity-address",
+              "https://www.npmjs.com/package/vanity-address",
+              "https://crates.io/crates/vanity-address"
+            ]
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "vanity-address",
+            "applicationCategory": "DeveloperApplication",
+            "image": "https://vanity-address.online/assets/og.png",
+            "operatingSystem": "Windows, macOS, Linux, Web",
+            "url": "https://vanity-address.online/",
+            "downloadUrl": "https://github.com/yudizaxay/vanity-address/releases/latest",
+            "codeRepository": "https://github.com/yudizaxay/vanity-address",
+            "license": "https://opensource.org/licenses/MIT",
+            "description": "Offline multi-chain vanity address generator for Solana, Ethereum/EVM, Bitcoin, Tron and 44 chains wallets, CREATE2 contracts, and Solana token mints.",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How do I generate a vanity crypto address offline?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Use vanity-address at https://vanity-address.online/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally keys never leave your device."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I make a Solana or Ethereum wallet address with my name?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Open the vanity-address web generator or CLI, choose Solana or EVM, and set a short name-like prefix or suffix. Longer patterns take much longer; the tool shows an ETA before you start."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I generate a CREATE2 or Solana token mint vanity address?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. vanity-address supports EVM CREATE / CREATE2 contract vanity and Solana SPL token mint vanity in the CLI, desktop app, and web generator, all offline."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is vanity-address free and offline?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. It is MIT open source. The browser, CLI, and desktop apps generate keys only on your machine with no telemetry."
+                }
+              }
+            ]
           }
-        },
-        {
-          "@type": "Question",
-          "name": "How do I make a wallet address with my name?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Open the vanity-address web generator or CLI, choose your chain, and set a short name-like prefix or suffix. Longer patterns take much longer; the tool shows an ETA before you start."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is vanity-address free and offline?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. It is MIT open source. The browser, CLI, and desktop apps generate keys only on your machine with no telemetry."
-          }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fewer weights = faster FCP/LCP on mobile; display=swap already set. -->
+    <link
+      id="webFonts"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    /></noscript>
+
+    <style>
+      :root {
+        --paper: #e8edf2;
+        --paper-deep: #d5dce6;
+        --ink: #0d1b2a;
+        --ink-soft: #3a4a5c;
+        --forest: #1b4332;
+        --forest-mid: #2d6a4f;
+        --stamp: #ff6b35;
+        --stamp-deep: #9a3209;
+        --stamp-fill: #c2410c;
+        --wax: #f5b700;
+        --white: #fbfcfd;
+        --line: rgba(13, 27, 42, 0.12);
+        --shadow: 0 12px 0 rgba(13, 27, 42, 0.08);
+        --display: "Fraunces", Georgia, serif;
+        --sans: "Source Sans 3", system-ui, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.55;
+        overflow-x: hidden;
+        background-image:
+          radial-gradient(
+            ellipse 80% 50% at 10% -10%,
+            rgba(245, 183, 0, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 100% 0%,
+            rgba(255, 107, 53, 0.12),
+            transparent 50%
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 27px,
+            rgba(13, 27, 42, 0.03) 27px,
+            rgba(13, 27, 42, 0.03) 28px
+          );
+      }
+      ::selection {
+        background: var(--stamp);
+        color: #fff;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      img,
+      svg {
+        display: block;
+        max-width: 100%;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      code.inline {
+        font-family: var(--mono);
+        font-size: 0.88em;
+        background: var(--paper-deep);
+        padding: 0.12em 0.4em;
+        border-radius: 4px;
+      }
+      button.copy-cmd {
+        font-family: var(--mono);
+        font-size: 0.88em;
+        background: var(--paper-deep);
+        padding: 0.12em 0.4em;
+        border-radius: 4px;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        vertical-align: baseline;
+      }
+      button.copy-cmd:hover {
+        outline: 2px solid var(--ink);
+        outline-offset: 1px;
+      }
+      button.copy-cmd:focus-visible {
+        outline: 3px solid var(--stamp);
+        outline-offset: 2px;
+      }
+
+      /* ---- nav ---- */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: rgba(232, 237, 242, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--ink);
+        transition:
+          background-color 0.25s ease,
+          border-color 0.25s ease;
+      }
+      .nav.on-dark {
+        background: #0b0b0b;
+        backdrop-filter: none;
+        border-bottom-color: transparent;
+      }
+      .nav.on-dark .brand {
+        color: #fff;
+      }
+      .nav.on-dark .nav-links {
+        color: rgba(236, 233, 228, 0.7);
+      }
+      .nav.on-dark .nav-links a:hover {
+        color: #fff;
+      }
+      .nav.on-dark .nav-toggle {
+        border-color: rgba(236, 233, 228, 0.4);
+        color: #fff;
+      }
+      .nav.on-dark .nav-cta {
+        border-color: rgba(236, 233, 228, 0.35);
+        box-shadow: 3px 3px 0 rgba(236, 233, 228, 0.25);
+      }
+      .nav.on-dark .nav-cta:hover {
+        box-shadow: 4px 4px 0 rgba(236, 233, 228, 0.35);
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 12px 22px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+        transition: color 0.25s ease;
+      }
+      .brand img {
+        width: 34px;
+        height: 34px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+        font-weight: 600;
+        transition: color 0.25s ease;
+      }
+      .nav-links a:hover {
+        color: var(--forest);
+      }
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--forest);
+        color: var(--white);
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        border: 2px solid var(--ink);
+        box-shadow: 3px 3px 0 var(--ink);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .nav-cta:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      .nav-cta svg {
+        width: 15px;
+        height: 15px;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        padding: 6px;
+        cursor: pointer;
+        color: var(--ink);
+      }
+      @media (max-width: 800px) {
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          flex-direction: column;
+          gap: 0;
+          background: var(--paper);
+          border-bottom: 2px solid var(--ink);
+          padding: 8px 22px 14px;
         }
-      ]
-    }
-  ]
-}
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<!-- Fewer weights = faster FCP/LCP on mobile; display=swap already set. -->
-<link id="webFonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" /></noscript>
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 12px 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .nav-toggle {
+          display: flex;
+        }
+        .nav-cta .cta-text {
+          display: none;
+        }
+      }
 
-<style>
-  :root {
-    --paper: #E8EDF2;
-    --paper-deep: #D5DCE6;
-    --ink: #0D1B2A;
-    --ink-soft: #3A4A5C;
-    --forest: #1B4332;
-    --forest-mid: #2D6A4F;
-    --stamp: #FF6B35;
-    --stamp-deep: #9A3209;
-    --stamp-fill: #C2410C;
-    --wax: #F5B700;
-    --white: #FBFCFD;
-    --line: rgba(13, 27, 42, 0.12);
-    --shadow: 0 12px 0 rgba(13, 27, 42, 0.08);
-    --display: "Fraunces", Georgia, serif;
-    --sans: "Source Sans 3", system-ui, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--sans);
-    line-height: 1.55;
-    overflow-x: hidden;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(245, 183, 0, 0.18), transparent 55%),
-      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 107, 53, 0.12), transparent 50%),
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 27px,
-        rgba(13, 27, 42, 0.03) 27px,
-        rgba(13, 27, 42, 0.03) 28px
-      );
-  }
-  ::selection { background: var(--stamp); color: #fff; }
-  a { color: inherit; text-decoration: none; }
-  img, svg { display: block; max-width: 100%; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
-  .sr-only {
-    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
-  }
-  code.inline {
-    font-family: var(--mono);
-    font-size: 0.88em;
-    background: var(--paper-deep);
-    padding: 0.12em 0.4em;
-    border-radius: 4px;
-  }
-  button.copy-cmd {
-    font-family: var(--mono);
-    font-size: 0.88em;
-    background: var(--paper-deep);
-    padding: 0.12em 0.4em;
-    border-radius: 4px;
-    border: 0;
-    color: inherit;
-    cursor: pointer;
-    vertical-align: baseline;
-  }
-  button.copy-cmd:hover {
-    outline: 2px solid var(--ink);
-    outline-offset: 1px;
-  }
-  button.copy-cmd:focus-visible {
-    outline: 3px solid var(--stamp);
-    outline-offset: 2px;
-  }
-
-  /* ---- nav ---- */
-  .nav {
-    position: sticky; top: 0; z-index: 40;
-    background: rgba(232, 237, 242, 0.92);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--ink);
-    transition: background-color .25s ease, border-color .25s ease;
-  }
-  .nav.on-dark {
-    background: #0b0b0b;
-    backdrop-filter: none;
-    border-bottom-color: transparent;
-  }
-  .nav.on-dark .brand { color: #fff; }
-  .nav.on-dark .nav-links { color: rgba(236, 233, 228, 0.7); }
-  .nav.on-dark .nav-links a:hover { color: #fff; }
-  .nav.on-dark .nav-toggle { border-color: rgba(236, 233, 228, 0.4); color: #fff; }
-  .nav.on-dark .nav-cta { border-color: rgba(236, 233, 228, 0.35); box-shadow: 3px 3px 0 rgba(236, 233, 228, 0.25); }
-  .nav.on-dark .nav-cta:hover { box-shadow: 4px 4px 0 rgba(236, 233, 228, 0.35); }
-  .nav-inner {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; max-width: 1120px; margin: 0 auto; padding: 12px 22px;
-  }
-  .brand {
-    display: flex; align-items: center; gap: 10px;
-    font-family: var(--display); font-weight: 700; font-size: 1.15rem;
-    letter-spacing: -0.02em;
-    transition: color .25s ease;
-  }
-  .brand img { width: 34px; height: 34px; }
-  .nav-links {
-    display: flex; gap: 22px; font-size: 0.95rem; color: var(--ink-soft); font-weight: 600;
-    transition: color .25s ease;
-  }
-  .nav-links a:hover { color: var(--forest); }
-  .nav-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--forest); color: var(--white);
-    padding: 9px 14px; border-radius: 999px; font-weight: 700; font-size: 0.88rem;
-    border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .nav-cta:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
-  .nav-cta svg { width: 15px; height: 15px; }
-  .nav-toggle {
-    display: none; background: none; border: 2px solid var(--ink);
-    border-radius: 8px; padding: 6px; cursor: pointer; color: var(--ink);
-  }
-  @media (max-width: 800px) {
-    .nav-links {
-      display: none; position: absolute; top: 100%; left: 0; right: 0;
-      flex-direction: column; gap: 0; background: var(--paper);
-      border-bottom: 2px solid var(--ink); padding: 8px 22px 14px;
-    }
-    .nav-links.open { display: flex; }
-    .nav-links a { padding: 12px 0; border-bottom: 1px solid var(--line); }
-    .nav-toggle { display: flex; }
-    .nav-cta .cta-text { display: none; }
-  }
-
-  /* ---- hero splash: full-viewport ascii wordmark ----
+      /* ---- hero splash: full-viewport ascii wordmark ----
      Flex column locked to the first screen: ascii shrinks, CTAs never crop. */
-  .hero-splash {
-    /* Match sticky nav box (logo + padding). Prefer overshooting so CTAs stay on-screen. */
-    --hero-nav: 72px;
-    position: relative;
-    box-sizing: border-box;
-    min-height: calc(100svh - var(--hero-nav));
-    height: calc(100dvh - var(--hero-nav));
-    max-height: calc(100dvh - var(--hero-nav));
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    overflow: hidden;
-    border-bottom: 3px solid var(--ink);
-    background: #0b0b0b;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
-  .hero-splash-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(12px, 2.5vh, 28px);
-    width: 100%;
-    max-width: 1680px;
-    margin: 0 auto;
-    padding: clamp(12px, 2.5vh, 32px) clamp(14px, 3vw, 28px);
-    padding-bottom: max(clamp(12px, 2.5vh, 32px), env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-    min-height: 0;
-    flex: 1 1 auto;
-  }
-  .hero-ascii-wrap {
-    position: relative; z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    flex: 1 1 auto;
-    min-height: 0; /* critical: yield space to CTAs when viewport is short */
-    max-height: min(72vh, 640px);
-    overflow: hidden;
-    contain: size;
-    pointer-events: none; /* empty band above/below glyphs must not trigger hover */
-  }
-  /* Visible before JS ascii rasterizes — helps mobile FCP/LCP. */
-  .hero-ascii-fallback {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: clamp(1.6rem, 7vw, 3.4rem);
-    letter-spacing: -0.04em;
-    color: #ECE9E4;
-    text-align: center;
-    line-height: 1.05;
-    margin: 0;
-  }
-  .hero-ascii-wrap.is-ready .hero-ascii-fallback { display: none; }
-  .hero-ascii {
-    margin: 0;
-    font-family: var(--mono);
-    line-height: 0.86;
-    letter-spacing: 0;
-    color: #ece9e4;
-    white-space: pre;
-    text-align: center;
-    user-select: none;
-    transform-origin: center center;
-    pointer-events: auto; /* animation only when cursor is on the word */
-    cursor: default;
-  }
-  .hero-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(8px, 1.5vw, 14px);
-    width: 100%;
-    margin: 0;
-    flex: 0 0 auto; /* never shrink / never clipped under the fold */
-    position: relative;
-    z-index: 2;
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--sans); font-weight: 700; font-size: 1rem;
-    padding: 13px 22px; border-radius: 14px;
-    border: 2.5px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--ink);
-    transition: transform .15s ease, box-shadow .15s ease;
-    cursor: pointer;
-    text-align: center;
-  }
-  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
-  .btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--ink); }
-  .btn-primary { background: var(--stamp-fill); color: #fff; }
-  .btn-ghost { background: var(--white); color: var(--ink); }
-  .hero-splash .btn { border-color: rgba(236, 233, 228, 0.35); box-shadow: 4px 4px 0 rgba(236, 233, 228, 0.18); }
-  .hero-splash .btn:hover { box-shadow: 6px 6px 0 rgba(236, 233, 228, 0.28); }
-  .hero-splash .btn:active { box-shadow: 2px 2px 0 rgba(236, 233, 228, 0.18); }
-  .hero-splash .btn-primary { border-color: var(--stamp-fill); }
-  .hero-splash .btn-ghost { background: transparent; color: #fff; }
+      .hero-splash {
+        /* Match sticky nav box (logo + padding). Prefer overshooting so CTAs stay on-screen. */
+        --hero-nav: 72px;
+        position: relative;
+        box-sizing: border-box;
+        min-height: calc(100svh - var(--hero-nav));
+        height: calc(100dvh - var(--hero-nav));
+        max-height: calc(100dvh - var(--hero-nav));
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        overflow: hidden;
+        border-bottom: 3px solid var(--ink);
+        background: #0b0b0b;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+          );
+        background-size: 28px 28px;
+      }
+      .hero-splash-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(12px, 2.5vh, 28px);
+        width: 100%;
+        max-width: 1680px;
+        margin: 0 auto;
+        padding: clamp(12px, 2.5vh, 32px) clamp(14px, 3vw, 28px);
+        padding-bottom: max(
+          clamp(12px, 2.5vh, 32px),
+          env(safe-area-inset-bottom, 0px)
+        );
+        box-sizing: border-box;
+        min-height: 0;
+        flex: 1 1 auto;
+      }
+      .hero-ascii-wrap {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        flex: 1 1 auto;
+        min-height: 0; /* critical: yield space to CTAs when viewport is short */
+        max-height: min(72vh, 640px);
+        overflow: hidden;
+        contain: size;
+        pointer-events: none; /* empty band above/below glyphs must not trigger hover */
+      }
+      /* Visible before JS ascii rasterizes — helps mobile FCP/LCP. */
+      .hero-ascii-fallback {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: clamp(1.6rem, 7vw, 3.4rem);
+        letter-spacing: -0.04em;
+        color: #ece9e4;
+        text-align: center;
+        line-height: 1.05;
+        margin: 0;
+      }
+      .hero-ascii-wrap.is-ready .hero-ascii-fallback {
+        display: none;
+      }
+      .hero-ascii {
+        margin: 0;
+        font-family: var(--mono);
+        line-height: 0.86;
+        letter-spacing: 0;
+        color: #ece9e4;
+        white-space: pre;
+        text-align: center;
+        user-select: none;
+        transform-origin: center center;
+        pointer-events: auto; /* animation only when cursor is on the word */
+        cursor: default;
+      }
+      .hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(8px, 1.5vw, 14px);
+        width: 100%;
+        margin: 0;
+        flex: 0 0 auto; /* never shrink / never clipped under the fold */
+        position: relative;
+        z-index: 2;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 13px 22px;
+        border-radius: 14px;
+        border: 2.5px solid var(--ink);
+        box-shadow: 4px 4px 0 var(--ink);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        cursor: pointer;
+        text-align: center;
+      }
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+      .btn:active {
+        transform: translate(1px, 1px);
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .btn-primary {
+        background: var(--stamp-fill);
+        color: #fff;
+      }
+      .btn-ghost {
+        background: var(--white);
+        color: var(--ink);
+      }
+      .hero-splash .btn {
+        border-color: rgba(236, 233, 228, 0.35);
+        box-shadow: 4px 4px 0 rgba(236, 233, 228, 0.18);
+      }
+      .hero-splash .btn:hover {
+        box-shadow: 6px 6px 0 rgba(236, 233, 228, 0.28);
+      }
+      .hero-splash .btn:active {
+        box-shadow: 2px 2px 0 rgba(236, 233, 228, 0.18);
+      }
+      .hero-splash .btn-primary {
+        border-color: var(--stamp-fill);
+      }
+      .hero-splash .btn-ghost {
+        background: transparent;
+        color: #fff;
+      }
 
-  @media (max-width: 900px) {
-    .hero-splash { --hero-nav: 60px; }
-    .hero-ctas .btn {
-      justify-content: center;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-    }
-  }
+      @media (max-width: 900px) {
+        .hero-splash {
+          --hero-nav: 60px;
+        }
+        .hero-ctas .btn {
+          justify-content: center;
+          padding: 12px 16px;
+          font-size: 0.95rem;
+        }
+      }
 
-  @media (max-width: 520px) {
-    .hero-ctas {
-      flex-direction: column;
-      align-items: stretch;
-      max-width: 22rem;
-      margin-inline: auto;
-    }
-    .hero-ctas .btn {
-      width: 100%;
-      justify-content: center;
-      white-space: normal;
-      box-sizing: border-box;
-    }
-  }
+      @media (max-width: 520px) {
+        .hero-ctas {
+          flex-direction: column;
+          align-items: stretch;
+          max-width: 22rem;
+          margin-inline: auto;
+        }
+        .hero-ctas .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+          box-sizing: border-box;
+        }
+      }
 
-  /* ---- sections ---- */
-  section { padding: 72px 0; }
-  .section-kicker {
-    font-family: var(--mono); font-size: 0.8rem; color: var(--stamp-deep);
-    font-weight: 500; margin-bottom: 10px;
-  }
-  .section-title {
-    font-family: var(--display);
-    font-size: clamp(1.9rem, 4vw, 2.7rem);
-    font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
-    margin-bottom: 12px; max-width: 18ch;
-  }
-  .section-desc {
-    color: var(--ink-soft); font-size: 1.05rem; max-width: 54ch; margin-bottom: 36px;
-  }
+      /* ---- sections ---- */
+      section {
+        padding: 72px 0;
+      }
+      .section-kicker {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--stamp-deep);
+        font-weight: 500;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        font-family: var(--display);
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 12px;
+        max-width: 18ch;
+      }
+      .section-desc {
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        max-width: 54ch;
+        margin-bottom: 36px;
+      }
 
-  /* how it works — sequential, not cards */
-  .steps {
-    display: grid; gap: 0;
-    border: 2.5px solid var(--ink);
-    border-radius: 20px;
-    overflow: hidden;
-    background: var(--white);
-    box-shadow: var(--shadow);
-  }
-  .step {
-    display: grid; grid-template-columns: 120px 1fr;
-    gap: 18px; align-items: center;
-    padding: 28px 28px;
-    border-bottom: 2px solid var(--line);
-  }
-  .step:last-child { border-bottom: none; }
-  .step-art { width: 96px; height: 96px; margin: 0 auto; }
-  .step h3 {
-    font-family: var(--display); font-size: 1.35rem; font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .step p { color: var(--ink-soft); max-width: 48ch; }
-  .step-num {
-    display: inline-block;
-    font-family: var(--mono); font-size: 0.75rem;
-    background: var(--wax); border: 1.5px solid var(--ink);
-    border-radius: 999px; padding: 2px 8px; margin-bottom: 8px;
-  }
-  @media (max-width: 640px) {
-    .step { grid-template-columns: 1fr; text-align: left; }
-    .step-art { margin: 0; }
-  }
+      /* how it works — sequential, not cards */
+      .steps {
+        display: grid;
+        gap: 0;
+        border: 2.5px solid var(--ink);
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--white);
+        box-shadow: var(--shadow);
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 18px;
+        align-items: center;
+        padding: 28px 28px;
+        border-bottom: 2px solid var(--line);
+      }
+      .step:last-child {
+        border-bottom: none;
+      }
+      .step-art {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto;
+      }
+      .step h3 {
+        font-family: var(--display);
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .step p {
+        color: var(--ink-soft);
+        max-width: 48ch;
+      }
+      .step-num {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        background: var(--wax);
+        border: 1.5px solid var(--ink);
+        border-radius: 999px;
+        padding: 2px 8px;
+        margin-bottom: 8px;
+      }
+      @media (max-width: 640px) {
+        .step {
+          grid-template-columns: 1fr;
+          text-align: left;
+        }
+        .step-art {
+          margin: 0;
+        }
+      }
 
-  /* deploy / contract modes */
-  #deploy { background: var(--paper-deep); }
-  .deploy-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
-  }
-  .deploy-card {
-    background: var(--white);
-    border: 2.5px solid var(--ink);
-    border-radius: 18px;
-    padding: 22px 20px;
-    box-shadow: 5px 5px 0 var(--ink);
-  }
-  .deploy-card .mode-tag {
-    display: inline-block;
-    font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
-    background: var(--wax); border: 1.5px solid var(--ink);
-    border-radius: 999px; padding: 2px 9px; margin-bottom: 10px;
-  }
-  .deploy-card h3 {
-    font-family: var(--display); font-size: 1.3rem; font-weight: 700;
-    margin-bottom: 8px; letter-spacing: -0.02em;
-  }
-  .deploy-card p { color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 14px; }
-  .deploy-card code.inline { font-size: 0.8em; }
-  .deploy-card .deploy-cta {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-weight: 700; font-size: 0.92rem; color: var(--forest-mid);
-    text-decoration: underline; text-underline-offset: 3px;
-  }
-  .deploy-card .deploy-cta:hover { color: var(--stamp-fill); }
-  @media (max-width: 860px) {
-    .deploy-grid { grid-template-columns: 1fr; }
-  }
+      /* deploy / contract modes */
+      #deploy {
+        background: var(--paper-deep);
+      }
+      .deploy-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .deploy-card {
+        background: var(--white);
+        border: 2.5px solid var(--ink);
+        border-radius: 18px;
+        padding: 22px 20px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+      .deploy-card .mode-tag {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 500;
+        background: var(--wax);
+        border: 1.5px solid var(--ink);
+        border-radius: 999px;
+        padding: 2px 9px;
+        margin-bottom: 10px;
+      }
+      .deploy-card h3 {
+        font-family: var(--display);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+      }
+      .deploy-card p {
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+        margin-bottom: 14px;
+      }
+      .deploy-card code.inline {
+        font-size: 0.8em;
+      }
+      .deploy-card .deploy-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--forest-mid);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .deploy-card .deploy-cta:hover {
+        color: var(--stamp-fill);
+      }
+      @media (max-width: 860px) {
+        .deploy-grid {
+          grid-template-columns: 1fr;
+        }
+      }
 
-  /* download tickets */
-  #download { background: var(--paper-deep); }
-  .platform-row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
-  }
-  .ticket {
-    background: var(--white);
-    border: 2.5px solid var(--ink);
-    border-radius: 18px;
-    padding: 22px 20px;
-    box-shadow: 5px 5px 0 var(--ink);
-    position: relative;
-  }
-  .ticket::before {
-    content: "";
-    position: absolute; top: 14px; right: 14px;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--paper);
-    border: 2px solid var(--ink);
-    box-shadow: inset 0 0 0 3px var(--stamp);
-  }
-  .ticket h3 {
-    font-family: var(--display); font-size: 1.45rem; margin: 10px 0 4px;
-  }
-  .ticket .psub { color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 16px; }
-  .ticket .btn { width: 100%; justify-content: center; margin-bottom: 10px; }
-  .ticket .alt {
-    display: block; text-align: center; font-size: 0.88rem;
-    color: var(--forest-mid); font-weight: 600; text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .version-tag {
-    display: inline-block;
-    font-family: var(--mono); font-size: 0.78rem;
-    background: var(--wax); border: 1.5px solid var(--ink);
-    border-radius: 6px; padding: 3px 8px; margin-bottom: 10px;
-  }
-  .other-ways {
-    margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-  }
-  .other-ways-label { font-weight: 700; color: var(--ink-soft); margin-right: 4px; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--white); border: 2px solid var(--ink);
-    border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 0.9rem;
-    box-shadow: 2px 2px 0 var(--ink);
-  }
-  .pill:hover { background: var(--wax); }
-  .pill svg { width: 14px; height: 14px; }
-  @media (max-width: 860px) {
-    .platform-row { grid-template-columns: 1fr; }
-  }
+      /* download tickets */
+      #download {
+        background: var(--paper-deep);
+      }
+      .platform-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .ticket {
+        background: var(--white);
+        border: 2.5px solid var(--ink);
+        border-radius: 18px;
+        padding: 22px 20px;
+        box-shadow: 5px 5px 0 var(--ink);
+        position: relative;
+      }
+      .ticket::before {
+        content: "";
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        box-shadow: inset 0 0 0 3px var(--stamp);
+      }
+      .ticket h3 {
+        font-family: var(--display);
+        font-size: 1.45rem;
+        margin: 10px 0 4px;
+      }
+      .ticket .psub {
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+      }
+      .ticket .btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .ticket .alt {
+        display: block;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--forest-mid);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .version-tag {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        background: var(--wax);
+        border: 1.5px solid var(--ink);
+        border-radius: 6px;
+        padding: 3px 8px;
+        margin-bottom: 10px;
+      }
+      .other-ways {
+        margin-top: 28px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+      .other-ways-label {
+        font-weight: 700;
+        color: var(--ink-soft);
+        margin-right: 4px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--white);
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .pill:hover {
+        background: var(--wax);
+      }
+      .pill svg {
+        width: 14px;
+        height: 14px;
+      }
+      @media (max-width: 860px) {
+        .platform-row {
+          grid-template-columns: 1fr;
+        }
+      }
 
-  /* demo */
-  .demo-shell {
-    border: 2.5px solid var(--ink);
-    border-radius: 18px;
-    overflow: hidden;
-    background: #102033;
-    color: #d7e2ef;
-    box-shadow: 8px 8px 0 var(--ink);
-    font-family: var(--mono); font-size: 0.88rem;
-  }
-  .demo-bar {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px; background: #17263a;
-    border-bottom: 2px solid rgba(255,255,255,0.08);
-  }
-  .tdot { width: 10px; height: 10px; border-radius: 50%; }
-  .tdot.r { background: #ff6b6b; }
-  .tdot.y { background: #f5b700; }
-  .tdot.g { background: #51cf66; }
-  .tlabel { margin-left: 8px; opacity: 0.7; font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .demo-body { padding: 18px 16px 22px; min-height: 220px; white-space: pre-wrap; line-height: 1.55; }
-  .demo-body .ok { color: #69db7c; }
-  .demo-body .dim { opacity: 0.55; }
-  .demo-body .hi { color: var(--wax); }
+      /* demo */
+      .demo-shell {
+        border: 2.5px solid var(--ink);
+        border-radius: 18px;
+        overflow: hidden;
+        background: #102033;
+        color: #d7e2ef;
+        box-shadow: 8px 8px 0 var(--ink);
+        font-family: var(--mono);
+        font-size: 0.88rem;
+      }
+      .demo-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: #17263a;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+      }
+      .tdot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .tdot.r {
+        background: #ff6b6b;
+      }
+      .tdot.y {
+        background: #f5b700;
+      }
+      .tdot.g {
+        background: #51cf66;
+      }
+      .tlabel {
+        margin-left: 8px;
+        opacity: 0.7;
+        font-size: 0.78rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .demo-body {
+        padding: 18px 16px 22px;
+        min-height: 220px;
+        white-space: pre-wrap;
+        line-height: 1.55;
+      }
+      .demo-body .ok {
+        color: #69db7c;
+      }
+      .demo-body .dim {
+        opacity: 0.55;
+      }
+      .demo-body .hi {
+        color: var(--wax);
+      }
 
-  /* chains as stickers */
-  .chains-wall {
-    display: flex; flex-wrap: wrap; gap: 10px;
-  }
-  .sticker {
-    display: inline-flex; flex-direction: column; gap: 2px;
-    background: var(--white);
-    border: 2px solid var(--ink);
-    border-radius: 12px;
-    padding: 10px 12px 8px;
-    box-shadow: 2px 2px 0 var(--ink);
-    opacity: 0;
-    animation: stickerDrop .45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    animation-play-state: paused;
-    animation-delay: var(--d, 0s);
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .chains-wall.in-view .sticker { animation-play-state: running; }
-  .sticker.dropped {
-    animation: none;
-    opacity: 1;
-    transform: rotate(var(--r, 0deg));
-  }
-  @keyframes stickerDrop {
-    0% { opacity: 0; transform: translateY(-70px) rotate(var(--r, 0deg)); }
-    55% { opacity: 1; }
-    100% { opacity: 1; transform: translateY(0) rotate(var(--r, 0deg)); }
-  }
-  .sticker:nth-child(4n) { background: #fff7e6; }
-  .sticker:nth-child(4n+1) { background: #e8f5ef; }
-  .sticker:nth-child(4n+2) { background: #ffe8df; }
-  .sticker:nth-child(4n+3) { background: var(--white); }
-  .sticker:hover {
-    transform: rotate(0deg) scale(1.04);
-    box-shadow: 4px 4px 0 var(--ink);
-    z-index: 1;
-  }
-  .sticker .cid {
-    font-family: var(--mono); font-size: 0.72rem; color: var(--stamp-deep); font-weight: 500;
-  }
-  .sticker .cname { font-weight: 700; font-size: 0.92rem; }
+      /* chains as stickers */
+      .chains-wall {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .sticker {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 2px;
+        background: var(--white);
+        border: 2px solid var(--ink);
+        border-radius: 12px;
+        padding: 10px 12px 8px;
+        box-shadow: 2px 2px 0 var(--ink);
+        opacity: 0;
+        animation: stickerDrop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation-play-state: paused;
+        animation-delay: var(--d, 0s);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .chains-wall.in-view .sticker {
+        animation-play-state: running;
+      }
+      .sticker.dropped {
+        animation: none;
+        opacity: 1;
+        transform: rotate(var(--r, 0deg));
+      }
+      @keyframes stickerDrop {
+        0% {
+          opacity: 0;
+          transform: translateY(-70px) rotate(var(--r, 0deg));
+        }
+        55% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) rotate(var(--r, 0deg));
+        }
+      }
+      .sticker:nth-child(4n) {
+        background: #fff7e6;
+      }
+      .sticker:nth-child(4n + 1) {
+        background: #e8f5ef;
+      }
+      .sticker:nth-child(4n + 2) {
+        background: #ffe8df;
+      }
+      .sticker:nth-child(4n + 3) {
+        background: var(--white);
+      }
+      .sticker:hover {
+        transform: rotate(0deg) scale(1.04);
+        box-shadow: 4px 4px 0 var(--ink);
+        z-index: 1;
+      }
+      .sticker .cid {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--stamp-deep);
+        font-weight: 500;
+      }
+      .sticker .cname {
+        font-weight: 700;
+        font-size: 0.92rem;
+      }
 
-  /* install */
-  #install { background: var(--white); }
-  .tabs {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
-  }
-  .tab-btn {
-    font-family: var(--sans); font-weight: 700; font-size: 0.92rem;
-    background: var(--paper); color: var(--ink);
-    border: 2px solid var(--ink); border-radius: 999px;
-    padding: 8px 16px; cursor: pointer;
-  }
-  .tab-btn.active {
-    background: var(--forest); color: var(--white);
-  }
-  .code-block {
-    display: none;
-    position: relative;
-    background: #102033; color: #e8eef6;
-    border: 2.5px solid var(--ink); border-radius: 16px;
-    padding: 22px 18px 18px; font-family: var(--mono); font-size: 0.9rem;
-    box-shadow: 5px 5px 0 var(--ink); overflow-x: auto;
-  }
-  .code-block.active { display: block; }
-  .code-block .cmt { color: #7f93ab; }
-  .code-block .g { color: var(--wax); }
-  .copy-btn {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--stamp-fill); color: #fff; border: 2px solid #fff;
-    border-radius: 8px; padding: 5px 10px; font-family: var(--sans);
-    font-weight: 700; font-size: 0.78rem; cursor: pointer;
-  }
+      /* install */
+      #install {
+        background: var(--white);
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .tab-btn {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 0.92rem;
+        background: var(--paper);
+        color: var(--ink);
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        padding: 8px 16px;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: var(--forest);
+        color: var(--white);
+      }
+      .code-block {
+        display: none;
+        position: relative;
+        background: #102033;
+        color: #e8eef6;
+        border: 2.5px solid var(--ink);
+        border-radius: 16px;
+        padding: 22px 18px 18px;
+        font-family: var(--mono);
+        font-size: 0.9rem;
+        box-shadow: 5px 5px 0 var(--ink);
+        overflow-x: auto;
+      }
+      .code-block.active {
+        display: block;
+      }
+      .code-block .cmt {
+        color: #7f93ab;
+      }
+      .code-block .g {
+        color: var(--wax);
+      }
+      .copy-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--stamp-fill);
+        color: #fff;
+        border: 2px solid #fff;
+        border-radius: 8px;
+        padding: 5px 10px;
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
 
-  /* security strip */
-  #security {
-    background: var(--forest);
-    color: var(--white);
-    border-bottom: 3px solid var(--ink);
-  }
-  #security .section-title { color: var(--white); }
-  #security .section-desc { color: rgba(255,255,255,0.75); }
-  .rules {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-  }
-  .rule {
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.25);
-    border-radius: 14px; padding: 18px 16px;
-  }
-  .rule h3 {
-    font-family: var(--display); font-size: 1.15rem; margin-bottom: 6px;
-    color: var(--wax);
-  }
-  .rule p { font-size: 0.95rem; opacity: 0.88; }
-  @media (max-width: 800px) {
-    .rules { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 520px) {
-    .rules { grid-template-columns: 1fr; }
-  }
+      /* security strip */
+      #security {
+        background: var(--forest);
+        color: var(--white);
+        border-bottom: 3px solid var(--ink);
+      }
+      #security .section-title {
+        color: var(--white);
+      }
+      #security .section-desc {
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .rules {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+      .rule {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-radius: 14px;
+        padding: 18px 16px;
+      }
+      .rule h3 {
+        font-family: var(--display);
+        font-size: 1.15rem;
+        margin-bottom: 6px;
+        color: var(--wax);
+      }
+      .rule p {
+        font-size: 0.95rem;
+        opacity: 0.88;
+      }
+      @media (max-width: 800px) {
+        .rules {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 520px) {
+        .rules {
+          grid-template-columns: 1fr;
+        }
+      }
 
-  /* final CTA */
-  .final {
-    text-align: center; padding: 80px 0 72px;
-  }
-  .final .section-title { margin-left: auto; margin-right: auto; }
-  .final .section-desc { margin-left: auto; margin-right: auto; }
-  .final .hero-ctas { justify-content: center; }
-  .ask-ai {
-    margin: 40px auto 0;
-    max-width: 420px;
-    padding: 20px 24px 18px;
-    background: var(--white);
-    border: 2px solid var(--ink);
-    border-radius: 14px;
-    box-shadow: 4px 4px 0 var(--ink);
-    text-align: left;
-  }
-  .ask-ai-title {
-    font-family: var(--sans);
-    font-size: 1.02rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0 0 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    line-height: 1.25;
-  }
-  .ask-ai-title .sparkle {
-    flex-shrink: 0;
-    width: 18px; height: 18px;
-    color: var(--stamp);
-  }
-  .ask-ai-links {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .ask-ai-link {
-    width: 48px;
-    height: 48px;
-    flex: 0 0 48px;
-    border-radius: 50%;
-    border: 2px solid var(--ink);
-    display: grid;
-    place-items: center;
-    box-shadow: 2px 2px 0 var(--ink);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-    text-decoration: none;
-  }
-  .ask-ai-link:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 var(--ink);
-  }
-  .ask-ai-link:focus-visible {
-    outline: 3px solid var(--stamp);
-    outline-offset: 3px;
-  }
-  .ask-ai-link img {
-    width: 24px;
-    height: 24px;
-    display: block;
-    object-fit: contain;
-  }
-  /* Monochrome brand marks → white on tinted circles */
-  .ask-ai-link.icon-light img {
-    filter: brightness(0) invert(1);
-  }
-  .ask-ai-link[data-ai="chatgpt"] { background: #fff; }
-  .ask-ai-link[data-ai="claude"] { background: #fff; }
-  .ask-ai-link[data-ai="perplexity"] { background: #fff; }
-  .ask-ai-link[data-ai="gemini"] { background: #fff; }
-  .ask-ai-link[data-ai="grok"] { background: #fff; }
-  /* Colored brand marks (Claude / Perplexity / Gemini) — don't invert */
-  .ask-ai-link[data-ai="gemini"] img,
-  .ask-ai-link[data-ai="claude"] img,
-  .ask-ai-link[data-ai="perplexity"] img { filter: none; }
-  @media (max-width: 640px) {
-    .ask-ai { margin-top: 28px; max-width: 340px; padding: 18px 16px 16px; }
-    .ask-ai-links { gap: 8px; }
-    .ask-ai-link { width: 44px; height: 44px; flex-basis: 44px; }
-    .ask-ai-link img { width: 22px; height: 22px; }
-    .ask-ai-title { justify-content: center; font-size: 0.95rem; }
-  }
-  .sponsor {
-    margin: 56px auto 0; max-width: 640px;
-    display: flex; flex-direction: column; align-items: center; gap: 14px;
-  }
-  .sponsor-kicker { color: var(--ink-soft); font-weight: 700; }
-  /* GitHub's card follows the visitor's OS theme, so the padding matches its background */
-  .sponsor-frame {
-    width: 100%; max-width: 624px; padding: 12px; overflow: hidden;
-    background: #fff; border: 2px solid var(--ink); border-radius: 14px;
-    box-shadow: 4px 4px 0 var(--ink);
-  }
-  @media (prefers-color-scheme: dark) {
-    .sponsor-frame { background: #0d1117; }
-  }
-  .sponsor-card { display: block; width: 100%; height: 130px; border: 0; }
-  @media (max-width: 640px) {
-    .sponsor { margin-top: 40px; }
-    .sponsor-card { height: 236px; }
-  }
-  .sponsor-btn { display: block; border: 0; border-radius: 6px; }
-  .fright { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+      /* final CTA */
+      .final {
+        text-align: center;
+        padding: 80px 0 72px;
+      }
+      .final .section-title {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .final .section-desc {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .final .hero-ctas {
+        justify-content: center;
+      }
+      .ask-ai {
+        margin: 40px auto 0;
+        max-width: 420px;
+        padding: 20px 24px 18px;
+        background: var(--white);
+        border: 2px solid var(--ink);
+        border-radius: 14px;
+        box-shadow: 4px 4px 0 var(--ink);
+        text-align: left;
+      }
+      .ask-ai-title {
+        font-family: var(--sans);
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 1.25;
+      }
+      .ask-ai-title .sparkle {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        color: var(--stamp);
+      }
+      .ask-ai-links {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .ask-ai-link {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        border-radius: 50%;
+        border: 2px solid var(--ink);
+        display: grid;
+        place-items: center;
+        box-shadow: 2px 2px 0 var(--ink);
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+        text-decoration: none;
+      }
+      .ask-ai-link:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+      .ask-ai-link:focus-visible {
+        outline: 3px solid var(--stamp);
+        outline-offset: 3px;
+      }
+      .ask-ai-link img {
+        width: 24px;
+        height: 24px;
+        display: block;
+        object-fit: contain;
+      }
+      /* Monochrome brand marks → white on tinted circles */
+      .ask-ai-link.icon-light img {
+        filter: brightness(0) invert(1);
+      }
+      .ask-ai-link[data-ai="chatgpt"] {
+        background: #fff;
+      }
+      .ask-ai-link[data-ai="claude"] {
+        background: #fff;
+      }
+      .ask-ai-link[data-ai="perplexity"] {
+        background: #fff;
+      }
+      .ask-ai-link[data-ai="gemini"] {
+        background: #fff;
+      }
+      .ask-ai-link[data-ai="grok"] {
+        background: #fff;
+      }
+      /* Colored brand marks (Claude / Perplexity / Gemini) — don't invert */
+      .ask-ai-link[data-ai="gemini"] img,
+      .ask-ai-link[data-ai="claude"] img,
+      .ask-ai-link[data-ai="perplexity"] img {
+        filter: none;
+      }
+      @media (max-width: 640px) {
+        .ask-ai {
+          margin-top: 28px;
+          max-width: 340px;
+          padding: 18px 16px 16px;
+        }
+        .ask-ai-links {
+          gap: 8px;
+        }
+        .ask-ai-link {
+          width: 44px;
+          height: 44px;
+          flex-basis: 44px;
+        }
+        .ask-ai-link img {
+          width: 22px;
+          height: 22px;
+        }
+        .ask-ai-title {
+          justify-content: center;
+          font-size: 0.95rem;
+        }
+      }
+      .sponsor {
+        margin: 56px auto 0;
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      .sponsor-kicker {
+        color: var(--ink-soft);
+        font-weight: 700;
+      }
+      /* GitHub's card follows the visitor's OS theme, so the padding matches its background */
+      .sponsor-frame {
+        width: 100%;
+        max-width: 624px;
+        padding: 12px;
+        overflow: hidden;
+        background: #fff;
+        border: 2px solid var(--ink);
+        border-radius: 14px;
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      @media (prefers-color-scheme: dark) {
+        .sponsor-frame {
+          background: #0d1117;
+        }
+      }
+      .sponsor-card {
+        display: block;
+        width: 100%;
+        height: 130px;
+        border: 0;
+      }
+      @media (max-width: 640px) {
+        .sponsor {
+          margin-top: 40px;
+        }
+        .sponsor-card {
+          height: 236px;
+        }
+      }
+      .sponsor-btn {
+        display: block;
+        border: 0;
+        border-radius: 6px;
+      }
 
-  footer.site-footer {
-    border-top: 1px solid var(--ink);
-    padding: 22px 0;
-    background: var(--paper-deep);
-  }
-  footer.site-footer .wrap {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px 28px;
-    flex-wrap: wrap;
-  }
-  .flinks {
-    display: flex; flex-wrap: wrap; gap: 18px;
-    font-weight: 700; color: var(--forest);
-  }
-  .flinks a:hover { color: var(--stamp); }
-  .fcopy { color: var(--ink-soft); font-size: 0.95rem; white-space: nowrap; }
-  .fcopy a {
-    color: var(--forest);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .fcopy a:hover { color: var(--stamp); }
+      footer.site-footer {
+        border-top: 1px solid var(--ink);
+        padding: 28px 0 22px;
+        background: var(--paper-deep);
+      }
+      footer.site-footer .wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .f-nav {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 20px 40px;
+      }
+      .f-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 8px 16px;
+        font-weight: 700;
+        color: var(--forest);
+      }
+      .f-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        width: 100%;
+        margin-bottom: 2px;
+      }
+      .f-group a:hover {
+        color: var(--stamp);
+      }
+      .f-bar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 14px 16px;
+        flex-wrap: wrap;
+        padding-top: 16px;
+        border-top: 1px solid rgba(13, 27, 42, 0.16);
+      }
+      .fcopy {
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+      }
+      .fcopy a {
+        color: var(--forest);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .fcopy a:hover {
+        color: var(--stamp);
+      }
 
-  @media (max-width: 640px) {
-    .wrap { padding: 0 16px; }
-    .nav-inner { padding: 10px 16px; gap: 10px; }
-    .brand { font-size: 1.02rem; gap: 8px; }
-    .brand img { width: 30px; height: 30px; }
-    .brand span { max-width: 11.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @media (max-width: 640px) {
+        .wrap {
+          padding: 0 16px;
+        }
+        .nav-inner {
+          padding: 10px 16px;
+          gap: 10px;
+        }
+        .brand {
+          font-size: 1.02rem;
+          gap: 8px;
+        }
+        .brand img {
+          width: 30px;
+          height: 30px;
+        }
+        .brand span {
+          max-width: 11.5em;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
 
-    .hero-splash { --hero-nav: 56px; }
-    .btn { font-size: 0.92rem; padding: 12px 16px; }
+        .hero-splash {
+          --hero-nav: 56px;
+        }
+        .btn {
+          font-size: 0.92rem;
+          padding: 12px 16px;
+        }
 
-    section { padding: 52px 0; }
-    .section-title { font-size: clamp(1.55rem, 7vw, 2.1rem); max-width: none; text-wrap: balance; }
-    .section-desc { font-size: 0.98rem; margin-bottom: 28px; max-width: none; }
+        section {
+          padding: 52px 0;
+        }
+        .section-title {
+          font-size: clamp(1.55rem, 7vw, 2.1rem);
+          max-width: none;
+          text-wrap: balance;
+        }
+        .section-desc {
+          font-size: 0.98rem;
+          margin-bottom: 28px;
+          max-width: none;
+        }
 
-    .step { padding: 20px 18px; gap: 12px; }
-    .step-art { width: 72px; height: 72px; }
-    .step h3 { font-size: 1.2rem; }
+        .step {
+          padding: 20px 18px;
+          gap: 12px;
+        }
+        .step-art {
+          width: 72px;
+          height: 72px;
+        }
+        .step h3 {
+          font-size: 1.2rem;
+        }
 
-    .ticket { padding: 18px 16px; box-shadow: 4px 4px 0 var(--ink); }
-    .other-ways { gap: 8px; }
-    .pill { font-size: 0.85rem; padding: 7px 12px; }
+        .ticket {
+          padding: 18px 16px;
+          box-shadow: 4px 4px 0 var(--ink);
+        }
+        .other-ways {
+          gap: 8px;
+        }
+        .pill {
+          font-size: 0.85rem;
+          padding: 7px 12px;
+        }
 
-    .demo-shell { box-shadow: 5px 5px 0 var(--ink); font-size: 0.8rem; }
-    .demo-bar { padding: 8px 10px; }
-    .tlabel { margin-left: 4px; font-size: 0.68rem; }
-    .demo-body { padding: 14px 12px 18px; min-height: 180px; }
+        .demo-shell {
+          box-shadow: 5px 5px 0 var(--ink);
+          font-size: 0.8rem;
+        }
+        .demo-bar {
+          padding: 8px 10px;
+        }
+        .tlabel {
+          margin-left: 4px;
+          font-size: 0.68rem;
+        }
+        .demo-body {
+          padding: 14px 12px 18px;
+          min-height: 180px;
+        }
 
-    .sticker { padding: 8px 10px 6px; }
-    .sticker .cname { font-size: 0.85rem; }
+        .sticker {
+          padding: 8px 10px 6px;
+        }
+        .sticker .cname {
+          font-size: 0.85rem;
+        }
 
-    .tabs { gap: 6px; }
-    .tab-btn { font-size: 0.85rem; padding: 7px 12px; }
-    .code-block {
-      padding: 18px 12px 14px;
-      font-size: 0.78rem;
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .copy-btn { top: 8px; right: 8px; padding: 4px 8px; font-size: 0.7rem; }
+        .tabs {
+          gap: 6px;
+        }
+        .tab-btn {
+          font-size: 0.85rem;
+          padding: 7px 12px;
+        }
+        .code-block {
+          padding: 18px 12px 14px;
+          font-size: 0.78rem;
+          box-shadow: 4px 4px 0 var(--ink);
+        }
+        .copy-btn {
+          top: 8px;
+          right: 8px;
+          padding: 4px 8px;
+          font-size: 0.7rem;
+        }
 
-    .final { padding: 56px 0 48px; }
-    .final .hero-ctas {
-      flex-direction: column;
-      align-items: stretch;
-      max-width: 320px;
-      margin: 0 auto;
-    }
-    .final .hero-ctas .btn { width: 100%; justify-content: center; }
+        .final {
+          padding: 56px 0 48px;
+        }
+        .final .hero-ctas {
+          flex-direction: column;
+          align-items: stretch;
+          max-width: 320px;
+          margin: 0 auto;
+        }
+        .final .hero-ctas .btn {
+          width: 100%;
+          justify-content: center;
+        }
 
-    footer.site-footer { padding: 18px 0; }
-    footer.site-footer .wrap {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .flinks { gap: 14px; }
-    .fcopy { white-space: normal; font-size: 0.88rem; line-height: 1.4; }
-  }
+        footer.site-footer {
+          padding: 22px 0 18px;
+        }
+        footer.site-footer .wrap {
+          gap: 16px;
+        }
+        .f-nav {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .f-group {
+          gap: 8px 14px;
+        }
+        .f-bar {
+          flex-direction: row;
+          justify-content: flex-end;
+          align-items: center;
+          padding-top: 14px;
+        }
+        .fcopy {
+          font-size: 0.88rem;
+          line-height: 1.4;
+        }
+      }
 
-  /* Short viewports (laptop half-height, landscape phone): compact CTAs */
-  @media (max-height: 640px) {
-    .hero-ctas .btn { padding: 10px 14px; font-size: 0.9rem; }
-    .hero-splash-inner { gap: 10px; }
-  }
-  @media (max-height: 480px) {
-    .hero-ctas .btn { padding: 8px 12px; font-size: 0.85rem; }
-  }
+      /* Short viewports (laptop half-height, landscape phone): compact CTAs */
+      @media (max-height: 640px) {
+        .hero-ctas .btn {
+          padding: 10px 14px;
+          font-size: 0.9rem;
+        }
+        .hero-splash-inner {
+          gap: 10px;
+        }
+      }
+      @media (max-height: 480px) {
+        .hero-ctas .btn {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+      }
 
-  @media (prefers-reduced-motion: reduce) {
-    .hero-ascii { animation: none !important; }
-    .sticker { animation: none !important; opacity: 1; transform: rotate(var(--r, 0deg)); }
-  }
-</style>
-</head>
-<body>
-
-<header class="nav on-dark">
-  <div class="nav-inner">
-    <a class="brand" href="#">
-      <img src="assets/logo.svg" alt="" width="34" height="34" />
-      <span>vanity-address</span>
-    </a>
-    <nav class="nav-links" id="navLinks">
-      <a href="generate/">Web app</a>
-      <a href="#download">Download</a>
-      <a href="#how">How it works</a>
-      <a href="#deploy">Contracts</a>
-      <a href="#demo">Demo</a>
-      <a href="#chains">Chains</a>
-      <a href="#install">Install</a>
-      <a href="#faq">FAQ</a>
-      <a href="#security">Security</a>
-    </nav>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
-        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span class="cta-text">Star on GitHub</span>
-      </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
-    </div>
-  </div>
-</header>
-
-<main>
-  <!-- HERO -->
-  <section class="hero-splash">
-    <div class="hero-splash-inner">
-      <h1 class="sr-only">vanity-address — offline multi-chain vanity address generator</h1>
-      <div class="hero-ascii-wrap" id="heroAsciiWrap" aria-hidden="true">
-        <p class="hero-ascii-fallback" id="heroAsciiFallback">vanity-address</p>
-        <pre class="hero-ascii" id="heroAscii" hidden></pre>
-      </div>
-      <div class="hero-ctas">
-        <a class="btn btn-primary" href="generate/">Generate in your browser</a>
-        <a class="btn btn-ghost" href="#install">Install the app</a>
-        <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">npx vanity-address</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- HOW -->
-  <section id="how">
-    <div class="wrap">
-      <p class="section-kicker">three presses</p>
-      <h2 class="section-title">Pick a chain. Type a word. Press grind.</h2>
-      <p class="section-desc">Same Rust engine behind the CLI, desktop app, web app, and npm SDK — 44 wallet chains, plus vanity <strong>contract</strong> and <strong>token mint</strong> modes. One trust model. The browser generator stays CPU-only; OpenCL GPU (EVM), Bitcoin puzzle mode, and split-key are CLI/desktop features.</p>
-
-      <div class="steps">
-        <article class="step">
-          <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
-            <rect x="8" y="18" width="80" height="60" rx="12" fill="#E8F5EF" stroke="#0D1B2A" stroke-width="3"/>
-            <circle cx="32" cy="48" r="10" fill="#F5B700" stroke="#0D1B2A" stroke-width="2.5"/>
-            <circle cx="48" cy="48" r="10" fill="#FF6B35" stroke="#0D1B2A" stroke-width="2.5"/>
-            <circle cx="64" cy="48" r="10" fill="#1B4332" stroke="#0D1B2A" stroke-width="2.5"/>
-          </svg>
-          <div>
-            <span class="step-num">01 · chain</span>
-            <h3>Wallet or contract</h3>
-            <p>Solana, EVM, Bitcoin, Tron, and 27 more wallets — or switch to Contract mode for a vanity deployer / CREATE2 / SPL mint address.</p>
-          </div>
-        </article>
-        <article class="step">
-          <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
-            <rect x="14" y="22" width="68" height="52" rx="10" fill="#FFF7E6" stroke="#0D1B2A" stroke-width="3"/>
-            <path d="M28 48h40" stroke="#FF6B35" stroke-width="4" stroke-linecap="round"/>
-            <text x="48" y="44" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#0D1B2A" font-weight="700">axay</text>
-            <circle cx="72" cy="30" r="8" fill="#F5B700" stroke="#0D1B2A" stroke-width="2"/>
-          </svg>
-          <div>
-            <span class="step-num">02 · pattern</span>
-            <h3>Prefix, suffix, or contains</h3>
-            <p>Use <code class="inline">*</code> wildcards and comma OR lists. Honest ETA before you start grinding.</p>
-          </div>
-        </article>
-        <article class="step">
-          <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
-            <rect x="18" y="16" width="60" height="64" rx="10" fill="#FFE8DF" stroke="#0D1B2A" stroke-width="3"/>
-            <path d="M34 40l10 10 20-22" fill="none" stroke="#1B4332" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="30" y="62" width="36" height="8" rx="3" fill="#0D1B2A"/>
-          </svg>
-          <div>
-            <span class="step-num">03 · keep it local</span>
-            <h3>Match found, keys stay put</h3>
-            <p>Export formats for Phantom, MetaMask, and friends. No network calls. No telemetry. Ever.</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEPLOY / CONTRACT -->
-  <section id="deploy">
-    <div class="wrap">
-      <p class="section-kicker">beyond wallets</p>
-      <h2 class="section-title">Vanity contract &amp; mint addresses too.</h2>
-      <p class="section-desc">Grind a deployer key so your <em>first</em> deploy lands on a pretty contract — or a CREATE2 salt / Solana token mint. Works in the <a href="generate/"><strong>web app</strong></a> (Address | Contract toggle), CLI, desktop, and SDK.</p>
-
-      <div class="deploy-grid">
-        <article class="deploy-card">
-          <span class="mode-tag">evm-contract · trx-contract</span>
-          <h3>Deployer → contract</h3>
-          <p>Find a private key whose first CREATE (nonce&nbsp;0) produces a contract address matching your word — EVM <code class="inline">0xcafe…</code> or Tron <code class="inline">TCafe…</code>.</p>
-          <a class="deploy-cta" href="generate/">Try Contract mode →</a>
-        </article>
-        <article class="deploy-card">
-          <span class="mode-tag">--create2</span>
-          <h3>CREATE2 salt</h3>
-          <p>Already have a factory and init-code hash? Grind a salt so <code class="inline">CREATE2</code> lands on your vanity address. Output is the salt, not a wallet key.</p>
-          <a class="deploy-cta" href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md#evm-create2-salt---create2" target="_blank" rel="noopener">Usage guide →</a>
-        </article>
-        <article class="deploy-card">
-          <span class="mode-tag">sol-mint</span>
-          <h3>Solana token mint</h3>
-          <p>Vanity mint address with keypair JSON ready for <code class="inline">spl-token create-token mint.json</code> — same online flow as a wallet grind.</p>
-          <a class="deploy-cta" href="generate/">Open the web app →</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEMO -->
-  <section id="demo">
-    <div class="wrap">
-      <p class="section-kicker">live ink</p>
-      <h2 class="section-title">Watch a grind land.</h2>
-      <p class="section-desc">The same flow you’ll see in your own terminal.</p>
-      <div class="demo-shell">
-        <div class="demo-bar">
-          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-          <span class="tlabel">vanity-address --chain evm --prefix dead --suffix face</span>
-        </div>
-        <div class="demo-body" id="demoBody"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DOWNLOAD -->
-  <section id="download">
-    <div class="wrap">
-      <p class="section-kicker">pick up a build</p>
-      <h2 class="section-title">Get vanity-address</h2>
-      <span class="version-tag" id="latestVersionTag">v0.7.0</span>
-      <p class="section-desc">No Rust or Node required for pre-built downloads — grab your platform ticket.</p>
-
-      <div class="platform-row">
-        <div class="ticket">
-          <h3>Windows</h3>
-          <p class="psub">10 / 11 — desktop installer or CLI</p>
-          <a class="btn btn-primary" id="dlWinPrimary" href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">Download for Windows</a>
-          <a class="alt" id="dlWinSecondary" href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">or grab the CLI (.zip)</a>
-        </div>
-        <div class="ticket">
-          <h3>macOS</h3>
-          <p class="psub">Apple Silicon (M1–M4) — .dmg or CLI</p>
-          <a class="btn btn-primary" id="dlMacPrimary" href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">Download for Mac</a>
-          <a class="alt" id="dlMacSecondary" href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">Intel Mac / CLI builds</a>
-        </div>
-        <div class="ticket">
-          <h3>Linux</h3>
-          <p class="psub">x86_64 — terminal CLI</p>
-          <a class="btn btn-primary" id="dlLinuxPrimary" href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">Download for Linux</a>
-          <a class="alt" href="https://github.com/yudizaxay/vanity-address/blob/main/docs/INSTALL.md#build-from-source" target="_blank" rel="noopener">or build from source</a>
-        </div>
-      </div>
-
-      <div class="other-ways">
-        <span class="other-ways-label">Also on</span>
-        <a class="pill" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-          GitHub
+      @media (prefers-reduced-motion: reduce) {
+        .hero-ascii {
+          animation: none !important;
+        }
+        .sticker {
+          animation: none !important;
+          opacity: 1;
+          transform: rotate(var(--r, 0deg));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="nav on-dark">
+      <div class="nav-inner">
+        <a class="brand" href="/">
+          <img src="assets/logo.svg" alt="" width="34" height="34" />
+          <span>vanity-address</span>
         </a>
-        <a class="pill" href="https://crates.io/crates/vanity-address" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
-          crates.io
-        </a>
-        <a class="pill" href="https://www.npmjs.com/package/vanity-address" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 0v16h16V0H0zm13 13h-2V5H8.5v8h-5V3H13v10z"/></svg>
-          npm
-        </a>
+        <nav class="nav-links" id="navLinks">
+          <a href="generate/">Web app</a>
+          <a href="#download">Download</a>
+          <a href="#how">How it works</a>
+          <a href="#deploy">Contracts</a>
+          <a href="#demo">Demo</a>
+          <a href="chains/">Chains</a>
+          <a href="#install">Install</a>
+          <a href="#faq">FAQ</a>
+          <a href="#security">Security</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <a
+            class="nav-cta"
+            href="https://github.com/yudizaxay/vanity-address"
+            target="_blank"
+            rel="noopener"
+            aria-label="Star on GitHub"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+            <span class="cta-text">Star on GitHub</span>
+          </a>
+          <button
+            class="nav-toggle"
+            id="navToggle"
+            aria-label="Toggle menu"
+            aria-expanded="false"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- CHAINS -->
-  <section id="chains">
-    <div class="wrap">
-      <p class="section-kicker">sticker wall · 31</p>
-      <h2 class="section-title">All 44 wallets, same trust model.</h2>
-      <p class="section-desc">Use any id with <code class="inline">--chain</code> — plus deploy modes (<code class="inline">evm-contract</code>, <code class="inline">trx-contract</code>, <code class="inline">sol-mint</code>, CREATE2). CLI, desktop, web, and SDK all match.</p>
-      <div class="chains-wall" id="chainsGrid"></div>
-    </div>
-  </section>
+    <main>
+      <!-- HERO -->
+      <section class="hero-splash">
+        <div class="hero-splash-inner">
+          <h1 class="sr-only">
+            vanity-address offline multi-chain vanity address generator
+          </h1>
+          <div class="hero-ascii-wrap" id="heroAsciiWrap" aria-hidden="true">
+            <p class="hero-ascii-fallback" id="heroAsciiFallback">
+              vanity-address
+            </p>
+            <pre class="hero-ascii" id="heroAscii" hidden></pre>
+          </div>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="generate/"
+              >Generate in your browser</a
+            >
+            <a class="btn btn-ghost" href="#install">Install the app</a>
+            <a
+              class="btn btn-ghost"
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >npx vanity-address</a
+            >
+          </div>
+        </div>
+      </section>
 
-  <!-- INSTALL -->
-  <section id="install">
-    <div class="wrap">
-      <p class="section-kicker">quick paths</p>
-      <h2 class="section-title">Install in one command.</h2>
-      <p class="section-desc">Pre-built downloads above, or pick a package manager.</p>
+      <!-- HOW -->
+      <section id="how">
+        <div class="wrap">
+          <p class="section-kicker">three presses</p>
+          <h2 class="section-title">Pick a chain. Type a word. Press grind.</h2>
+          <p class="section-desc">
+            Same Rust engine behind the CLI, desktop app, web app, and npm SDK
+            44 wallet chains, plus vanity <strong>contract</strong> and
+            <strong>token mint</strong> modes. One trust model. The browser
+            generator stays CPU-only; OpenCL GPU (EVM), Bitcoin puzzle mode, and
+            split-key are CLI/desktop features.
+          </p>
 
-      <div class="tabs" role="tablist" aria-label="Install method">
-        <button class="tab-btn active" data-tab="npm" type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="true">npm</button>
-        <button class="tab-btn" data-tab="brew" type="button" role="tab" id="tab-brew" aria-controls="panel-brew" aria-selected="false" tabindex="-1">Homebrew</button>
-        <button class="tab-btn" data-tab="cargo" type="button" role="tab" id="tab-cargo" aria-controls="panel-cargo" aria-selected="false" tabindex="-1">Cargo</button>
-        <button class="tab-btn" data-tab="binary" type="button" role="tab" id="tab-binary" aria-controls="panel-binary" aria-selected="false" tabindex="-1">Direct download</button>
-      </div>
+          <div class="steps">
+            <article class="step">
+              <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
+                <rect
+                  x="8"
+                  y="18"
+                  width="80"
+                  height="60"
+                  rx="12"
+                  fill="#E8F5EF"
+                  stroke="#0D1B2A"
+                  stroke-width="3"
+                />
+                <circle
+                  cx="32"
+                  cy="48"
+                  r="10"
+                  fill="#F5B700"
+                  stroke="#0D1B2A"
+                  stroke-width="2.5"
+                />
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="10"
+                  fill="#FF6B35"
+                  stroke="#0D1B2A"
+                  stroke-width="2.5"
+                />
+                <circle
+                  cx="64"
+                  cy="48"
+                  r="10"
+                  fill="#1B4332"
+                  stroke="#0D1B2A"
+                  stroke-width="2.5"
+                />
+              </svg>
+              <div>
+                <span class="step-num">01 · chain</span>
+                <h3>Wallet or contract</h3>
+                <p>
+                  Solana, EVM, Bitcoin, Tron, and 27 more wallets or switch to
+                  Contract mode for a vanity deployer / CREATE2 / SPL mint
+                  address.
+                </p>
+              </div>
+            </article>
+            <article class="step">
+              <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
+                <rect
+                  x="14"
+                  y="22"
+                  width="68"
+                  height="52"
+                  rx="10"
+                  fill="#FFF7E6"
+                  stroke="#0D1B2A"
+                  stroke-width="3"
+                />
+                <path
+                  d="M28 48h40"
+                  stroke="#FF6B35"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+                <text
+                  x="48"
+                  y="44"
+                  text-anchor="middle"
+                  font-family="Fraunces, serif"
+                  font-size="14"
+                  fill="#0D1B2A"
+                  font-weight="700"
+                >
+                  axay
+                </text>
+                <circle
+                  cx="72"
+                  cy="30"
+                  r="8"
+                  fill="#F5B700"
+                  stroke="#0D1B2A"
+                  stroke-width="2"
+                />
+              </svg>
+              <div>
+                <span class="step-num">02 · pattern</span>
+                <h3>Prefix, suffix, or contains</h3>
+                <p>
+                  Use <code class="inline">*</code> wildcards and comma OR
+                  lists. Honest ETA before you start grinding.
+                </p>
+              </div>
+            </article>
+            <article class="step">
+              <svg class="step-art" viewBox="0 0 96 96" aria-hidden="true">
+                <rect
+                  x="18"
+                  y="16"
+                  width="60"
+                  height="64"
+                  rx="10"
+                  fill="#FFE8DF"
+                  stroke="#0D1B2A"
+                  stroke-width="3"
+                />
+                <path
+                  d="M34 40l10 10 20-22"
+                  fill="none"
+                  stroke="#1B4332"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <rect
+                  x="30"
+                  y="62"
+                  width="36"
+                  height="8"
+                  rx="3"
+                  fill="#0D1B2A"
+                />
+              </svg>
+              <div>
+                <span class="step-num">03 · keep it local</span>
+                <h3>Match found, keys stay put</h3>
+                <p>
+                  Export formats for Phantom, MetaMask, and friends. No network
+                  calls. No telemetry. Ever.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
 
-      <div class="code-block active" data-panel="npm" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm">
-        <button class="copy-btn" data-copy="npx vanity-address" type="button">Copy</button>
-        <pre><span class="cmt"># no install needed — runs instantly</span>
+      <!-- DEPLOY / CONTRACT -->
+      <section id="deploy">
+        <div class="wrap">
+          <p class="section-kicker">beyond wallets</p>
+          <h2 class="section-title">
+            Vanity contract &amp; mint addresses too.
+          </h2>
+          <p class="section-desc">
+            Grind a deployer key so your <em>first</em> deploy lands on a pretty
+            contract or a CREATE2 salt / Solana token mint. Works in the
+            <a href="generate/"><strong>web app</strong></a> (Address | Contract
+            toggle), CLI, desktop, and SDK.
+          </p>
+
+          <div class="deploy-grid">
+            <article class="deploy-card">
+              <span class="mode-tag">evm-contract · trx-contract</span>
+              <h3>Deployer → contract</h3>
+              <p>
+                Find a private key whose first CREATE (nonce&nbsp;0) produces a
+                contract address matching your word, EVM
+                <code class="inline">0xcafe…</code> or Tron
+                <code class="inline">TCafe…</code>.
+              </p>
+              <a class="deploy-cta" href="generate/">Try Contract mode →</a>
+            </article>
+            <article class="deploy-card">
+              <span class="mode-tag">--create2</span>
+              <h3>CREATE2 salt</h3>
+              <p>
+                Already have a factory and init-code hash? Grind a salt so
+                <code class="inline">CREATE2</code> lands on your vanity
+                address. Output is the salt, not a wallet key.
+              </p>
+              <a
+                class="deploy-cta"
+                href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md#evm-create2-salt---create2"
+                target="_blank"
+                rel="noopener"
+                >Usage guide →</a
+              >
+            </article>
+            <article class="deploy-card">
+              <span class="mode-tag">sol-mint</span>
+              <h3>Solana token mint</h3>
+              <p>
+                Vanity mint address with keypair JSON ready for
+                <code class="inline">spl-token create-token mint.json</code>
+                same online flow as a wallet grind.
+              </p>
+              <a class="deploy-cta" href="generate/">Open the web app →</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEMO -->
+      <section id="demo">
+        <div class="wrap">
+          <p class="section-kicker">live ink</p>
+          <h2 class="section-title">Watch a grind land.</h2>
+          <p class="section-desc">
+            The same flow you’ll see in your own terminal.
+          </p>
+          <div class="demo-shell">
+            <div class="demo-bar">
+              <span class="tdot r"></span><span class="tdot y"></span
+              ><span class="tdot g"></span>
+              <span class="tlabel"
+                >vanity-address --chain evm --prefix dead --suffix face</span
+              >
+            </div>
+            <div class="demo-body" id="demoBody"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOWNLOAD -->
+      <section id="download">
+        <div class="wrap">
+          <p class="section-kicker">pick up a build</p>
+          <h2 class="section-title">Get vanity-address</h2>
+          <span class="version-tag" id="latestVersionTag">v0.7.0</span>
+          <p class="section-desc">
+            No Rust or Node required for pre-built downloads grab your
+            platform ticket.
+          </p>
+
+          <div class="platform-row">
+            <div class="ticket">
+              <h3>Windows</h3>
+              <p class="psub">10 / 11 desktop installer or CLI</p>
+              <a
+                class="btn btn-primary"
+                id="dlWinPrimary"
+                href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >Download for Windows</a
+              >
+              <a
+                class="alt"
+                id="dlWinSecondary"
+                href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >or grab the CLI (.zip)</a
+              >
+            </div>
+            <div class="ticket">
+              <h3>macOS</h3>
+              <p class="psub">Apple Silicon (M1–M4) .dmg or CLI</p>
+              <a
+                class="btn btn-primary"
+                id="dlMacPrimary"
+                href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >Download for Mac</a
+              >
+              <a
+                class="alt"
+                id="dlMacSecondary"
+                href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >Intel Mac / CLI builds</a
+              >
+            </div>
+            <div class="ticket">
+              <h3>Linux</h3>
+              <p class="psub">x86_64, terminal CLI</p>
+              <a
+                class="btn btn-primary"
+                id="dlLinuxPrimary"
+                href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                target="_blank"
+                rel="noopener"
+                >Download for Linux</a
+              >
+              <a
+                class="alt"
+                href="https://github.com/yudizaxay/vanity-address/blob/main/docs/INSTALL.md#build-from-source"
+                target="_blank"
+                rel="noopener"
+                >or build from source</a
+              >
+            </div>
+          </div>
+
+          <div class="other-ways">
+            <span class="other-ways-label">Also on</span>
+            <a
+              class="pill"
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                />
+              </svg>
+              GitHub
+            </a>
+            <a
+              class="pill"
+              href="https://crates.io/crates/vanity-address"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                />
+                <polyline points="3.29 7 12 12 20.71 7" />
+                <line x1="12" y1="22" x2="12" y2="12" />
+              </svg>
+              crates.io
+            </a>
+            <a
+              class="pill"
+              href="https://www.npmjs.com/package/vanity-address"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M0 0v16h16V0H0zm13 13h-2V5H8.5v8h-5V3H13v10z" />
+              </svg>
+              npm
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAINS -->
+      <section id="chains">
+        <div class="wrap">
+          <p class="section-kicker">sticker wall · 44</p>
+          <h2 class="section-title">All 44 wallets, same trust model.</h2>
+          <p class="section-desc">
+            Use any id with <code class="inline">--chain</code> plus deploy
+            modes (<code class="inline">evm-contract</code>,
+            <code class="inline">trx-contract</code>,
+            <code class="inline">sol-mint</code>, CREATE2). CLI, desktop, web,
+            and SDK all match.
+          </p>
+          <div class="chains-wall" id="chainsGrid"></div>
+        </div>
+      </section>
+
+      <!-- INSTALL -->
+      <section id="install">
+        <div class="wrap">
+          <p class="section-kicker">quick paths</p>
+          <h2 class="section-title">Install in one command.</h2>
+          <p class="section-desc">
+            Pre-built downloads above, or pick a package manager.
+          </p>
+
+          <div class="tabs" role="tablist" aria-label="Install method">
+            <button
+              class="tab-btn active"
+              data-tab="npm"
+              type="button"
+              role="tab"
+              id="tab-npm"
+              aria-controls="panel-npm"
+              aria-selected="true"
+            >
+              npm
+            </button>
+            <button
+              class="tab-btn"
+              data-tab="brew"
+              type="button"
+              role="tab"
+              id="tab-brew"
+              aria-controls="panel-brew"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              Homebrew
+            </button>
+            <button
+              class="tab-btn"
+              data-tab="cargo"
+              type="button"
+              role="tab"
+              id="tab-cargo"
+              aria-controls="panel-cargo"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              Cargo
+            </button>
+            <button
+              class="tab-btn"
+              data-tab="binary"
+              type="button"
+              role="tab"
+              id="tab-binary"
+              aria-controls="panel-binary"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              Direct download
+            </button>
+          </div>
+
+          <div
+            class="code-block active"
+            data-panel="npm"
+            role="tabpanel"
+            id="panel-npm"
+            aria-labelledby="tab-npm"
+          >
+            <button
+              class="copy-btn"
+              data-copy="npx vanity-address"
+              type="button"
+            >
+              Copy
+            </button>
+            <pre><span class="cmt"># no install needed, runs instantly</span>
 <span class="g">$</span> npx vanity-address
 
 <span class="cmt"># or install globally</span>
 <span class="g">$</span> npm install -g vanity-address</pre>
-      </div>
-      <div class="code-block" data-panel="brew" role="tabpanel" id="panel-brew" aria-labelledby="tab-brew">
-        <button class="copy-btn" data-copy="brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address" type="button">Copy</button>
-        <pre><span class="g">$</span> brew tap yudizaxay/tap
+          </div>
+          <div
+            class="code-block"
+            data-panel="brew"
+            role="tabpanel"
+            id="panel-brew"
+            aria-labelledby="tab-brew"
+          >
+            <button
+              class="copy-btn"
+              data-copy="brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address"
+              type="button"
+            >
+              Copy
+            </button>
+            <pre><span class="g">$</span> brew tap yudizaxay/tap
 <span class="g">$</span> brew trust yudizaxay/tap
 <span class="g">$</span> brew install vanity-address</pre>
-      </div>
-      <div class="code-block" data-panel="cargo" role="tabpanel" id="panel-cargo" aria-labelledby="tab-cargo">
-        <button class="copy-btn" data-copy="cargo install vanity-address" type="button">Copy</button>
-        <pre><span class="cmt"># requires Rust 1.70+, first compile ~3–8 min</span>
+          </div>
+          <div
+            class="code-block"
+            data-panel="cargo"
+            role="tabpanel"
+            id="panel-cargo"
+            aria-labelledby="tab-cargo"
+          >
+            <button
+              class="copy-btn"
+              data-copy="cargo install vanity-address"
+              type="button"
+            >
+              Copy
+            </button>
+            <pre><span class="cmt"># requires Rust 1.70+, first compile ~3–8 min</span>
 <span class="g">$</span> cargo install vanity-address</pre>
-      </div>
-      <div class="code-block" data-panel="binary" role="tabpanel" id="panel-binary" aria-labelledby="tab-binary">
-        <button class="copy-btn" data-copy="https://github.com/yudizaxay/vanity-address/releases/latest" type="button">Copy link</button>
-        <pre><span class="cmt"># pre-built CLI + desktop .dmg / .exe</span>
+          </div>
+          <div
+            class="code-block"
+            data-panel="binary"
+            role="tabpanel"
+            id="panel-binary"
+            aria-labelledby="tab-binary"
+          >
+            <button
+              class="copy-btn"
+              data-copy="https://github.com/yudizaxay/vanity-address/releases/latest"
+              type="button"
+            >
+              Copy link
+            </button>
+            <pre><span class="cmt"># pre-built CLI + desktop .dmg / .exe</span>
 → github.com/yudizaxay/vanity-address/releases/latest</pre>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ — natural-language answers for search / AI citation -->
-  <section id="faq">
-    <div class="wrap">
-      <p class="section-kicker">FAQ</p>
-      <h2 class="section-title">How do I generate a vanity address?</h2>
-      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Full guide: <a href="how-to-generate-vanity-address.md"><code class="inline">how-to-generate-vanity-address.md</code></a> · source: <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">github.com/yudizaxay/vanity-address</a>.</p>
-      <div class="rules">
-        <div class="rule">
-          <h3>Browser (no install)</h3>
-          <p>Open <a href="generate/">vanity-address.pages.dev/generate</a>, pick Address or Contract, type your word, grind. Keys stay in the tab.</p>
-        </div>
-        <div class="rule">
-          <h3>Name / brand wallet</h3>
-          <p>Use a short prefix or suffix that fits the chain alphabet. Longer patterns are exponentially slower — the app shows an honest ETA first.</p>
-        </div>
-        <div class="rule">
-          <h3>CLI / desktop</h3>
-          <p><code class="inline">npx vanity-address</code>, Homebrew tap <code class="inline">yudizaxay/tap</code>, or download from <a href="https://github.com/yudizaxay/vanity-address/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>.</p>
-        </div>
-        <div class="rule">
-          <h3>Contract / mint</h3>
-          <p>Contract mode: EVM CREATE, Tron CREATE, Solana mint, or CREATE2. Same local privacy model as wallets.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECURITY -->
-  <section id="security">
-    <div class="wrap">
-      <p class="section-kicker" style="color:var(--wax)">before you stamp</p>
-      <h2 class="section-title">Read this before generating keys.</h2>
-      <p class="section-desc">A vanity address is a real keypair. This tool is a generator — not a wallet — and it is not formally audited. Treat the private key like cash.</p>
-      <div class="rules">
-        <div class="rule">
-          <h3>Local only</h3>
-          <p>Keys are generated on your machine, never sent anywhere. Saved key files are owner-only.</p>
-        </div>
-        <div class="rule">
-          <h3>No network</h3>
-          <p>This tool never connects to the internet while grinding.</p>
-        </div>
-        <div class="rule">
-          <h3>Large funds</h3>
-          <p>Prefer offline CLI or desktop on a clean machine. Downloads and <code class="inline">--save</code> are plaintext secrets.</p>
-        </div>
-        <div class="rule">
-          <h3>Verify first</h3>
-          <p>Always double-check the address before sending funds. Open source — trust, but verify.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="final">
-    <div class="wrap">
-      <h2 class="section-title">Grind your first address in 30 seconds.</h2>
-      <p class="section-desc">No accounts. No servers. Right here in your browser, or with <button type="button" class="copy-cmd" data-copy="npx vanity-address" aria-label="Copy npx vanity-address">npx vanity-address</button></p>
-      <div class="hero-ctas">
-        <a class="btn btn-primary" href="generate/">Generate in your browser</a>
-        <a class="btn btn-ghost" href="#install">Install the app</a>
-        <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
-          Star on GitHub
-        </a>
-      </div>
-
-      <section class="ask-ai" aria-label="Ask AI about Vanity Address">
-        <h3 class="ask-ai-title">
-          <svg class="sparkle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.4 6.1L19 9.5l-5.1 2.4L12 18l-1.9-6.1L5 9.5l5.6-1.4L12 2zm7.5 11.2l.7 3.1 3.1.7-3.1.7-.7 3.1-.7-3.1-3.1-.7 3.1-.7.7-3.1zM5.8 14.5l.5 2.2 2.2.5-2.2.5-.5 2.2-.5-2.2-2.2-.5 2.2-.5.5-2.2z"/></svg>
-          Ask AI About Vanity Address
-        </h3>
-        <div class="ask-ai-links" id="askAiLinks">
-          <a class="ask-ai-link" data-ai="chatgpt" data-base="https://chatgpt.com/?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask ChatGPT about Vanity Address" href="#">
-            <img src="assets/ai/openai.svg" alt="" width="24" height="24" decoding="async" />
-          </a>
-          <a class="ask-ai-link" data-ai="claude" data-base="https://claude.ai/new?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Claude about Vanity Address" href="#">
-            <img src="assets/ai/claude.svg" alt="" width="24" height="24" decoding="async" />
-          </a>
-          <a class="ask-ai-link" data-ai="perplexity" data-base="https://www.perplexity.ai/search?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Perplexity about Vanity Address" href="#">
-            <img src="assets/ai/perplexity.svg" alt="" width="24" height="24" decoding="async" />
-          </a>
-          <a class="ask-ai-link" data-ai="gemini" data-base="https://www.google.com/search?udm=50&q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Google AI Mode about Vanity Address" href="#">
-            <img src="assets/ai/gemini.svg" alt="" width="24" height="24" decoding="async" />
-          </a>
-          <a class="ask-ai-link" data-ai="grok" data-base="https://grok.com/?q=" target="_blank" rel="noopener noreferrer" aria-label="Ask Grok about Vanity Address" href="#">
-            <img src="assets/ai/grok.svg" alt="" width="24" height="24" decoding="async" />
-          </a>
+          </div>
         </div>
       </section>
 
-      <div class="sponsor">
-        <p class="sponsor-kicker">Free and open source. If it saved you time, you can back it on GitHub.</p>
-        <div class="sponsor-frame">
-          <iframe class="sponsor-card" src="https://github.com/sponsors/yudizaxay/card" title="Sponsor yudizaxay" height="225" width="600" loading="lazy"></iframe>
+      <!-- FAQ — natural-language answers for search / AI citation -->
+      <section id="faq">
+        <div class="wrap">
+          <p class="section-kicker">FAQ</p>
+          <h2 class="section-title">How do I generate a vanity address?</h2>
+          <p class="section-desc">
+            Short answers for “custom name wallet”, “cool Solana address”, and
+            similar questions. Guides:
+            <a href="solana-vanity-address/">Solana</a> ·
+            <a href="ethereum-vanity-address/">Ethereum</a> ·
+            <a href="bitcoin-vanity-address/">Bitcoin</a> ·
+            <a href="create2-vanity-address/">CREATE2</a> ·
+            <a href="chains/">All chains</a> ·
+            <a href="vanity-address-difficulty/">Difficulty calculator</a> ·
+            <a href="how-to-generate-vanity-address.md">FAQ</a> ·
+            <a
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >.
+          </p>
+          <div class="rules">
+            <div class="rule">
+              <h3>Browser (no install)</h3>
+              <p>
+                Open <a href="generate/">vanity-address.online/generate</a>,
+                pick Address or Contract, type your word, grind. Keys stay in
+                the tab.
+              </p>
+            </div>
+            <div class="rule">
+              <h3>Name / brand wallet</h3>
+              <p>
+                Use a short prefix or suffix that fits the chain alphabet.
+                Longer patterns are exponentially slower the app shows an
+                honest ETA first.
+              </p>
+            </div>
+            <div class="rule">
+              <h3>CLI / desktop</h3>
+              <p>
+                <code class="inline">npx vanity-address</code>, Homebrew tap
+                <code class="inline">yudizaxay/tap</code>, or download from
+                <a
+                  href="https://github.com/yudizaxay/vanity-address/releases/latest"
+                  target="_blank"
+                  rel="noopener"
+                  >GitHub Releases</a
+                >.
+              </p>
+            </div>
+            <div class="rule">
+              <h3>Contract / mint</h3>
+              <p>
+                Contract mode: EVM CREATE, Tron CREATE, Solana mint, or
+                <a href="create2-vanity-address/">CREATE2</a>. Same local
+                privacy model as wallets.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECURITY -->
+      <section id="security">
+        <div class="wrap">
+          <p class="section-kicker" style="color: var(--wax)">
+            before you stamp
+          </p>
+          <h2 class="section-title">Read this before generating keys.</h2>
+          <p class="section-desc">
+            A vanity address is a real keypair. This tool is a generator not a
+            wallet and it is not formally audited. Treat the private key like
+            cash.
+          </p>
+          <div class="rules">
+            <div class="rule">
+              <h3>Local only</h3>
+              <p>
+                Keys are generated on your machine, never sent anywhere. Saved
+                key files are owner-only.
+              </p>
+            </div>
+            <div class="rule">
+              <h3>No network</h3>
+              <p>This tool never connects to the internet while grinding.</p>
+            </div>
+            <div class="rule">
+              <h3>Large funds</h3>
+              <p>
+                Prefer offline CLI or desktop on a clean machine. Downloads and
+                <code class="inline">--save</code> are plaintext secrets.
+              </p>
+            </div>
+            <div class="rule">
+              <h3>Verify first</h3>
+              <p>
+                Always double-check the address before sending funds. Open
+                source trust, but verify.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="final">
+        <div class="wrap">
+          <h2 class="section-title">Grind your first address in 30 seconds.</h2>
+          <p class="section-desc">
+            No accounts. No servers. Right here in your browser, or with
+            <button
+              type="button"
+              class="copy-cmd"
+              data-copy="npx vanity-address"
+              aria-label="Copy npx vanity-address"
+            >
+              npx vanity-address
+            </button>
+          </p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="generate/"
+              >Generate in your browser</a
+            >
+            <a class="btn btn-ghost" href="#install">Install the app</a>
+            <a
+              class="btn btn-ghost"
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"
+                />
+              </svg>
+              Star on GitHub
+            </a>
+          </div>
+
+          <section class="ask-ai" aria-label="Ask AI about Vanity Address">
+            <h3 class="ask-ai-title">
+              <svg
+                class="sparkle"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 2l1.4 6.1L19 9.5l-5.1 2.4L12 18l-1.9-6.1L5 9.5l5.6-1.4L12 2zm7.5 11.2l.7 3.1 3.1.7-3.1.7-.7 3.1-.7-3.1-3.1-.7 3.1-.7.7-3.1zM5.8 14.5l.5 2.2 2.2.5-2.2.5-.5 2.2-.5-2.2-2.2-.5 2.2-.5.5-2.2z"
+                />
+              </svg>
+              Ask AI About Vanity Address
+            </h3>
+            <div class="ask-ai-links" id="askAiLinks">
+              <a
+                class="ask-ai-link"
+                data-ai="chatgpt"
+                data-base="https://chatgpt.com/?q="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ask ChatGPT about Vanity Address"
+                href="#"
+              >
+                <img
+                  src="assets/ai/openai.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                  decoding="async"
+                />
+              </a>
+              <a
+                class="ask-ai-link"
+                data-ai="claude"
+                data-base="https://claude.ai/new?q="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ask Claude about Vanity Address"
+                href="#"
+              >
+                <img
+                  src="assets/ai/claude.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                  decoding="async"
+                />
+              </a>
+              <a
+                class="ask-ai-link"
+                data-ai="perplexity"
+                data-base="https://www.perplexity.ai/search?q="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ask Perplexity about Vanity Address"
+                href="#"
+              >
+                <img
+                  src="assets/ai/perplexity.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                  decoding="async"
+                />
+              </a>
+              <a
+                class="ask-ai-link"
+                data-ai="gemini"
+                data-base="https://www.google.com/search?udm=50&q="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ask Google AI Mode about Vanity Address"
+                href="#"
+              >
+                <img
+                  src="assets/ai/gemini.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                  decoding="async"
+                />
+              </a>
+              <a
+                class="ask-ai-link"
+                data-ai="grok"
+                data-base="https://grok.com/?q="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ask Grok about Vanity Address"
+                href="#"
+              >
+                <img
+                  src="assets/ai/grok.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                  decoding="async"
+                />
+              </a>
+            </div>
+          </section>
+
+          <div class="sponsor">
+            <p class="sponsor-kicker">
+              Free and open source. If it saved you time, you can back it on
+              GitHub.
+            </p>
+            <div class="sponsor-frame">
+              <iframe
+                class="sponsor-card"
+                src="https://github.com/sponsors/yudizaxay/card"
+                title="Sponsor yudizaxay"
+                height="225"
+                width="600"
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <nav class="f-nav" aria-label="Footer">
+          <div class="f-group">
+            <span class="f-label">Explore</span>
+            <a
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >
+            <a href="chains/">All 44 chains</a>
+            <a href="vanity-address-difficulty/">Difficulty</a>
+            <a
+              href="https://www.npmjs.com/package/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >npm</a
+            >
+          </div>
+          <div class="f-group">
+            <span class="f-label">Guides</span>
+            <a href="solana-vanity-address/">Solana</a>
+            <a href="ethereum-vanity-address/">Ethereum</a>
+            <a href="bitcoin-vanity-address/">Bitcoin</a>
+            <a href="create2-vanity-address/">CREATE2</a>
+          </div>
+        </nav>
+        <div class="f-bar">
+          <iframe
+            class="sponsor-btn"
+            src="https://github.com/sponsors/yudizaxay/button"
+            title="Sponsor yudizaxay"
+            height="32"
+            width="114"
+            loading="lazy"
+          ></iframe>
+          <div class="fcopy">
+            MIT ©
+            <a
+              href="https://github.com/yudizaxay"
+              target="_blank"
+              rel="noopener"
+              >yudizaxay</a
+            >
+            — keys stay on your machine.
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-</main>
+    </footer>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <div class="flinks">
-      <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md" target="_blank" rel="noopener">Usage guide</a>
-      <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md" target="_blank" rel="noopener">SDK docs</a>
-      <a href="https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md" target="_blank" rel="noopener">Security policy</a>
-      <a href="https://www.npmjs.com/package/vanity-address" target="_blank" rel="noopener">npm</a>
-    </div>
-    <div class="fright">
-      <iframe class="sponsor-btn" src="https://github.com/sponsors/yudizaxay/button" title="Sponsor yudizaxay" height="32" width="114" loading="lazy"></iframe>
-      <div class="fcopy">MIT © <a href="https://github.com/yudizaxay" target="_blank" rel="noopener">yudizaxay</a> — keys stay on your machine.</div>
-    </div>
-  </div>
-</footer>
+    <script>
+      (function () {
+        "use strict";
 
-<script>
-(function () {
-  "use strict";
-
-  /* Ask AI — deep-link each provider with the same overview prompt */
-  (function wireAskAi() {
-    var prompt =
-      "I want to understand Vanity Address,\n" +
-      "an open-source, Rust-powered multi-chain vanity\n" +
-      "address generator supporting multiple blockchain\n" +
-      "networks and address formats, including Ethereum/EVM,\n" +
-      "Solana, Bitcoin, TRON, and more.\n\n" +
-      "Explain its key features, supported blockchains,\n" +
-      "how it works, privacy and security considerations,\n" +
-      "benefits, limitations, and how to get started.\n\n" +
-      "Use these official sources:\n" +
-      "https://vanity-address.pages.dev/\n" +
-      "https://github.com/yudizaxay/vanity-address\n\n" +
-      "Distinguish documented claims from verified facts.\n" +
-      "Provide a clear, beginner-friendly overview.";
-    var q = encodeURIComponent(prompt);
-    var root = document.getElementById("askAiLinks");
-    if (!root) return;
-    var links = root.querySelectorAll("a[data-base]");
-    for (var i = 0; i < links.length; i++) {
-      links[i].href = links[i].getAttribute("data-base") + q;
-    }
-  })();
-
-  /* nav */
-  var toggle = document.getElementById("navToggle");
-  var links = document.getElementById("navLinks");
-  if (toggle && links) {
-    toggle.addEventListener("click", function () {
-      var open = links.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        links.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
-
-  /* nav goes dark over the hero splash, default once scrolled past it */
-  (function navContrast() {
-    var navEl = document.querySelector(".nav");
-    var splash = document.querySelector(".hero-splash");
-    if (!navEl || !splash || !("IntersectionObserver" in window)) return;
-    /* rootMargin approximates the sticky nav height so no layout read is needed */
-    new IntersectionObserver(function (entries) {
-      navEl.classList.toggle("on-dark", entries[0].isIntersecting);
-    }, { rootMargin: "-60px 0px 0px 0px" }).observe(splash);
-  })();
-
-  /* hero ascii wordmark — canvas-rasterized "vanity-address", mouse-reactive */
-  (function runHeroAscii() {
-    var wrap = document.getElementById("heroAsciiWrap");
-    var pre = document.getElementById("heroAscii");
-    if (!wrap || !pre) return;
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var state = {};
-
-    function buildAscii() {
-      /* Same COLS / footprint — clearer glyphs only (no size change). */
-      var COLS = 175;
-      var dense = "3FRT@#%*=";
-      var BW = 1000, BH = 230;
-      var big = document.createElement("canvas");
-      big.width = BW; big.height = BH;
-      var bc = big.getContext("2d", { willReadFrequently: true });
-      bc.fillStyle = "#fff";
-      bc.textBaseline = "alphabetic";
-      /* Light stroke: heavy 7px + fill closed holes in a/e/s */
-      bc.lineWidth = 2.5;
-      bc.strokeStyle = "#fff";
-      bc.lineJoin = "round";
-      var t = "vanity-address";
-      var fs = 180;
-      var tracking = 0.045; /* tiny gaps so letters don't fuse after downsample */
-      bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
-
-      function measureTracked(str, size, track) {
-        bc.font = "700 " + size + "px 'Source Sans 3', Arial, sans-serif";
-        var total = 0;
-        for (var i = 0; i < str.length; i++) {
-          total += bc.measureText(str[i]).width;
-          if (i < str.length - 1) {
-            var gap = size * track;
-            if (str[i] === "-" || str[i + 1] === "-") gap *= 1.5;
-            total += gap;
+        /* Ask AI — deep-link each provider with the same overview prompt */
+        (function wireAskAi() {
+          var prompt =
+            "I want to understand Vanity Address,\n" +
+            "an open-source, Rust-powered multi-chain vanity\n" +
+            "address generator supporting multiple blockchain\n" +
+            "networks and address formats, including Ethereum/EVM,\n" +
+            "Solana, Bitcoin, TRON, and more.\n\n" +
+            "Explain its key features, supported blockchains,\n" +
+            "how it works, privacy and security considerations,\n" +
+            "benefits, limitations, and how to get started.\n\n" +
+            "Use these official sources:\n" +
+            "https://vanity-address.online/\n" +
+            "https://github.com/yudizaxay/vanity-address\n\n" +
+            "Distinguish documented claims from verified facts.\n" +
+            "Provide a clear, beginner-friendly overview.";
+          var q = encodeURIComponent(prompt);
+          var root = document.getElementById("askAiLinks");
+          if (!root) return;
+          var links = root.querySelectorAll("a[data-base]");
+          for (var i = 0; i < links.length; i++) {
+            links[i].href = links[i].getAttribute("data-base") + q;
           }
+        })();
+
+        /* nav */
+        var toggle = document.getElementById("navToggle");
+        var links = document.getElementById("navLinks");
+        if (toggle && links) {
+          toggle.addEventListener("click", function () {
+            var open = links.classList.toggle("open");
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+          });
+          links.querySelectorAll("a").forEach(function (a) {
+            a.addEventListener("click", function () {
+              links.classList.remove("open");
+              toggle.setAttribute("aria-expanded", "false");
+            });
+          });
         }
-        return total;
-      }
 
-      var w = measureTracked(t, fs, tracking);
-      if (w > BW - 40) {
-        fs = Math.floor(fs * (BW - 40) / w);
-        w = measureTracked(t, fs, tracking);
-      }
-      bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
-      var baseline = BH * 0.72;
-      var x = (BW - w) / 2;
-      for (var i = 0; i < t.length; i++) {
-        var ch = t[i];
-        var cw = bc.measureText(ch).width;
-        bc.fillText(ch, x, baseline);
-        bc.strokeText(ch, x, baseline);
-        x += cw;
-        if (i < t.length - 1) {
-          var gap = fs * tracking;
-          if (ch === "-" || t[i + 1] === "-") gap *= 1.5;
-          x += gap;
-        }
-      }
+        /* nav goes dark over the hero splash, default once scrolled past it */
+        (function navContrast() {
+          var navEl = document.querySelector(".nav");
+          var splash = document.querySelector(".hero-splash");
+          if (!navEl || !splash || !("IntersectionObserver" in window)) return;
+          /* rootMargin approximates the sticky nav height so no layout read is needed */
+          new IntersectionObserver(
+            function (entries) {
+              navEl.classList.toggle("on-dark", entries[0].isIntersecting);
+            },
+            { rootMargin: "-60px 0px 0px 0px" },
+          ).observe(splash);
+        })();
 
-      var src = bc.getImageData(0, 0, BW, BH).data;
-      var x0 = BW, x1 = 0, y0 = BH, y1 = 0;
-      for (var y = 0; y < BH; y++) {
-        for (var xx = 0; xx < BW; xx++) {
-          if (src[(y * BW + xx) * 4 + 3] > 20) {
-            if (xx < x0) x0 = xx;
-            if (xx > x1) x1 = xx;
-            if (y < y0) y0 = y;
-            if (y > y1) y1 = y;
-          }
-        }
-      }
-      var bw = x1 - x0 + 1, bh = y1 - y0 + 1;
-      var ROWS = Math.max(6, Math.round(COLS * (bh / bw) * 0.62 / 0.6));
-      var sm = document.createElement("canvas");
-      sm.width = COLS; sm.height = ROWS;
-      var sc = sm.getContext("2d");
-      sc.drawImage(big, x0, y0, bw, bh, 0, 0, COLS, ROWS);
-      var d = sc.getImageData(0, 0, COLS, ROWS).data;
-      var grid = [], dens = [];
-      for (var yy = 0; yy < ROWS; yy++) {
-        var line = [], drow = [];
-        for (var cx = 0; cx < COLS; cx++) {
-          var a = d[(yy * COLS + cx) * 4 + 3] / 255;
-          /* Binary ink — skip soft .: edges that blur a/i/e/s */
-          if (a > 0.38) {
-            line.push(dense[Math.floor(Math.random() * dense.length)]);
-            drow.push(2);
-          } else {
-            line.push(" ");
-            drow.push(0);
-          }
-        }
-        grid.push(line);
-        dens.push(drow);
-      }
-      state.grid = grid; state.dens = dens; state.cols = COLS; state.rows = ROWS;
-      state.cxT = COLS / 2; state.cyT = ROWS / 2;
-      renderStatic();
-      pre.hidden = false;
-      wrap.classList.add("is-ready");
-      applyFontSize();
-      if (reduce) return;
-      startLoop();
-    }
+        /* hero ascii wordmark — canvas-rasterized "vanity-address", mouse-reactive */
+        (function runHeroAscii() {
+          var wrap = document.getElementById("heroAsciiWrap");
+          var pre = document.getElementById("heroAscii");
+          if (!wrap || !pre) return;
+          var reduce = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          var state = {};
 
-    function startLoop() {
-      if (state.rafId) cancelAnimationFrame(state.rafId);
-      var last = 0;
-      function frame(ts) {
-        state.rafId = requestAnimationFrame(frame);
-        if (ts - last < 40) return; /* ~25fps: smooth, not too busy */
-        last = ts;
-        renderAscii();
-      }
-      state.rafId = requestAnimationFrame(frame);
-    }
+          function buildAscii() {
+            /* Same COLS / footprint — clearer glyphs only (no size change). */
+            var COLS = 175;
+            var dense = "3FRT@#%*=";
+            var BW = 1000,
+              BH = 230;
+            var big = document.createElement("canvas");
+            big.width = BW;
+            big.height = BH;
+            var bc = big.getContext("2d", { willReadFrequently: true });
+            bc.fillStyle = "#fff";
+            bc.textBaseline = "alphabetic";
+            /* Light stroke: heavy 7px + fill closed holes in a/e/s */
+            bc.lineWidth = 2.5;
+            bc.strokeStyle = "#fff";
+            bc.lineJoin = "round";
+            var t = "vanity-address";
+            var fs = 180;
+            var tracking = 0.045; /* tiny gaps so letters don't fuse after downsample */
+            bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
 
-    /* sizes come from ResizeObservers (delivered after layout), never from
-       synchronous reads — wrap is `contain: size` so its box is CSS-only */
-    var box = { w: 0, h: 0 }, preBox = { w: 0, h: 0 };
-    var fitRaf = 0;
-    function applyFontSize() {
-      if (!state.rows || !box.h) return;
-      pre.style.fontSize = Math.max(6, box.h / (state.rows * 0.86)) + "px";
-      /* defer scale until after layout; avoids style-write → geometry-read reflow */
-      scheduleFit();
-    }
-    /* font metrics are only ever a guess, so scale the measured box down to
-       fit exactly — transform doesn't change the observed layout size */
-    function fitScale() {
-      if (!box.w || !preBox.w || !preBox.h) return;
-      var scale = 1;
-      if (preBox.w > box.w) scale = box.w / preBox.w;
-      if (preBox.h * scale > box.h) scale = Math.min(scale, box.h / preBox.h);
-      scale *= 0.985;
-      /* Slight horizontal stretch so the wordmark fills the page better */
-      var sx = scale * 1.14;
-      var sy = scale;
-      if (preBox.w * sx > box.w) sx = (box.w / preBox.w) * 0.99;
-      if (preBox.h * sy > box.h) sy = (box.h / preBox.h) * 0.99;
-      pre.style.transform = "scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
-    }
-    function scheduleFit() {
-      if (fitRaf) return;
-      fitRaf = requestAnimationFrame(function () {
-        fitRaf = 0;
-        fitScale();
-        /* next frame: geometry read after transform settles (no forced reflow) */
-        requestAnimationFrame(refreshPreViewport);
-      });
-    }
-    /* cached viewport box for hover mapping — no getBoundingClientRect on mousemove */
-    var preViewport = { left: 0, top: 0, width: 1, height: 1 };
-    function refreshPreViewport() {
-      var r = pre.getBoundingClientRect();
-      if (r.width < 1 || r.height < 1) return;
-      preViewport.left = r.left;
-      preViewport.top = r.top;
-      preViewport.width = r.width;
-      preViewport.height = r.height;
-    }
-    if ("ResizeObserver" in window) {
-      new ResizeObserver(function (entries) {
-        var r = entries[0].contentRect;
-        box.w = r.width; box.h = r.height;
-        applyFontSize();
-      }).observe(wrap);
-      new ResizeObserver(function (entries) {
-        var r = entries[0].contentRect;
-        preBox.w = r.width; preBox.h = r.height;
-        scheduleFit();
-      }).observe(pre);
-    }
-    window.addEventListener("scroll", refreshPreViewport, { passive: true });
-
-    function renderStatic() {
-      pre.textContent = state.grid.map(function (row) { return row.join(""); }).join("\n");
-    }
-
-    function renderAscii() {
-      var dense = "3FRT@#%*=", sparse = "4-.:", all = dense + sparse, hot = "@#%8&WM$";
-      var g = state.grid, dens = state.dens, cols = state.cols, rows = state.rows;
-      state.amp = (state.amp || 0) + ((state.hover ? 1 : 0) - (state.amp || 0)) * 0.12;
-      state.cxs = state.cxs == null ? state.cxT : state.cxs + (state.cxT - state.cxs) * 0.22;
-      state.cys = state.cys == null ? state.cyT : state.cys + (state.cyT - state.cys) * 0.22;
-      var amp = state.amp, cx = state.cxs || 0, cy = state.cys || 0, R = 11;
-      pre.style.textShadow = amp > 0.02
-        ? "0 0 " + (8 * amp).toFixed(1) + "px rgba(255,255,255," + (0.25 * amp).toFixed(2) + ")"
-        : "none";
-      var out = [];
-      for (var y = 0; y < rows; y++) {
-        var drow = dens[y], grow = g[y];
-        var line = "";
-        var dy = y - cy;
-        for (var x = 0; x < cols; x++) {
-          var k = drow[x];
-          var heat = 0;
-          if (amp > 0.01) {
-            var dx = (x - cx) * 0.62;
-            var dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < R) { var tt = 1 - dist / R; heat = tt * tt * amp; }
-          }
-          if (k === 2) {
-            if (Math.random() < 0.05 + heat * 0.55) grow[x] = heat > 0.35 ? hot[Math.floor(Math.random() * 8)] : dense[Math.floor(Math.random() * 9)];
-            line += grow[x];
-          } else if (k === 1) {
-            if (Math.random() < 0.08 + heat * 0.55) grow[x] = heat > 0.3 ? hot[Math.floor(Math.random() * 8)] : sparse[Math.floor(Math.random() * 4)];
-            line += grow[x];
-          } else {
-            if (heat > 0.1) {
-              if (Math.random() < heat * 0.4) {
-                grow[x] = heat > 0.7 ? hot[Math.floor(Math.random() * 8)] : all[Math.floor(Math.random() * 13)];
+            function measureTracked(str, size, track) {
+              bc.font = "700 " + size + "px 'Source Sans 3', Arial, sans-serif";
+              var total = 0;
+              for (var i = 0; i < str.length; i++) {
+                total += bc.measureText(str[i]).width;
+                if (i < str.length - 1) {
+                  var gap = size * track;
+                  if (str[i] === "-" || str[i + 1] === "-") gap *= 1.5;
+                  total += gap;
+                }
               }
-            } else if (grow[x] !== " " && Math.random() < 0.4) {
-              grow[x] = " "; /* snap hover dust back to blank once heat fades */
+              return total;
             }
-            line += grow[x];
-          }
-        }
-        out.push(line);
-      }
-      pre.textContent = out.join("\n");
-    }
 
-    /* build after the first paint (rAF → timeout) with the fallback face,
+            var w = measureTracked(t, fs, tracking);
+            if (w > BW - 40) {
+              fs = Math.floor((fs * (BW - 40)) / w);
+              w = measureTracked(t, fs, tracking);
+            }
+            bc.font = "700 " + fs + "px 'Source Sans 3', Arial, sans-serif";
+            var baseline = BH * 0.72;
+            var x = (BW - w) / 2;
+            for (var i = 0; i < t.length; i++) {
+              var ch = t[i];
+              var cw = bc.measureText(ch).width;
+              bc.fillText(ch, x, baseline);
+              bc.strokeText(ch, x, baseline);
+              x += cw;
+              if (i < t.length - 1) {
+                var gap = fs * tracking;
+                if (ch === "-" || t[i + 1] === "-") gap *= 1.5;
+                x += gap;
+              }
+            }
+
+            var src = bc.getImageData(0, 0, BW, BH).data;
+            var x0 = BW,
+              x1 = 0,
+              y0 = BH,
+              y1 = 0;
+            for (var y = 0; y < BH; y++) {
+              for (var xx = 0; xx < BW; xx++) {
+                if (src[(y * BW + xx) * 4 + 3] > 20) {
+                  if (xx < x0) x0 = xx;
+                  if (xx > x1) x1 = xx;
+                  if (y < y0) y0 = y;
+                  if (y > y1) y1 = y;
+                }
+              }
+            }
+            var bw = x1 - x0 + 1,
+              bh = y1 - y0 + 1;
+            var ROWS = Math.max(6, Math.round((COLS * (bh / bw) * 0.62) / 0.6));
+            var sm = document.createElement("canvas");
+            sm.width = COLS;
+            sm.height = ROWS;
+            var sc = sm.getContext("2d");
+            sc.drawImage(big, x0, y0, bw, bh, 0, 0, COLS, ROWS);
+            var d = sc.getImageData(0, 0, COLS, ROWS).data;
+            var grid = [],
+              dens = [];
+            for (var yy = 0; yy < ROWS; yy++) {
+              var line = [],
+                drow = [];
+              for (var cx = 0; cx < COLS; cx++) {
+                var a = d[(yy * COLS + cx) * 4 + 3] / 255;
+                /* Binary ink — skip soft .: edges that blur a/i/e/s */
+                if (a > 0.38) {
+                  line.push(dense[Math.floor(Math.random() * dense.length)]);
+                  drow.push(2);
+                } else {
+                  line.push(" ");
+                  drow.push(0);
+                }
+              }
+              grid.push(line);
+              dens.push(drow);
+            }
+            state.grid = grid;
+            state.dens = dens;
+            state.cols = COLS;
+            state.rows = ROWS;
+            state.cxT = COLS / 2;
+            state.cyT = ROWS / 2;
+            renderStatic();
+            pre.hidden = false;
+            wrap.classList.add("is-ready");
+            applyFontSize();
+            if (reduce) return;
+            startLoop();
+          }
+
+          function startLoop() {
+            if (state.rafId) cancelAnimationFrame(state.rafId);
+            var last = 0;
+            function frame(ts) {
+              state.rafId = requestAnimationFrame(frame);
+              if (ts - last < 40) return; /* ~25fps: smooth, not too busy */
+              last = ts;
+              renderAscii();
+            }
+            state.rafId = requestAnimationFrame(frame);
+          }
+
+          /* sizes come from ResizeObservers (delivered after layout), never from
+       synchronous reads — wrap is `contain: size` so its box is CSS-only */
+          var box = { w: 0, h: 0 },
+            preBox = { w: 0, h: 0 };
+          var fitRaf = 0;
+          function applyFontSize() {
+            if (!state.rows || !box.h) return;
+            pre.style.fontSize =
+              Math.max(6, box.h / (state.rows * 0.86)) + "px";
+            /* defer scale until after layout; avoids style-write → geometry-read reflow */
+            scheduleFit();
+          }
+          /* font metrics are only ever a guess, so scale the measured box down to
+       fit exactly — transform doesn't change the observed layout size */
+          function fitScale() {
+            if (!box.w || !preBox.w || !preBox.h) return;
+            var scale = 1;
+            if (preBox.w > box.w) scale = box.w / preBox.w;
+            if (preBox.h * scale > box.h)
+              scale = Math.min(scale, box.h / preBox.h);
+            scale *= 0.985;
+            /* Slight horizontal stretch so the wordmark fills the page better */
+            var sx = scale * 1.14;
+            var sy = scale;
+            if (preBox.w * sx > box.w) sx = (box.w / preBox.w) * 0.99;
+            if (preBox.h * sy > box.h) sy = (box.h / preBox.h) * 0.99;
+            pre.style.transform =
+              "scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
+          }
+          function scheduleFit() {
+            if (fitRaf) return;
+            fitRaf = requestAnimationFrame(function () {
+              fitRaf = 0;
+              fitScale();
+              /* next frame: geometry read after transform settles (no forced reflow) */
+              requestAnimationFrame(refreshPreViewport);
+            });
+          }
+          /* cached viewport box for hover mapping — no getBoundingClientRect on mousemove */
+          var preViewport = { left: 0, top: 0, width: 1, height: 1 };
+          function refreshPreViewport() {
+            var r = pre.getBoundingClientRect();
+            if (r.width < 1 || r.height < 1) return;
+            preViewport.left = r.left;
+            preViewport.top = r.top;
+            preViewport.width = r.width;
+            preViewport.height = r.height;
+          }
+          if ("ResizeObserver" in window) {
+            new ResizeObserver(function (entries) {
+              var r = entries[0].contentRect;
+              box.w = r.width;
+              box.h = r.height;
+              applyFontSize();
+            }).observe(wrap);
+            new ResizeObserver(function (entries) {
+              var r = entries[0].contentRect;
+              preBox.w = r.width;
+              preBox.h = r.height;
+              scheduleFit();
+            }).observe(pre);
+          }
+          window.addEventListener("scroll", refreshPreViewport, {
+            passive: true,
+          });
+
+          function renderStatic() {
+            pre.textContent = state.grid
+              .map(function (row) {
+                return row.join("");
+              })
+              .join("\n");
+          }
+
+          function renderAscii() {
+            var dense = "3FRT@#%*=",
+              sparse = "4-.:",
+              all = dense + sparse,
+              hot = "@#%8&WM$";
+            var g = state.grid,
+              dens = state.dens,
+              cols = state.cols,
+              rows = state.rows;
+            state.amp =
+              (state.amp || 0) +
+              ((state.hover ? 1 : 0) - (state.amp || 0)) * 0.12;
+            state.cxs =
+              state.cxs == null
+                ? state.cxT
+                : state.cxs + (state.cxT - state.cxs) * 0.22;
+            state.cys =
+              state.cys == null
+                ? state.cyT
+                : state.cys + (state.cyT - state.cys) * 0.22;
+            var amp = state.amp,
+              cx = state.cxs || 0,
+              cy = state.cys || 0,
+              R = 11;
+            pre.style.textShadow =
+              amp > 0.02
+                ? "0 0 " +
+                  (8 * amp).toFixed(1) +
+                  "px rgba(255,255,255," +
+                  (0.25 * amp).toFixed(2) +
+                  ")"
+                : "none";
+            var out = [];
+            for (var y = 0; y < rows; y++) {
+              var drow = dens[y],
+                grow = g[y];
+              var line = "";
+              var dy = y - cy;
+              for (var x = 0; x < cols; x++) {
+                var k = drow[x];
+                var heat = 0;
+                if (amp > 0.01) {
+                  var dx = (x - cx) * 0.62;
+                  var dist = Math.sqrt(dx * dx + dy * dy);
+                  if (dist < R) {
+                    var tt = 1 - dist / R;
+                    heat = tt * tt * amp;
+                  }
+                }
+                if (k === 2) {
+                  if (Math.random() < 0.05 + heat * 0.55)
+                    grow[x] =
+                      heat > 0.35
+                        ? hot[Math.floor(Math.random() * 8)]
+                        : dense[Math.floor(Math.random() * 9)];
+                  line += grow[x];
+                } else if (k === 1) {
+                  if (Math.random() < 0.08 + heat * 0.55)
+                    grow[x] =
+                      heat > 0.3
+                        ? hot[Math.floor(Math.random() * 8)]
+                        : sparse[Math.floor(Math.random() * 4)];
+                  line += grow[x];
+                } else {
+                  if (heat > 0.1) {
+                    if (Math.random() < heat * 0.4) {
+                      grow[x] =
+                        heat > 0.7
+                          ? hot[Math.floor(Math.random() * 8)]
+                          : all[Math.floor(Math.random() * 13)];
+                    }
+                  } else if (grow[x] !== " " && Math.random() < 0.4) {
+                    grow[x] =
+                      " "; /* snap hover dust back to blank once heat fades */
+                  }
+                  line += grow[x];
+                }
+              }
+              out.push(line);
+            }
+            pre.textContent = out.join("\n");
+          }
+
+          /* build after the first paint (rAF → timeout) with the fallback face,
        then rebuild once Source Sans 3 is in */
-    function rebuildWithWebFont() {
-      if (!document.fonts || !document.fonts.load) return;
-      document.fonts.load("700 180px 'Source Sans 3'").then(function (faces) {
-        if (faces && faces.length) buildAscii();
-      }).catch(function () {});
-    }
-    var fontLink = document.getElementById("webFonts");
-    var fontsPending = fontLink && fontLink.rel !== "stylesheet";
-    if (fontsPending) fontLink.addEventListener("load", rebuildWithWebFont);
-    requestAnimationFrame(function () {
-      setTimeout(function () {
-        buildAscii();
-        if (!fontsPending) rebuildWithWebFont();
-      }, 0);
-    });
-
-    if (!reduce) {
-      /* Hit-test the glyph block only (not the tall wrap padding) */
-      pre.addEventListener("mousemove", function (e) {
-        if (!state.cols) return;
-        var r = preViewport;
-        if (r.width < 1 || r.height < 1) return;
-        state.cxT = ((e.clientX - r.left) / r.width) * state.cols;
-        state.cyT = ((e.clientY - r.top) / r.height) * state.rows;
-        state.hover = true;
-      });
-      pre.addEventListener("mouseleave", function () { state.hover = false; });
-    }
-  })();
-
-  var CHAINS = [
-    ["algo", "Algorand"], ["aptos", "Aptos"], ["btc", "Bitcoin"],
-    ["btc-segwit", "BTC SegWit"], ["btc-taproot", "BTC Taproot"], ["ada", "Cardano"],
-    ["tia", "Celestia"], ["cosmos", "Cosmos"], ["dash", "Dash"], ["doge", "Dogecoin"],
-    ["dydx", "dYdX"], ["evm", "EVM"], ["fil", "Filecoin"], ["hedera", "Hedera"],
-    ["inj", "Injective"], ["icp", "Internet Computer"], ["kaspa", "Kaspa"],
-    ["ksm", "Kusama"], ["ltc", "Litecoin"], ["erd", "MultiversX"], ["near", "NEAR"],
-    ["osmo", "Osmosis"], ["dot", "Polkadot"], ["xrp", "Ripple"], ["sei", "Sei"],
-    ["sol", "Solana"], ["xlm", "Stellar"], ["sui", "Sui"], ["xtz", "Tezos"],
-    ["ton", "TON"], ["trx", "Tron"]
-  ];
-  var grid = document.getElementById("chainsGrid");
-  if (grid) {
-    CHAINS.forEach(function (c, i) {
-      var el = document.createElement("div");
-      el.className = "sticker";
-      el.style.setProperty("--r", ((i % 5) - 2) * 1.4 + "deg");
-      el.style.setProperty("--d", (i * 0.09) + "s");
-      el.innerHTML = "<span class='cid'>" + c[0] + "</span><span class='cname'>" + c[1] + "</span>";
-      el.addEventListener("animationend", function () {
-        el.classList.add("dropped");
-      });
-      grid.appendChild(el);
-    });
-
-    /* drop the stickers in once the wall scrolls into view */
-    var stickerIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          grid.classList.add("in-view");
-          stickerIO.disconnect();
-        }
-      });
-    }, { threshold: 0.15 });
-    stickerIO.observe(grid);
-  }
-
-  /* install tabs */
-  var tabBtns = Array.prototype.slice.call(document.querySelectorAll(".tab-btn"));
-  function selectTab(btn) {
-    tabBtns.forEach(function (b) {
-      var on = b === btn;
-      b.classList.toggle("active", on);
-      b.setAttribute("aria-selected", on ? "true" : "false");
-      b.tabIndex = on ? 0 : -1;
-    });
-    document.querySelectorAll(".code-block").forEach(function (p) { p.classList.remove("active"); });
-    var panel = document.querySelector('.code-block[data-panel="' + btn.getAttribute("data-tab") + '"]');
-    if (panel) panel.classList.add("active");
-  }
-  tabBtns.forEach(function (btn, idx) {
-    btn.addEventListener("click", function () { selectTab(btn); });
-    btn.addEventListener("keydown", function (e) {
-      var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-      if (!step) return;
-      e.preventDefault();
-      var next = tabBtns[(idx + step + tabBtns.length) % tabBtns.length];
-      selectTab(next);
-      next.focus();
-    });
-  });
-
-  /* copy */
-  function copyText(el, text, doneLabel) {
-    if (!navigator.clipboard || !navigator.clipboard.writeText) return;
-    navigator.clipboard.writeText(text).then(function () {
-      var old = el.textContent;
-      el.textContent = doneLabel || "Copied";
-      setTimeout(function () { el.textContent = old; }, 1200);
-    });
-  }
-  document.querySelectorAll(".copy-btn").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      copyText(btn, btn.getAttribute("data-copy") || "", "Copied");
-    });
-  });
-  document.querySelectorAll(".copy-cmd").forEach(function (el) {
-    el.addEventListener("click", function () {
-      copyText(el, el.getAttribute("data-copy") || el.textContent.trim(), "Copied!");
-    });
-  });
-
-  /* GitHub latest release assets — fetched only as the download section nears */
-  function loadReleaseLinks() {
-  fetch("https://api.github.com/repos/yudizaxay/vanity-address/releases/latest")
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      var assets = data.assets || [];
-      function find(regex) {
-        var a = assets.find(function (x) { return regex.test(x.name); });
-        return a ? a.browser_download_url : null;
-      }
-      function setHref(id, url) {
-        if (!url) return;
-        var el = document.getElementById(id);
-        if (el) el.href = url;
-      }
-      setHref("dlWinPrimary", find(/Windows-Desktop\.exe$/i));
-      setHref("dlWinSecondary", find(/Windows-CLI\.zip$/i));
-      setHref("dlMacPrimary", find(/Mac-AppleSilicon-Desktop\.dmg$/i));
-      setHref("dlMacSecondary", find(/Mac-AppleSilicon-CLI\.tar\.gz$/i) || find(/Mac-Intel-CLI\.tar\.gz$/i));
-      setHref("dlLinuxPrimary", find(/Linux-CLI\.tar\.gz$/i));
-      var tag = document.getElementById("latestVersionTag");
-      if (tag) {
-        // Prefer live GitHub tag when >= 0.7.0; otherwise keep v0.7.0 (pending publish)
-        var name = data.tag_name || "";
-        var parts = name.replace(/^v/i, "").split(".").map(function (n) { return parseInt(n, 10) || 0; });
-        var isNewEnough = parts[0] > 0 || (parts[0] === 0 && (parts[1] > 6 || (parts[1] === 6 && parts[2] >= 7)));
-        tag.textContent = isNewEnough ? name : "v0.7.0";
-      }
-    })
-    .catch(function () {});
-  }
-  var downloadSection = document.getElementById("download");
-  if (downloadSection && "IntersectionObserver" in window) {
-    var releaseIO = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) {
-        releaseIO.disconnect();
-        loadReleaseLinks();
-      }
-    }, { rootMargin: "800px 0px" });
-    releaseIO.observe(downloadSection);
-  } else {
-    loadReleaseLinks();
-  }
-
-  /* typed demo */
-  var body = document.getElementById("demoBody");
-  var lines = [
-    { t: "$ vanity-address --chain evm --prefix dead --suffix face", cls: "dim" },
-    { t: "", cls: "" },
-    { t: "  Chain     EVM", cls: "" },
-    { t: "  Target    starting with 'dead', ending with 'face'", cls: "" },
-    { t: "  Estimate  ~few minutes on a laptop", cls: "dim" },
-    { t: "", cls: "" },
-    { t: "  grinding…  1.2M keys/s", cls: "" },
-    { t: "", cls: "" },
-    { t: "  ✓ Match", cls: "ok" },
-    { t: "  Address   0xdead…face", cls: "hi" },
-    { t: "  Keys stay on this machine.", cls: "dim" }
-  ];
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (body) {
-    if (reduce) {
-      body.innerHTML = lines.map(function (l) {
-        return "<div class='" + l.cls + "'>" + (l.t || " ") + "</div>";
-      }).join("");
-    } else {
-      var i = 0;
-      function next() {
-        if (i >= lines.length) return;
-        var row = document.createElement("div");
-        row.className = lines[i].cls;
-        row.textContent = lines[i].t || " ";
-        body.appendChild(row);
-        i++;
-        setTimeout(next, i < 7 ? 220 : 380);
-      }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) {
-            io.disconnect();
-            next();
+          function rebuildWithWebFont() {
+            if (!document.fonts || !document.fonts.load) return;
+            document.fonts
+              .load("700 180px 'Source Sans 3'")
+              .then(function (faces) {
+                if (faces && faces.length) buildAscii();
+              })
+              .catch(function () {});
           }
-        });
-      }, { threshold: 0.35 });
-      io.observe(body);
-    }
-  }
-})();
-</script>
-</body>
-</html>
+          var fontLink = document.getElementById("webFonts");
+          var fontsPending = fontLink && fontLink.rel !== "stylesheet";
+          if (fontsPending)
+            fontLink.addEventListener("load", rebuildWithWebFont);
+          requestAnimationFrame(function () {
+            setTimeout(function () {
+              buildAscii();
+              if (!fontsPending) rebuildWithWebFont();
+            }, 0);
+          });
 
+          if (!reduce) {
+            /* Hit-test the glyph block only (not the tall wrap padding) */
+            pre.addEventListener("mousemove", function (e) {
+              if (!state.cols) return;
+              var r = preViewport;
+              if (r.width < 1 || r.height < 1) return;
+              state.cxT = ((e.clientX - r.left) / r.width) * state.cols;
+              state.cyT = ((e.clientY - r.top) / r.height) * state.rows;
+              state.hover = true;
+            });
+            pre.addEventListener("mouseleave", function () {
+              state.hover = false;
+            });
+          }
+        })();
+
+        var CHAINS = [
+          ["algo", "Algorand"],
+          ["aptos", "Aptos"],
+          ["btc", "Bitcoin"],
+          ["btg", "Bitcoin Gold"],
+          ["btc-segwit", "BTC SegWit"],
+          ["btc-taproot", "BTC Taproot"],
+          ["cdn", "Canada eCoin"],
+          ["ada", "Cardano"],
+          ["tia", "Celestia"],
+          ["cosmos", "Cosmos"],
+          ["dash", "Dash"],
+          ["dgb", "DigiByte"],
+          ["doge", "Dogecoin"],
+          ["dydx", "dYdX"],
+          ["emc2", "Einsteinium"],
+          ["evm", "EVM"],
+          ["fil", "Filecoin"],
+          ["hedera", "Hedera"],
+          ["inj", "Injective"],
+          ["icp", "Internet Computer"],
+          ["kaspa", "Kaspa"],
+          ["ksm", "Kusama"],
+          ["ltc", "Litecoin"],
+          ["mona", "Monacoin"],
+          ["erd", "MultiversX"],
+          ["near", "NEAR"],
+          ["nvc", "Novacoin"],
+          ["osmo", "Osmosis"],
+          ["ppc", "Peercoin"],
+          ["dot", "Polkadot"],
+          ["xpm", "Primecoin"],
+          ["qtum", "Qtum"],
+          ["rvn", "Ravencoin"],
+          ["xrp", "Ripple"],
+          ["sei", "Sei"],
+          ["sol", "Solana"],
+          ["xlm", "Stellar"],
+          ["sui", "Sui"],
+          ["sys", "Syscoin"],
+          ["xtz", "Tezos"],
+          ["ton", "TON"],
+          ["trx", "Tron"],
+          ["vtc", "Vertcoin"],
+          ["via", "Viacoin"],
+        ];
+        var grid = document.getElementById("chainsGrid");
+        if (grid) {
+          CHAINS.forEach(function (c, i) {
+            var el = document.createElement("div");
+            el.className = "sticker";
+            el.style.setProperty("--r", ((i % 5) - 2) * 1.4 + "deg");
+            el.style.setProperty("--d", i * 0.09 + "s");
+            el.innerHTML =
+              "<span class='cid'>" +
+              c[0] +
+              "</span><span class='cname'>" +
+              c[1] +
+              "</span>";
+            el.addEventListener("animationend", function () {
+              el.classList.add("dropped");
+            });
+            grid.appendChild(el);
+          });
+
+          /* drop the stickers in once the wall scrolls into view */
+          var stickerIO = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  grid.classList.add("in-view");
+                  stickerIO.disconnect();
+                }
+              });
+            },
+            { threshold: 0.15 },
+          );
+          stickerIO.observe(grid);
+        }
+
+        /* install tabs */
+        var tabBtns = Array.prototype.slice.call(
+          document.querySelectorAll(".tab-btn"),
+        );
+        function selectTab(btn) {
+          tabBtns.forEach(function (b) {
+            var on = b === btn;
+            b.classList.toggle("active", on);
+            b.setAttribute("aria-selected", on ? "true" : "false");
+            b.tabIndex = on ? 0 : -1;
+          });
+          document.querySelectorAll(".code-block").forEach(function (p) {
+            p.classList.remove("active");
+          });
+          var panel = document.querySelector(
+            '.code-block[data-panel="' + btn.getAttribute("data-tab") + '"]',
+          );
+          if (panel) panel.classList.add("active");
+        }
+        tabBtns.forEach(function (btn, idx) {
+          btn.addEventListener("click", function () {
+            selectTab(btn);
+          });
+          btn.addEventListener("keydown", function (e) {
+            var step =
+              e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            if (!step) return;
+            e.preventDefault();
+            var next = tabBtns[(idx + step + tabBtns.length) % tabBtns.length];
+            selectTab(next);
+            next.focus();
+          });
+        });
+
+        /* copy */
+        function copyText(el, text, doneLabel) {
+          if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+          navigator.clipboard.writeText(text).then(function () {
+            var old = el.textContent;
+            el.textContent = doneLabel || "Copied";
+            setTimeout(function () {
+              el.textContent = old;
+            }, 1200);
+          });
+        }
+        document.querySelectorAll(".copy-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            copyText(btn, btn.getAttribute("data-copy") || "", "Copied");
+          });
+        });
+        document.querySelectorAll(".copy-cmd").forEach(function (el) {
+          el.addEventListener("click", function () {
+            copyText(
+              el,
+              el.getAttribute("data-copy") || el.textContent.trim(),
+              "Copied!",
+            );
+          });
+        });
+
+        /* GitHub latest release assets — fetched only as the download section nears */
+        function loadReleaseLinks() {
+          fetch(
+            "https://api.github.com/repos/yudizaxay/vanity-address/releases/latest",
+          )
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (data) {
+              var assets = data.assets || [];
+              function find(regex) {
+                var a = assets.find(function (x) {
+                  return regex.test(x.name);
+                });
+                return a ? a.browser_download_url : null;
+              }
+              function setHref(id, url) {
+                if (!url) return;
+                var el = document.getElementById(id);
+                if (el) el.href = url;
+              }
+              setHref("dlWinPrimary", find(/Windows-Desktop\.exe$/i));
+              setHref("dlWinSecondary", find(/Windows-CLI\.zip$/i));
+              setHref("dlMacPrimary", find(/Mac-AppleSilicon-Desktop\.dmg$/i));
+              setHref(
+                "dlMacSecondary",
+                find(/Mac-AppleSilicon-CLI\.tar\.gz$/i) ||
+                  find(/Mac-Intel-CLI\.tar\.gz$/i),
+              );
+              setHref("dlLinuxPrimary", find(/Linux-CLI\.tar\.gz$/i));
+              var tag = document.getElementById("latestVersionTag");
+              if (tag) {
+                // Prefer live GitHub tag when >= 0.7.0; otherwise keep v0.7.0 (pending publish)
+                var name = data.tag_name || "";
+                var parts = name
+                  .replace(/^v/i, "")
+                  .split(".")
+                  .map(function (n) {
+                    return parseInt(n, 10) || 0;
+                  });
+                var isNewEnough =
+                  parts[0] > 0 ||
+                  (parts[0] === 0 &&
+                    (parts[1] > 6 || (parts[1] === 6 && parts[2] >= 7)));
+                tag.textContent = isNewEnough ? name : "v0.7.0";
+              }
+            })
+            .catch(function () {});
+        }
+        var downloadSection = document.getElementById("download");
+        if (downloadSection && "IntersectionObserver" in window) {
+          var releaseIO = new IntersectionObserver(
+            function (entries) {
+              if (entries[0].isIntersecting) {
+                releaseIO.disconnect();
+                loadReleaseLinks();
+              }
+            },
+            { rootMargin: "800px 0px" },
+          );
+          releaseIO.observe(downloadSection);
+        } else {
+          loadReleaseLinks();
+        }
+
+        /* typed demo */
+        var body = document.getElementById("demoBody");
+        var lines = [
+          {
+            t: "$ vanity-address --chain evm --prefix dead --suffix face",
+            cls: "dim",
+          },
+          { t: "", cls: "" },
+          { t: "  Chain     EVM", cls: "" },
+          {
+            t: "  Target    starting with 'dead', ending with 'face'",
+            cls: "",
+          },
+          { t: "  Estimate  ~few minutes on a laptop", cls: "dim" },
+          { t: "", cls: "" },
+          { t: "  grinding…  1.2M keys/s", cls: "" },
+          { t: "", cls: "" },
+          { t: "  ✓ Match", cls: "ok" },
+          { t: "  Address   0xdead…face", cls: "hi" },
+          { t: "  Keys stay on this machine.", cls: "dim" },
+        ];
+        var reduce = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (body) {
+          if (reduce) {
+            body.innerHTML = lines
+              .map(function (l) {
+                return "<div class='" + l.cls + "'>" + (l.t || " ") + "</div>";
+              })
+              .join("");
+          } else {
+            var i = 0;
+            function next() {
+              if (i >= lines.length) return;
+              var row = document.createElement("div");
+              row.className = lines[i].cls;
+              row.textContent = lines[i].t || " ";
+              body.appendChild(row);
+              i++;
+              setTimeout(next, i < 7 ? 220 : 380);
+            }
+            var io = new IntersectionObserver(
+              function (entries) {
+                entries.forEach(function (e) {
+                  if (e.isIntersecting) {
+                    io.disconnect();
+                    next();
+                  }
+                });
+              },
+              { threshold: 0.35 },
+            );
+            io.observe(body);
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>

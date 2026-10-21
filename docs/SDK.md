@@ -177,21 +177,27 @@ All **44** chains — same ids as the CLI `--chain` flag:
 |---|---|---|---|
 | `algo` | Algorand | `ksm` | Kusama |
 | `aptos` | Aptos | `ltc` | Litecoin |
-| `btc` | Bitcoin (P2PKH) | `erd` | MultiversX |
+| `btc` | Bitcoin (P2PKH) | `mona` | Monacoin |
+| `btg` | Bitcoin Gold | `erd` | MultiversX |
 | `btc-segwit` | Bitcoin SegWit (`bc1q`) | `near` | NEAR |
-| `btc-taproot` | Bitcoin Taproot (`bc1p`) | `osmo` | Osmosis |
-| `ada` | Cardano | `dot` | Polkadot |
-| `tia` | Celestia | `xrp` | Ripple |
-| `cosmos` | Cosmos | `sei` | Sei |
-| `dash` | Dash | `sol` | Solana |
-| `doge` | Dogecoin | `xlm` | Stellar |
-| `dydx` | dYdX | `sui` | Sui |
-| `evm` | EVM (+ Base, Hyperliquid, Sonic, Robinhood, …) | `xtz` | Tezos |
-| `fil` | Filecoin | `ton` | TON |
-| `hedera` | Hedera | `trx` | Tron |
-| `inj` | Injective | | |
-| `icp` | Internet Computer | | |
-| `kaspa` | Kaspa | | |
+| `btc-taproot` | Bitcoin Taproot (`bc1p`) | `nvc` | Novacoin |
+| `cdn` | Canada eCoin | `osmo` | Osmosis |
+| `ada` | Cardano | `ppc` | Peercoin |
+| `tia` | Celestia | `dot` | Polkadot |
+| `cosmos` | Cosmos | `xpm` | Primecoin |
+| `dash` | Dash | `qtum` | Qtum |
+| `dgb` | DigiByte | `rvn` | Ravencoin |
+| `doge` | Dogecoin | `xrp` | Ripple |
+| `dydx` | dYdX | `sei` | Sei |
+| `emc2` | Einsteinium | `sol` | Solana |
+| `evm` | EVM (+ Base, Hyperliquid, Sonic, Robinhood, …) | `xlm` | Stellar |
+| `fil` | Filecoin | `sui` | Sui |
+| `hedera` | Hedera | `sys` | Syscoin |
+| `inj` | Injective | `xtz` | Tezos |
+| `icp` | Internet Computer | `ton` | TON |
+| `kaspa` | Kaspa | `trx` | Tron |
+| | | `vtc` | Vertcoin |
+| | | `via` | Viacoin |
 
 Deploy modes (also from `listDeployModes()`; accepted as `chain`):
 

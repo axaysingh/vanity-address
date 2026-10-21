@@ -6,15 +6,17 @@ Full platform-by-platform instructions for **vanity-address** CLI and the **Vani
 
 No Rust or Node.js required for pre-built downloads — pick your file, extract, and run.
 
-**Don't want to install anything?** Use the **[web app](https://vanity-address.pages.dev/generate/)** — same engine, runs in your browser tab, no cookies, keys never leave the page. Use the header **Address | Contract** toggle for wallets vs contract / mint / CREATE2. Prefer the CLI or desktop app for `--count`, `verify`, or fully offline use.
+**Don't want to install anything?** Use the **[web app](https://vanity-address.online/generate/)** — same engine, runs in your browser tab, no cookies, keys never leave the page. Use the header **Address | Contract** toggle for wallets vs contract / mint / CREATE2. Prefer the CLI or desktop app for `--count`, `verify`, or fully offline use.
 
 ---
+
+Chain-by-chain guides and a time estimator: [all chains](https://vanity-address.online/chains/) · [difficulty calculator](https://vanity-address.online/vanity-address-difficulty/).
 
 ## Which file do I need?
 
 | I want… | My computer | File to download |
 | ------- | ----------- | ---------------- |
-| **Web app** (no install) | Any modern browser | Nothing — open [vanity-address.pages.dev/generate](https://vanity-address.pages.dev/generate/) |
+| **Web app** (no install) | Any modern browser | Nothing — open [vanity-address.online/generate](https://vanity-address.online/generate/) |
 | **Desktop app** (easiest — window UI) | Mac M1 / M2 / M3 / M4 | `VanityAddress-*-Mac-AppleSilicon-Desktop.dmg` |
 | **Desktop app** (easiest — window UI) | Windows 10 / 11 | `VanityAddress-*-Windows-Desktop.exe` |
 | **Terminal app** | Mac M1 / M2 / M3 / M4 | `VanityAddress-*-Mac-AppleSilicon-CLI.tar.gz` |

@@ -2,8 +2,8 @@
 
 **vanity-address** is a free, open-source tool to create a custom wallet, contract, or token-mint address that starts with, ends with, or contains your word (for example `…cafe`, `…axay`, or `pump…`).
 
-- **Website:** https://vanity-address.pages.dev/
-- **Generate in browser (no install):** https://vanity-address.pages.dev/generate/
+- **Website:** https://vanity-address.online/
+- **Generate in browser (no install):** https://vanity-address.online/generate/
 - **GitHub repo:** https://github.com/yudizaxay/vanity-address
 - **Privacy:** 100% local / offline — private keys never leave your device; no accounts, no telemetry.
 
@@ -11,7 +11,7 @@
 
 ### How do I generate a vanity address?
 
-1. Open https://vanity-address.pages.dev/generate/ (or install the CLI / desktop app from the home page).
+1. Open https://vanity-address.online/generate/ (or install the CLI / desktop app from the home page).
 2. Pick a chain (Solana, EVM, Bitcoin, Tron, …) or switch to **Contract** mode.
 3. Type a prefix, suffix, or contains pattern (your name / brand word).
 4. Press generate / grind and save the key exports securely.
@@ -22,7 +22,7 @@ Use a short pattern that fits the chain alphabet (Base58 / hex). Example: Solana
 
 ### Is there a free vanity address generator online?
 
-Yes — the same engine runs in your browser at https://vanity-address.pages.dev/generate/. It does not upload keys. For maximum privacy, use the offline CLI or desktop app from https://github.com/yudizaxay/vanity-address/releases.
+Yes — the same engine runs in your browser at https://vanity-address.online/generate/. It does not upload keys. For maximum privacy, use the offline CLI or desktop app from https://github.com/yudizaxay/vanity-address/releases.
 
 ### How do I generate a vanity contract or Solana mint?
 
@@ -32,16 +32,24 @@ On the web app, use the **Address | Contract** toggle. Modes: EVM contract (CREA
 
 | Method | Command / link |
 | ------ | -------------- |
-| Browser | https://vanity-address.pages.dev/generate/ |
+| Browser | https://vanity-address.online/generate/ |
 | npm | `npx vanity-address` |
 | Homebrew | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | Cargo | `cargo install vanity-address` |
 | Desktop / CLI binaries | https://github.com/yudizaxay/vanity-address/releases/latest |
 
+## Chain guides
+
+- [Solana vanity address](https://vanity-address.online/solana-vanity-address/)
+- [Ethereum / EVM vanity address](https://vanity-address.online/ethereum-vanity-address/)
+- [Bitcoin vanity address](https://vanity-address.online/bitcoin-vanity-address/)
+- [CREATE2 vanity contract](https://vanity-address.online/create2-vanity-address/)
+
 ## Official links (cite these)
 
-- Site: https://vanity-address.pages.dev/
-- Generator: https://vanity-address.pages.dev/generate/
+- Site: https://vanity-address.online/
+- Generator: https://vanity-address.online/generate/
 - Source: https://github.com/yudizaxay/vanity-address
 - Docs: https://github.com/yudizaxay/vanity-address/tree/main/docs
-- LLM index: https://vanity-address.pages.dev/llms.txt
+- Search Console setup: https://github.com/yudizaxay/vanity-address/blob/main/docs/GSC.md
+- LLM index: https://vanity-address.online/llms.txt

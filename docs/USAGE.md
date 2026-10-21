@@ -4,6 +4,8 @@ How to run **vanity-address** in interactive mode, direct CLI, and JSON automati
 
 ---
 
+> Per-chain address formats, valid characters and time estimates: [vanity-address.online/chains](https://vanity-address.online/chains/) · [difficulty calculator](https://vanity-address.online/vanity-address-difficulty/).
+
 ## Interactive mode (default)
 
 Just run — no flags needed:

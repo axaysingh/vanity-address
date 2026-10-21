@@ -13,7 +13,7 @@
 
 class VanityAddress < Formula
   desc "Fast, local multi-chain vanity address generator"
-  homepage "https://github.com/yudizaxay/vanity-address"
+  homepage "https://vanity-address.online/"
   url "https://github.com/yudizaxay/vanity-address/archive/refs/tags/v0.7.0.tar.gz"
   sha256 "75b73953159f0126b9a555859126dc33f6f3621900765530eb7f4e282ef6f230"
   license "MIT"

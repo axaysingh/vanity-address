@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ethereum vanity address generator (offline) — vanity-address</title>
+<meta name="description" content="Generate a custom Ethereum / EVM wallet or deployer contract address offline. Works for Base, Arbitrum, Optimism, and all EVM chains. Keys never leave your device." />
+<link rel="canonical" href="https://vanity-address.online/ethereum-vanity-address/" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://vanity-address.online/ethereum-vanity-address/" />
+<meta property="og:title" content="Ethereum vanity address generator (offline)" />
+<meta property="og:description" content="Custom 0x wallet and contract addresses. Free, open source, 100% local — CLI GPU optional." />
+<meta property="og:image" content="https://vanity-address.online/assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="vanity-address" />
+<meta name="twitter:image" content="https://vanity-address.online/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Ethereum vanity address generator (offline)" />
+<meta name="twitter:description" content="Custom EVM wallet or CREATE contract addresses — keys stay on your device." />
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/guide.css" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Ethereum vanity address generator (offline)",
+      "description": "How to generate a custom Ethereum or EVM wallet or contract address locally with vanity-address.",
+      "url": "https://vanity-address.online/ethereum-vanity-address/",
+      "author": {
+        "@type": "Person",
+        "name": "yudizaxay",
+        "url": "https://github.com/yudizaxay"
+      },
+      "image": "https://vanity-address.online/assets/og.png",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "en",
+      "publisher": {
+        "@type": "Organization",
+        "name": "vanity-address",
+        "url": "https://vanity-address.online/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://vanity-address.online/assets/logo-512.png"
+        }
+      },
+      "mainEntityOfPage": "https://vanity-address.online/ethereum-vanity-address/"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://vanity-address.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "All chains",
+          "item": "https://vanity-address.online/chains/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Ethereum vanity address generator (offline)",
+          "item": "https://vanity-address.online/ethereum-vanity-address/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Which characters can an Ethereum vanity address use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Only hexadecimal digits: 0–9 and a–f. Words like dead, beef, cafe and face are valid; most English words are not."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the same address work on Base, Arbitrum and Optimism?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. EVM chains share the same address format, so one vanity key controls the same address across all of them."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How fast is the GPU path?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "On an Apple M4 the OpenCL EVM kernel measured about 46 million keys per second, roughly 90× the CPU on the same machine. NVIDIA and AMD cards are untested."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does a 6-character prefix take?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "16⁶ ≈ 16.8 million attempts on average — seconds to minutes depending on hardware."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="34" height="34" /><span>vanity-address</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Site">
+      <a href="../generate/">Web app</a>
+      <a href="../#download">Download</a>
+      <a href="../#how">How it works</a>
+      <a href="../#deploy">Contracts</a>
+      <a href="../#demo">Demo</a>
+      <a href="../chains/">Chains</a>
+      <a href="../#install">Install</a>
+      <a href="../#faq">FAQ</a>
+      <a href="../#security">Security</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-cta" href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener" aria-label="Star on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+        <span class="cta-text">Star on GitHub</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+  <div class="wrap">
+<main>
+      <p class="kicker">Ethereum · EVM · offline</p>
+      <h1>Ethereum vanity address generator</h1>
+      <p class="lede">Grind a hex <code>0x…</code> wallet that starts or ends with your word — or a deployer whose first contract hits a vanity address. Same keys work on every EVM chain (Base, Arbitrum, Optimism, Polygon, BNB, …).</p>
+
+      <div class="ctas">
+        <a class="btn btn-primary" href="../generate/">Generate in browser</a>
+        <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address/releases/latest">Download CLI / desktop</a>
+      </div>
+
+      <h2>Wallet vanity (EOA)</h2>
+      <ol>
+        <li>Open the <a href="../generate/">web generator</a> or CLI.</li>
+        <li>Choose <strong>EVM</strong> (<code>evm</code>).</li>
+        <li>Set hex-friendly <strong>prefix</strong> / <strong>suffix</strong> (e.g. <code>dead</code>, <code>cafe</code>).</li>
+        <li>Import the private key into MetaMask / Rabby.</li>
+      </ol>
+      <pre>npx vanity-address --chain evm --prefix dead --suffix beef</pre>
+
+      <h2>First-deploy contract vanity</h2>
+      <p>Want the <em>contract</em> address to be vanity without a factory? Use <code>evm-contract</code> — grinds a deployer key whose CREATE at nonce 0 matches your pattern.</p>
+      <pre>npx vanity-address --chain evm-contract --prefix cafe</pre>
+
+      <h2>GPU (CLI / desktop)</h2>
+      <p>OpenCL EVM grinding is available with <code>--gpu auto</code> on supported machines (measured on Apple M4; other GPUs untested). Browser WASM stays CPU-only. Candidates are always CPU-reverified before export.</p>
+
+      <h2>CREATE2 salt vanity</h2>
+      <p>Factory deploys need a salt grind — see the <a href="../create2-vanity-address/">CREATE2 vanity guide</a>.</p>
+
+      <h2>Hex rules and difficulty</h2>
+      <p>An Ethereum address is <code>0x</code> plus 40 hex characters, so each fixed character costs a factor of 16 — much cheaper than Base58 chains. A 4-character prefix is trivial, 8 characters takes real compute, and beyond 10 you will want the GPU path.</p>
+<table class="diff"><thead><tr><th>Pattern length</th><th>Expected attempts</th><th>Average time @ 1M keys/s</th></tr></thead><tbody>
+<tr><td>1</td><td>16</td><td>under a second</td></tr>
+<tr><td>2</td><td>256</td><td>under a second</td></tr>
+<tr><td>3</td><td>4,096</td><td>under a second</td></tr>
+<tr><td>4</td><td>65,536</td><td>under a second</td></tr>
+<tr><td>5</td><td>1.0 million</td><td>1 second</td></tr>
+<tr><td>6</td><td>16.8 million</td><td>17 seconds</td></tr>
+<tr><td>7</td><td>268 million</td><td>4.5 minutes</td></tr>
+<tr><td>8</td><td>4.3 billion</td><td>1.2 hours</td></tr>
+</tbody></table>
+      <p class="note">Times assume one million keys per second and are illustrative.</p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Which characters can an Ethereum vanity address use?</h3>
+      <p>Only hexadecimal digits: 0–9 and a–f. Words like dead, beef, cafe and face are valid; most English words are not.</p>
+      <h3>Does the same address work on Base, Arbitrum and Optimism?</h3>
+      <p>Yes. EVM chains share the same address format, so one vanity key controls the same address across all of them.</p>
+      <h3>How fast is the GPU path?</h3>
+      <p>On an Apple M4 the OpenCL EVM kernel measured about 46 million keys per second, roughly 90× the CPU on the same machine. NVIDIA and AMD cards are untested.</p>
+      <h3>How long does a 6-character prefix take?</h3>
+      <p>16⁶ ≈ 16.8 million attempts on average — seconds to minutes depending on hardware.</p>
+
+      <aside class="related">
+        <h2>More vanity address guides</h2>
+        <ul>
+          <li><a href="../solana-vanity-address/">Solana vanity address</a></li>
+          <li><a href="../bitcoin-vanity-address/">Bitcoin vanity address</a></li>
+          <li><a href="../create2-vanity-address/">CREATE2 vanity contract</a></li>
+          <li><a href="../tron-vanity-address/">Tron vanity address</a></li>
+          <li><a href="../dogecoin-vanity-address/">Dogecoin vanity address</a></li>
+          <li><a href="../litecoin-vanity-address/">Litecoin vanity address</a></li>
+          <li><a href="../dash-vanity-address/">Dash vanity address</a></li>
+          <li><a href="../ton-vanity-address/">TON vanity address</a></li>
+          <li><a href="../sui-vanity-address/">Sui vanity address</a></li>
+          <li><a href="../near-vanity-address/">NEAR vanity address</a></li>
+          <li><a href="../xrp-vanity-address/">XRP Ledger vanity address</a></li>
+          <li><a href="../stellar-vanity-address/">Stellar vanity address</a></li>
+          <li><a href="../cardano-vanity-address/">Cardano vanity address</a></li>
+          <li><a href="../kaspa-vanity-address/">Kaspa vanity address</a></li>
+          <li><a href="../vanity-address-difficulty/">Difficulty calculator</a></li>
+          <li><a href="../chains/">All supported chains</a></li>
+        </ul>
+      </aside>
+    </main>
+
+    <footer class="foot">
+      <p>Updated 2026-10-21 · <a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>
