@@ -1220,39 +1220,54 @@
         border: 0;
         border-radius: 6px;
       }
-      .fright {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex-wrap: wrap;
-      }
 
       footer.site-footer {
         border-top: 1px solid var(--ink);
-        padding: 22px 0;
+        padding: 28px 0 22px;
         background: var(--paper-deep);
       }
       footer.site-footer .wrap {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px 28px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 20px;
       }
-      .flinks {
+      .f-nav {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 20px 40px;
+      }
+      .f-group {
         display: flex;
         flex-wrap: wrap;
-        gap: 18px;
+        align-items: baseline;
+        gap: 8px 16px;
         font-weight: 700;
         color: var(--forest);
       }
-      .flinks a:hover {
+      .f-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        width: 100%;
+        margin-bottom: 2px;
+      }
+      .f-group a:hover {
         color: var(--stamp);
+      }
+      .f-bar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 14px 16px;
+        flex-wrap: wrap;
+        padding-top: 16px;
+        border-top: 1px solid rgba(13, 27, 42, 0.16);
       }
       .fcopy {
         color: var(--ink-soft);
         font-size: 0.95rem;
-        white-space: nowrap;
       }
       .fcopy a {
         color: var(--forest);
@@ -1389,18 +1404,25 @@
         }
 
         footer.site-footer {
-          padding: 18px 0;
+          padding: 22px 0 18px;
         }
         footer.site-footer .wrap {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 12px;
+          gap: 16px;
         }
-        .flinks {
-          gap: 14px;
+        .f-nav {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .f-group {
+          gap: 8px 14px;
+        }
+        .f-bar {
+          flex-direction: row;
+          justify-content: flex-end;
+          align-items: center;
+          padding-top: 14px;
         }
         .fcopy {
-          white-space: normal;
           font-size: 0.88rem;
           line-height: 1.4;
         }
@@ -2292,48 +2314,33 @@
 
     <footer class="site-footer">
       <div class="wrap">
-        <div class="flinks">
-          <a
-            href="https://github.com/yudizaxay/vanity-address"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >
-          <a href="solana-vanity-address/">Solana guide</a>
-          <a href="ethereum-vanity-address/">Ethereum guide</a>
-          <a href="bitcoin-vanity-address/">Bitcoin guide</a>
-          <a href="create2-vanity-address/">CREATE2 guide</a>
-          <a href="chains/">All chains</a>
-          <a href="vanity-address-difficulty/">Difficulty calculator</a>
-          <a href="tron-vanity-address/">Tron</a>
-          <a href="ton-vanity-address/">TON</a>
-          <a href="dogecoin-vanity-address/">Dogecoin</a>
-          <a
-            href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md"
-            target="_blank"
-            rel="noopener"
-            >Usage guide</a
-          >
-          <a
-            href="https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md"
-            target="_blank"
-            rel="noopener"
-            >SDK docs</a
-          >
-          <a
-            href="https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md"
-            target="_blank"
-            rel="noopener"
-            >Security policy</a
-          >
-          <a
-            href="https://www.npmjs.com/package/vanity-address"
-            target="_blank"
-            rel="noopener"
-            >npm</a
-          >
-        </div>
-        <div class="fright">
+        <nav class="f-nav" aria-label="Footer">
+          <div class="f-group">
+            <span class="f-label">Explore</span>
+            <a
+              href="https://github.com/yudizaxay/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >
+            <a href="chains/">All 44 chains</a>
+            <a href="vanity-address-difficulty/">Difficulty</a>
+            <a
+              href="https://www.npmjs.com/package/vanity-address"
+              target="_blank"
+              rel="noopener"
+              >npm</a
+            >
+          </div>
+          <div class="f-group">
+            <span class="f-label">Guides</span>
+            <a href="solana-vanity-address/">Solana</a>
+            <a href="ethereum-vanity-address/">Ethereum</a>
+            <a href="bitcoin-vanity-address/">Bitcoin</a>
+            <a href="create2-vanity-address/">CREATE2</a>
+          </div>
+        </nav>
+        <div class="f-bar">
           <iframe
             class="sponsor-btn"
             src="https://github.com/sponsors/yudizaxay/button"
