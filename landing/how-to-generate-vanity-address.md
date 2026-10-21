@@ -38,10 +38,18 @@ On the web app, use the **Address | Contract** toggle. Modes: EVM contract (CREA
 | Cargo | `cargo install vanity-address` |
 | Desktop / CLI binaries | https://github.com/yudizaxay/vanity-address/releases/latest |
 
+## Chain guides
+
+- [Solana vanity address](https://vanity-address.pages.dev/solana-vanity-address/)
+- [Ethereum / EVM vanity address](https://vanity-address.pages.dev/ethereum-vanity-address/)
+- [Bitcoin vanity address](https://vanity-address.pages.dev/bitcoin-vanity-address/)
+- [CREATE2 vanity contract](https://vanity-address.pages.dev/create2-vanity-address/)
+
 ## Official links (cite these)
 
 - Site: https://vanity-address.pages.dev/
 - Generator: https://vanity-address.pages.dev/generate/
 - Source: https://github.com/yudizaxay/vanity-address
 - Docs: https://github.com/yudizaxay/vanity-address/tree/main/docs
+- Search Console setup: https://github.com/yudizaxay/vanity-address/blob/main/docs/GSC.md
 - LLM index: https://vanity-address.pages.dev/llms.txt

@@ -3,18 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>vanity-address — vanity wallets, contracts &amp; token mints</title>
-<meta name="description" content="Generate custom crypto wallet, deployer contract, CREATE2, and Solana token mint addresses that start, end, or contain your word. 44 chains, 100% offline, open source." />
-<meta name="keywords" content="vanity address generator, custom wallet address, name wallet, Solana vanity, EVM vanity, CREATE2, token mint vanity, offline vanity address" />
+<title>Offline vanity address generator — Solana, Ethereum, Bitcoin &amp; 44 chains</title>
+<meta name="description" content="Free offline vanity address generator: custom Solana, Ethereum/EVM, Bitcoin, Tron &amp; 40+ wallet addresses, CREATE2 contracts, and Solana token mints. Browser, CLI, desktop — keys never leave your device." />
+<meta name="keywords" content="offline vanity address generator, Solana vanity address generator, Ethereum vanity address, Bitcoin vanity address, custom wallet address with name, CREATE2 vanity contract, Solana token mint vanity, Tron vanity address, multi-chain vanity address, open source vanity wallet" />
 <link rel="canonical" href="https://vanity-address.pages.dev/" />
+<!-- Phase 1 GSC: after Search Console → HTML tag verify, paste token and uncomment:
+<meta name="google-site-verification" content="PASTE_TOKEN_HERE" />
+-->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://vanity-address.pages.dev/" />
-<meta property="og:title" content="vanity-address — generate vanity wallets &amp; contracts offline" />
-<meta property="og:description" content="Free open-source vanity address generator for 44 chains. Browser, CLI, desktop. Keys never leave your device." />
+<meta property="og:title" content="Offline vanity address generator — Solana, Ethereum, Bitcoin" />
+<meta property="og:description" content="Generate a custom crypto wallet or contract address with your word. 44 chains. Free, open source, 100% local — no telemetry." />
 <meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="vanity-address — vanity wallets &amp; contracts" />
-<meta name="twitter:description" content="Generate a custom crypto address with your word — free, offline, open source." />
+<meta name="twitter:title" content="Offline vanity address generator — Solana, Ethereum, Bitcoin" />
+<meta name="twitter:description" content="Custom Solana / EVM / Bitcoin addresses offline. Browser, CLI, desktop. Open source." />
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
 <link rel="alternate" type="text/markdown" href="/how-to-generate-vanity-address.md" title="How to generate a vanity address" />
 <link rel="describedby" href="/llms.txt" type="text/markdown" title="LLM-friendly site overview" />
@@ -32,7 +35,7 @@
       "downloadUrl": "https://github.com/yudizaxay/vanity-address/releases/latest",
       "codeRepository": "https://github.com/yudizaxay/vanity-address",
       "license": "https://opensource.org/licenses/MIT",
-      "description": "Fast, local, multi-chain vanity cryptocurrency address generator for wallets, contracts, and Solana token mints.",
+      "description": "Offline multi-chain vanity address generator for Solana, Ethereum/EVM, Bitcoin, Tron and 40+ chains — wallets, CREATE2 contracts, and Solana token mints.",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     },
     {
@@ -40,7 +43,7 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How do I generate a vanity crypto address?",
+          "name": "How do I generate a vanity crypto address offline?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Use vanity-address at https://vanity-address.pages.dev/generate/ or install from https://github.com/yudizaxay/vanity-address. Pick a chain, enter a prefix/suffix/contains pattern, and grind locally — keys never leave your device."
@@ -48,10 +51,18 @@
         },
         {
           "@type": "Question",
-          "name": "How do I make a wallet address with my name?",
+          "name": "How do I make a Solana or Ethereum wallet address with my name?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Open the vanity-address web generator or CLI, choose your chain, and set a short name-like prefix or suffix. Longer patterns take much longer; the tool shows an ETA before you start."
+            "text": "Open the vanity-address web generator or CLI, choose Solana or EVM, and set a short name-like prefix or suffix. Longer patterns take much longer; the tool shows an ETA before you start."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I generate a CREATE2 or Solana token mint vanity address?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. vanity-address supports EVM CREATE / CREATE2 contract vanity and Solana SPL token mint vanity in the CLI, desktop app, and web generator, all offline."
           }
         },
         {
@@ -1052,7 +1063,7 @@
     <div class="wrap">
       <p class="section-kicker">FAQ</p>
       <h2 class="section-title">How do I generate a vanity address?</h2>
-      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Full guide: <a href="how-to-generate-vanity-address.md"><code class="inline">how-to-generate-vanity-address.md</code></a> · source: <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">github.com/yudizaxay/vanity-address</a>.</p>
+      <p class="section-desc">Short answers for “custom name wallet”, “cool Solana address”, and similar questions. Guides: <a href="solana-vanity-address/">Solana</a> · <a href="ethereum-vanity-address/">Ethereum</a> · <a href="bitcoin-vanity-address/">Bitcoin</a> · <a href="create2-vanity-address/">CREATE2</a> · <a href="how-to-generate-vanity-address.md">FAQ</a> · <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">GitHub</a>.</p>
       <div class="rules">
         <div class="rule">
           <h3>Browser (no install)</h3>
@@ -1068,7 +1079,7 @@
         </div>
         <div class="rule">
           <h3>Contract / mint</h3>
-          <p>Contract mode: EVM CREATE, Tron CREATE, Solana mint, or CREATE2. Same local privacy model as wallets.</p>
+          <p>Contract mode: EVM CREATE, Tron CREATE, Solana mint, or <a href="create2-vanity-address/">CREATE2</a>. Same local privacy model as wallets.</p>
         </div>
       </div>
     </div>
@@ -1152,6 +1163,10 @@
   <div class="wrap">
     <div class="flinks">
       <a href="https://github.com/yudizaxay/vanity-address" target="_blank" rel="noopener">GitHub</a>
+      <a href="solana-vanity-address/">Solana guide</a>
+      <a href="ethereum-vanity-address/">Ethereum guide</a>
+      <a href="bitcoin-vanity-address/">Bitcoin guide</a>
+      <a href="create2-vanity-address/">CREATE2 guide</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/USAGE.md" target="_blank" rel="noopener">Usage guide</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/docs/SDK.md" target="_blank" rel="noopener">SDK docs</a>
       <a href="https://github.com/yudizaxay/vanity-address/blob/main/SECURITY.md" target="_blank" rel="noopener">Security policy</a>

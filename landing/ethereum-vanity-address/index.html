@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ethereum vanity address generator (offline) — vanity-address</title>
+<meta name="description" content="Generate a custom Ethereum / EVM wallet or deployer contract address offline. Works for Base, Arbitrum, Optimism, and all EVM chains. Keys never leave your device." />
+<link rel="canonical" href="https://vanity-address.pages.dev/ethereum-vanity-address/" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://vanity-address.pages.dev/ethereum-vanity-address/" />
+<meta property="og:title" content="Ethereum vanity address generator (offline)" />
+<meta property="og:description" content="Custom 0x wallet and contract addresses. Free, open source, 100% local — CLI GPU optional." />
+<meta property="og:image" content="https://vanity-address.pages.dev/assets/logo.svg" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Ethereum vanity address generator (offline)" />
+<meta name="twitter:description" content="Custom EVM wallet or CREATE contract addresses — keys stay on your device." />
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/guide.css" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Ethereum vanity address generator (offline)",
+  "description": "How to generate a custom Ethereum or EVM wallet or contract address locally with vanity-address.",
+  "url": "https://vanity-address.pages.dev/ethereum-vanity-address/",
+  "author": { "@type": "Person", "name": "yudizaxay", "url": "https://github.com/yudizaxay" }
+}
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../"><img src="../assets/logo.svg" alt="" width="32" height="32" /><span>vanity-address</span></a>
+      <nav class="top-links" aria-label="Site">
+        <a href="../generate/">Web app</a>
+        <a href="../">Home</a>
+        <a href="https://github.com/yudizaxay/vanity-address">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <p class="kicker">Ethereum · EVM · offline</p>
+      <h1>Ethereum vanity address generator</h1>
+      <p class="lede">Grind a hex <code>0x…</code> wallet that starts or ends with your word — or a deployer whose first contract hits a vanity address. Same keys work on every EVM chain (Base, Arbitrum, Optimism, Polygon, BNB, …).</p>
+
+      <div class="ctas">
+        <a class="btn btn-primary" href="../generate/">Generate in browser</a>
+        <a class="btn btn-ghost" href="https://github.com/yudizaxay/vanity-address/releases/latest">Download CLI / desktop</a>
+      </div>
+
+      <h2>Wallet vanity (EOA)</h2>
+      <ol>
+        <li>Open the <a href="../generate/">web generator</a> or CLI.</li>
+        <li>Choose <strong>EVM</strong> (<code>evm</code>).</li>
+        <li>Set hex-friendly <strong>prefix</strong> / <strong>suffix</strong> (e.g. <code>dead</code>, <code>cafe</code>).</li>
+        <li>Import the private key into MetaMask / Rabby.</li>
+      </ol>
+      <pre>npx vanity-address --chain evm --prefix dead --suffix beef</pre>
+
+      <h2>First-deploy contract vanity</h2>
+      <p>Want the <em>contract</em> address to be vanity without a factory? Use <code>evm-contract</code> — grinds a deployer key whose CREATE at nonce 0 matches your pattern.</p>
+      <pre>npx vanity-address --chain evm-contract --prefix cafe</pre>
+
+      <h2>GPU (CLI / desktop)</h2>
+      <p>OpenCL EVM grinding is available with <code>--gpu auto</code> on supported machines (measured on Apple M4; other GPUs untested). Browser WASM stays CPU-only. Candidates are always CPU-reverified before export.</p>
+
+      <h2>CREATE2 salt vanity</h2>
+      <p>Factory deploys need a salt grind — see the <a href="../create2-vanity-address/">CREATE2 vanity guide</a>.</p>
+
+      <aside class="related">
+        <h2>Related guides</h2>
+        <ul>
+          <li><a href="../solana-vanity-address/">Solana vanity address</a></li>
+          <li><a href="../bitcoin-vanity-address/">Bitcoin vanity address</a></li>
+          <li><a href="../create2-vanity-address/">CREATE2 vanity contract</a></li>
+          <li><a href="../how-to-generate-vanity-address.md">Full how-to FAQ</a></li>
+        </ul>
+      </aside>
+    </main>
+
+    <footer class="foot">
+      <p><a href="../">← vanity-address home</a> · MIT · <a href="https://github.com/yudizaxay/vanity-address">Source on GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>

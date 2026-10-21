@@ -27,4 +27,5 @@ alwaysApply: true
 - `docs/USAGE.md` — CLI usage, chains, JSON
 - `docs/HOMEBREW.md` — Homebrew tap
 - `docs/NPM.md` — npm CLI wrapper
+- `docs/GSC.md` — Google Search Console (SEO Phase 1)
 - `RELEASING.md` — maintainer release flow
