@@ -4,8 +4,11 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-29
+
 ### Changed
 
+- docs: canonical site vanity-address.online — npm `homepage` was still the old `pages.dev` URL on 0.7.0; npm keywords expanded for search. npm main package only (platform binaries stay 0.7.0; `publish-npm.sh --main-only`)
 - **Canonical website** is now [vanity-address.online](https://vanity-address.online/) (Cloudflare Pages custom domain). `landing/_worker.js` 301s `www` to the apex. Docs, npm `homepage`, and landing canonical/OG/schema URLs updated.
 - Crate `homepage` (`vanity-core`, `vanity-address`) and the Homebrew formula now point to the website; README, npm README, `docs/INSTALL.md`, `docs/USAGE.md`, `docs/NPM.md` link the new guides and difficulty calculator.
 - SEO cluster: per-chain guides, `/chains/` hub, difficulty calculator, `404.html`, PNG Open Graph image, sitemap with `lastmod` (see `scripts/gen-seo-pages.py` + `docs/GSC.md`)

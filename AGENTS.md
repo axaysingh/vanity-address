@@ -38,17 +38,17 @@ vanity-address/ (workspace root)
 
 ---
 
-## Current version state (as of 2026-10-20)
+## Current version state (as of 2026-10-29)
 
 | Package | Version | Published |
 | ------- | ------- | --------- |
 | vanity-core | **0.7.0** | ⏳ in tree — publish after tag |
 | vanity-address (CLI) | **0.7.0** | ⏳ in tree — publish after tag |
 | vanity-app (desktop) | **0.7.0** | ⏳ in tree — GitHub Release after tag |
-| vanity-wasm / npm SDK | **0.7.0** | ⏳ in tree — npm after Release assets |
+| vanity-wasm / npm SDK | **0.7.0 → 0.7.1** | ✅ npm 0.7.0 live; **0.7.1** (metadata patch, main pkg only) in tree |
 | Web app (`landing/generate/`) | — | ✅ live at https://vanity-address.online/generate/ |
 
-**Git tags on GitHub:** `v0.3.0` … `v0.6.6` (next: `v0.7.0`)  
+**Git tags on GitHub:** `v0.3.0` … `v0.7.0`  
 **Latest GitHub Release:** [v0.6.6](https://github.com/yudizaxay/vanity-address/releases/tag/v0.6.6) — bump Formula/sha after `v0.7.0` exists
 
 **Website deploy (Cloudflare Pages — GitHub `main` auto-deploys `landing/`):**
@@ -77,7 +77,7 @@ cargo publish -p vanity-address
 | **crates.io** | ✅ v0.6.6 (⏳ v0.7.0 pending) | `cargo install vanity-address` |
 | **Homebrew tap** | ✅ v0.6.6 (⏳ v0.7.0 pending) | `brew tap yudizaxay/tap && brew trust yudizaxay/tap && brew install vanity-address` |
 | **Homebrew local** | ✅ Works | `brew install --build-from-source ./Formula/vanity-address.rb` |
-| **npm** | ✅ v0.6.6 (⏳ v0.7.0 pending) | `npx vanity-address` / `npm i vanity-address` |
+| **npm** | ✅ v0.7.0 (0.7.1 docs patch pending publish) | `npx vanity-address` / `npm i vanity-address` |
 | **Web app** | ✅ Live | https://vanity-address.online/generate/ |
 | **Winget / Scoop / AUR** | ❌ Not yet | Future optional channels |
 

@@ -4,6 +4,7 @@
 #   ./scripts/prepare-npm.sh 0.3.5
 #   ./scripts/publish-npm.sh            # dry-run first? use --dry-run
 #   ./scripts/publish-npm.sh --dry-run
+#   ./scripts/publish-npm.sh --main-only [--dry-run]   # docs/metadata patch: main package only
 #
 # Requires: binaries prepared via prepare-npm.sh. Runs `npm login` if needed.
 
@@ -11,9 +12,13 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DRY=""
-if [[ "${1:-}" == "--dry-run" ]]; then
-  DRY="--dry-run"
-fi
+MAIN_ONLY=""
+for arg in "$@"; do
+  case "${arg}" in
+    --dry-run) DRY="--dry-run" ;;
+    --main-only) MAIN_ONLY=1 ;;
+  esac
+done
 
 PLATFORMS=(
   vanity-address-darwin-arm64
@@ -40,10 +45,12 @@ require_wasm() {
   fi
 }
 
-require_bin vanity-address-darwin-arm64 vanity-address
-require_bin vanity-address-darwin-x64 vanity-address
-require_bin vanity-address-linux-x64 vanity-address
-require_bin vanity-address-win32-x64 vanity-address.exe
+if [[ -z "${MAIN_ONLY}" ]]; then
+  require_bin vanity-address-darwin-arm64 vanity-address
+  require_bin vanity-address-darwin-x64 vanity-address
+  require_bin vanity-address-linux-x64 vanity-address
+  require_bin vanity-address-win32-x64 vanity-address.exe
+fi
 
 require_wasm nodejs
 require_wasm bundler
@@ -65,7 +72,9 @@ check_host_binary_version() {
     exit 1
   fi
 }
-check_host_binary_version
+if [[ -z "${MAIN_ONLY}" ]]; then
+  check_host_binary_version
+fi
 
 # An expired token makes `npm publish` fail with a misleading 404.
 ensure_npm_login() {
@@ -85,10 +94,12 @@ if [[ -z "${DRY}" ]]; then
   ensure_npm_login
 fi
 
-for dir in "${PLATFORMS[@]}"; do
-  echo "==> Publishing ${dir}"
-  (cd "${ROOT}/npm/${dir}" && npm publish --access public ${DRY})
-done
+if [[ -z "${MAIN_ONLY}" ]]; then
+  for dir in "${PLATFORMS[@]}"; do
+    echo "==> Publishing ${dir}"
+    (cd "${ROOT}/npm/${dir}" && npm publish --access public ${DRY})
+  done
+fi
 
 echo "==> Publishing vanity-address (main)"
 (cd "${ROOT}/npm/vanity-address" && npm publish --access public ${DRY})

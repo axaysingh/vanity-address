@@ -109,6 +109,13 @@ npm login
 ./scripts/publish-npm.sh
 ```
 
+**Docs/metadata-only patch** (no new CLI binaries / no new GitHub Release): bump only `npm/vanity-address/package.json` (leave `optionalDependencies` on the last released binary version), then:
+
+```bash
+./scripts/publish-npm.sh --main-only --dry-run
+./scripts/publish-npm.sh --main-only
+```
+
 ### Local smoke test (after prepare)
 
 ```bash

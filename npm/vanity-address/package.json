@@ -1,6 +1,6 @@
 {
   "name": "vanity-address",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Fast, offline, multi-chain vanity address generator — CLI + WASM SDK, no telemetry",
   "license": "MIT",
   "author": "yudizaxay",
@@ -17,13 +17,32 @@
     "url": "https://github.com/yudizaxay/vanity-address/issues"
   },
   "keywords": [
+    "vanity-address",
     "vanity",
+    "vanity-wallet",
+    "vanity-generator",
+    "address-generator",
+    "wallet-generator",
+    "offline",
+    "wasm",
+    "cli",
+    "npx",
+    "cryptocurrency",
     "solana",
     "ethereum",
+    "evm",
     "bitcoin",
-    "cryptocurrency",
-    "cli",
-    "wallet"
+    "tron",
+    "ton",
+    "sui",
+    "cardano",
+    "xrp",
+    "dogecoin",
+    "litecoin",
+    "near",
+    "kaspa",
+    "stellar",
+    "create2"
   ],
   "bin": {
     "vanity-address": "bin/cli.js"
